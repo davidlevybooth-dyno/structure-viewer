@@ -2,6 +2,12 @@
 
 import { useState } from 'react';
 import MolstarViewer from '@/components/MolstarViewer';
+import { SequenceInterface } from '@/components/sequence-interface';
+import { usePDBSequence } from '@/hooks/use-pdb-sequence';
+import { SlidingSidebar } from '@/components/ui/SlidingSidebar';
+import { StructureLoader } from '@/components/ui/StructureLoader';
+import { AgentPlaceholder } from '@/components/ui/AgentPlaceholder';
+import { AppHeader } from '@/components/ui/AppHeader';
 import type { PluginUIContext } from 'molstar/lib/mol-plugin-ui/context';
 
 export default function Home() {
@@ -9,8 +15,23 @@ export default function Home() {
   const [inputValue, setInputValue] = useState('1CRN');
   const [isViewerReady, setIsViewerReady] = useState(false);
 
-  const handleViewerReady = (pluginInstance: PluginUIContext) => {
+  const { data: sequenceData, isLoading: isSequenceLoading, error: sequenceError } = usePDBSequence(pdbId, {
+    onDataLoaded: (data) => {
+      console.log('PDB sequence data loaded:', data);
+    },
+    onError: (error) => {
+      console.error('Failed to load PDB sequence data:', error);
+    },
+  });
+
+  const handleViewerReady = (plugin: PluginUIContext) => {
     setIsViewerReady(true);
+  };
+
+  const handleStructureLoaded = (loadedPdbId: string) => {
+    console.log('Structure loaded:', loadedPdbId);
+    // The sequence extraction will be triggered automatically by the useMolstarSequence hook
+    // when it detects the structure change
   };
 
   const handleError = (error: string) => {
@@ -23,107 +44,79 @@ export default function Home() {
     }
   };
 
-  const exampleStructures = [
-    { id: '1CRN', name: 'Crambin (small)' },
-    { id: '4HHB', name: 'Hemoglobin' },
-    { id: '6M0J', name: 'COVID Spike' },
-    { id: '7MT0', name: 'AAV9 Capsid' },
-  ];
-
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Sliding Sidebar */}
+      <SlidingSidebar>
+        <StructureLoader
+          inputValue={inputValue}
+          onInputChange={setInputValue}
+          onLoadStructure={handleLoadStructure}
+          isViewerReady={isViewerReady}
+          currentPdbId={pdbId}
+        />
+        <AgentPlaceholder />
+      </SlidingSidebar>
+
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <h1 className="text-2xl font-bold text-gray-900">
-              Dyno Structure Viewer
-            </h1>
-            <div className="text-sm text-gray-500">
-              Powered by Mol* | Status: {isViewerReady ? '✅ Ready' : '⏳ Loading...'}
-            </div>
-          </div>
-        </div>
-      </header>
+      <AppHeader isViewerReady={isViewerReady} />
 
+      {/* Main Content Area */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          
-          {/* Controls Panel */}
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-lg font-semibold mb-4">Load Structure</h2>
-              
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    PDB ID
-                  </label>
-                  <div className="flex space-x-2">
-                    <input
-                      type="text"
-                      value={inputValue}
-                      onChange={(e) => setInputValue(e.target.value.toUpperCase())}
-                      placeholder="e.g., 1CRN"
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      onKeyDown={(e) => e.key === 'Enter' && handleLoadStructure()}
-                    />
-                    <button
-                      onClick={handleLoadStructure}
-                      disabled={!isViewerReady}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
-                    >
-                      Load
-                    </button>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Examples
-                  </label>
-                  <div className="space-y-2">
-                    {exampleStructures.map((structure) => (
-                      <button
-                        key={structure.id}
-                        onClick={() => {
-                          setInputValue(structure.id);
-                          setPdbId(structure.id);
-                        }}
-                        disabled={!isViewerReady}
-                        className="w-full text-left px-3 py-2 text-sm bg-gray-50 hover:bg-gray-100 rounded border disabled:opacity-50"
-                      >
-                        <div className="font-mono text-blue-600">{structure.id}</div>
-                        <div className="text-xs text-gray-600">{structure.name}</div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {isViewerReady && (
-                  <div className="mt-6 p-3 bg-blue-50 rounded">
-                    <div className="text-sm font-medium text-blue-900">
-                      Current: {pdbId}
-                    </div>
-                    <div className="text-xs text-blue-700 mt-1">
-                      Sequence panel hidden ✓
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
+        <div className="space-y-6">
           {/* Molstar Viewer */}
-          <div className="lg:col-span-3">
-            <div className="bg-white rounded-lg shadow overflow-hidden">
-              <MolstarViewer
-                pdbId={pdbId}
-                className="h-[600px]"
-                onReady={handleViewerReady}
-                onError={handleError}
+          <div className="bg-white rounded-lg shadow overflow-hidden">
+            <MolstarViewer
+              pdbId={pdbId}
+              className="h-96"
+              onReady={handleViewerReady}
+              onStructureLoaded={handleStructureLoaded}
+              onError={handleError}
+            />
+          </div>
+          
+          {/* Sequence Interface */}
+          <div className="bg-white rounded-lg shadow overflow-hidden">
+            {sequenceError ? (
+              <div className="p-6 text-center">
+                <div className="text-red-600 mb-2">Failed to load sequence data</div>
+                <div className="text-sm text-gray-500">{sequenceError}</div>
+              </div>
+            ) : isSequenceLoading ? (
+              <div className="p-6 text-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                <div className="text-gray-600">Loading sequence data from PDB...</div>
+              </div>
+            ) : sequenceData ? (
+              <SequenceInterface 
+                data={sequenceData}
+                initialConfig={{
+                  colorScheme: 'default',
+                  showChainLabels: true,
+                }}
+                callbacks={{
+                  onSelectionChange: (selection) => {
+                    console.log('Selection changed:', selection);
+                    // TODO: Update structure highlighting
+                  },
+                  onHighlightChange: (residues) => {
+                    console.log('Highlight changed:', residues);
+                    // TODO: Update structure hover highlighting
+                  },
+                  onSequenceCopy: (sequence, region) => {
+                    console.log('Sequence copied:', sequence, region);
+                  },
+                  onRegionAction: (action, region) => {
+                    console.log('Region action:', action, region);
+                  },
+                }}
+                className="min-h-96"
               />
-            </div>
+            ) : (
+              <div className="p-6 text-center text-gray-500">
+                No sequence data available
+              </div>
+            )}
           </div>
         </div>
       </div>

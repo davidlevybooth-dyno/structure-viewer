@@ -14,7 +14,7 @@ import type {
 /**
  * Create a custom Molstar plugin specification
  */
-export function createMolstarSpec(config: MolstarConfig = {}): PluginUISpec {
+export async function createMolstarSpec(config: MolstarConfig = {}): Promise<PluginUISpec> {
   const spec = DefaultPluginUISpec();
   
   // Configure layout
@@ -42,11 +42,12 @@ export function createMolstarSpec(config: MolstarConfig = {}): PluginUISpec {
 
   // Configure canvas
   if (config.backgroundColor) {
+    const { Color } = await import('molstar/lib/mol-util/color');
     spec.canvas3d = {
       ...spec.canvas3d,
       renderer: {
         ...spec.canvas3d?.renderer,
-        backgroundColor: config.backgroundColor,
+        backgroundColor: Color(config.backgroundColor),
       },
     };
   }

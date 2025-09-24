@@ -9,7 +9,7 @@ export interface StructureLoadingState {
 
 export interface LoadStructureOptions {
   pdbId: string;
-  representation?: 'cartoon' | 'ball-and-stick' | 'spacefill' | 'surface' | 'line';
+  representation?: 'cartoon' | 'ball-and-stick' | 'spacefill' | 'line' | 'backbone' | 'label';
   colorScheme?: 'chain-id' | 'sequence-id' | 'element-symbol' | 'uniform';
   autoFocus?: boolean;
 }
@@ -96,7 +96,9 @@ export function useStructureLoader(
 
       // Focus camera if requested
       if (autoFocus && structure.data) {
-        plugin.managers.camera.focusLoci(structure.data);
+        const { StructureElement } = await import('molstar/lib/mol-model/structure');
+        const loci = StructureElement.Loci.all(structure.data);
+        plugin.managers.camera.focusLoci(loci);
       }
 
       // Update state

@@ -35,20 +35,12 @@ export interface MolstarViewerProps {
   onError?: (error: string) => void;
 }
 
-/**
- * Main Molstar viewer component
- * 
- * This component follows clean code principles:
- * - Single Responsibility: Only orchestrates the viewer
- * - Composition: Built from smaller, focused components
- * - Separation of Concerns: Business logic in hooks, presentation in UI components
- * - Well-defined Interface: Clear prop types and contracts
- */
+/* Main Molstar viewer component */
 export function MolstarViewer({
   pdbId,
   className = '',
   config = {
-    hideSequencePanel: true,
+    hideSequencePanel: false,
     hideLogPanel: true,
     hideLeftPanel: true,
     showRightPanel: false,
