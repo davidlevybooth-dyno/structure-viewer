@@ -8,25 +8,11 @@ import type {
   SelectionRegion,
   SequenceResidue,
   SequenceData,
-  SequenceInterfaceConfig,
 } from '../types';
-
-// Default configuration
-const DEFAULT_CONFIG: SequenceInterfaceConfig = {
-  residuesPerRow: 50,
-  showPositions: true,
-  showChainLabels: true,
-  colorScheme: 'default',
-  selectionMode: 'range',
-  enableCopyPaste: true,
-  showScrollIndicators: true,
-  numberingInterval: 5, // Show numbers every 5 residues
-};
 
 // Initial state
 const initialState: SequenceInterfaceState = {
   data: { id: '', name: '', chains: [] },
-  config: DEFAULT_CONFIG,
   selection: {
     regions: [],
     activeRegion: null,
@@ -51,11 +37,6 @@ function sequenceInterfaceReducer(
         error: null,
       };
 
-    case 'UPDATE_CONFIG':
-      return {
-        ...state,
-        config: { ...state.config, ...action.payload },
-      };
 
     case 'SET_SELECTION':
       return {
@@ -137,7 +118,6 @@ interface SequenceSelectionContextType {
   dispatch: React.Dispatch<SequenceInterfaceAction>;
   // Convenience methods
   setData: (data: SequenceData) => void;
-  updateConfig: (config: Partial<SequenceInterfaceConfig>) => void;
   addSelectionRegion: (region: SelectionRegion) => void;
   removeSelectionRegion: (regionId: string) => void;
   setActiveRegion: (regionId: string | null) => void;
@@ -164,8 +144,7 @@ export function SequenceSelectionProvider({ children }: { children: React.ReactN
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
         const parsedState = JSON.parse(saved);
-        // Only restore selection and config, not data
-        dispatch({ type: 'UPDATE_CONFIG', payload: parsedState.config || {} });
+        // Only restore selection, not data
         dispatch({ type: 'SET_SELECTION', payload: parsedState.selection || { regions: [], activeRegion: null, clipboard: null } });
       }
     } catch (error) {
@@ -177,23 +156,19 @@ export function SequenceSelectionProvider({ children }: { children: React.ReactN
   useEffect(() => {
     try {
       const stateToSave = {
-        config: state.config,
         selection: state.selection,
       };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(stateToSave));
     } catch (error) {
       console.warn('Failed to save sequence interface state to localStorage:', error);
     }
-  }, [state.config, state.selection]);
+  }, [state.selection]);
 
   // Convenience methods
   const setData = useCallback((data: SequenceData) => {
     dispatch({ type: 'SET_DATA', payload: data });
   }, []);
 
-  const updateConfig = useCallback((config: Partial<SequenceInterfaceConfig>) => {
-    dispatch({ type: 'UPDATE_CONFIG', payload: config });
-  }, []);
 
   const addSelectionRegion = useCallback((region: SelectionRegion) => {
     dispatch({ type: 'ADD_SELECTION_REGION', payload: region });
@@ -239,7 +214,6 @@ export function SequenceSelectionProvider({ children }: { children: React.ReactN
     state,
     dispatch,
     setData,
-    updateConfig,
     addSelectionRegion,
     removeSelectionRegion,
     setActiveRegion,

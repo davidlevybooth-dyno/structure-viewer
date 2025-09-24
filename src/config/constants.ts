@@ -1,14 +1,10 @@
-/**
- * Application constants
- */
-
 import type { RepresentationType, ColorScheme } from '@/types/molstar';
 
 export const EXAMPLE_STRUCTURES = [
+  { id: '7MT0', name: 'AAV9 Capsid' },
   { id: '1CRN', name: 'Crambin (small protein)' },
   { id: '4HHB', name: 'Hemoglobin (classic)' },
   { id: '6M0J', name: 'COVID-19 Spike Protein' },
-  { id: '7MT0', name: 'AAV9 Capsid' },
   { id: '3PQR', name: 'With ligands' },
   { id: '1BNA', name: 'DNA double helix' },
 ] as const;

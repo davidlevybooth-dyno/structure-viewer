@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Dyno Structure Viewer",
-  description: "Molecular structure viewer powered by Mol*",
+  title: "Chaperone",
+  description: "Protein structure viewer",
 };
 
 export default function RootLayout({

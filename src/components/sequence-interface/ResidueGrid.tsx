@@ -3,15 +3,19 @@ import { useSequenceSelection } from './context/SequenceSelectionContext';
 import { getResidueColor, getResidueInfo } from '@/lib/amino-acid-colors';
 import type {
   SequenceData,
-  SequenceInterfaceConfig,
   SequenceSelection,
   SequenceResidue,
   SelectionRegion,
 } from './types';
 
+// Constants - these are hardcoded values that don't need to be configurable
+const DEFAULT_RESIDUES_PER_ROW = 40;
+const SHOW_CHAIN_LABELS = true;
+const SHOW_POSITIONS = true;
+const DEFAULT_COLOR_SCHEME = 'default';
+
 interface ResidueGridProps {
   data: SequenceData;
-  config: SequenceInterfaceConfig;
   selection: SequenceSelection;
   highlightedResidues: SequenceResidue[];
   readOnly?: boolean;
@@ -28,7 +32,6 @@ interface ResidueGridProps {
  */
 export function ResidueGrid({
   data,
-  config,
   selection,
   highlightedResidues,
   readOnly = false,
@@ -46,7 +49,7 @@ export function ResidueGrid({
   const [dragStart, setDragStart] = useState<{ chainId: string; position: number } | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [dragRegion, setDragRegion] = useState<SelectionRegion | null>(null);
-  const [residuesPerRow, setResiduesPerRow] = useState(config.residuesPerRow);
+  const [residuesPerRow, setResiduesPerRow] = useState(DEFAULT_RESIDUES_PER_ROW);
   const gridRef = useRef<HTMLDivElement>(null);
 
   // Responsive residues per row based on container width
@@ -65,15 +68,15 @@ export function ResidueGrid({
           containerWidth,
           availableWidth,
           calculatedResidues,
-          currentConfig: config.residuesPerRow,
+          currentConfig: DEFAULT_RESIDUES_PER_ROW,
           currentState: residuesPerRow
         });
         
-        // For now, let's just use config value and ensure scrolling works
+        // For now, let's just use default value and ensure scrolling works
         // We can make this truly responsive later
-        if (residuesPerRow !== config.residuesPerRow) {
-          console.log('Resetting to config value:', config.residuesPerRow);
-          setResiduesPerRow(config.residuesPerRow);
+        if (residuesPerRow !== DEFAULT_RESIDUES_PER_ROW) {
+          console.log('Resetting to default value:', DEFAULT_RESIDUES_PER_ROW);
+          setResiduesPerRow(DEFAULT_RESIDUES_PER_ROW);
         }
       }
     };
@@ -94,7 +97,7 @@ export function ResidueGrid({
       clearTimeout(timer);
       resizeObserver.disconnect();
     };
-  }, [config.residuesPerRow]); // Remove residuesPerRow from deps to prevent infinite loop
+  }, []); // No dependencies needed since we use constants
 
   // Check if a residue is in any selection region or drag region
   const isResidueSelected = useCallback((residue: SequenceResidue) => {
@@ -136,43 +139,25 @@ export function ResidueGrid({
     
     event.preventDefault();
 
-    if (config.selectionMode === 'single') {
-      // Single selection mode - replace current selection
-      const newRegion: SelectionRegion = {
-        id: `${residue.chainId}-${residue.position}`,
-        chainId: residue.chainId,
-        start: residue.position,
-        end: residue.position,
-        sequence: residue.code,
-        label: `${residue.chainId}:${residue.position}`,
-      };
-      addSelectionRegion(newRegion);
-    } else if (config.selectionMode === 'multiple') {
-      // Multiple selection mode - toggle individual residues
-      const existingRegion = getResidueRegion(residue);
-      if (existingRegion) {
-        removeSelectionRegion(existingRegion.id);
-      } else {
-        const newRegion: SelectionRegion = {
-          id: `${residue.chainId}-${residue.position}`,
-          chainId: residue.chainId,
-          start: residue.position,
-          end: residue.position,
-          sequence: residue.code,
-          label: `${residue.chainId}:${residue.position}`,
-        };
-        addSelectionRegion(newRegion);
-      }
-    }
-  }, [readOnly, config.selectionMode, getResidueRegion, addSelectionRegion, removeSelectionRegion]);
+    // Range selection mode - always enabled
+    const newRegion: SelectionRegion = {
+      id: `${residue.chainId}-${residue.position}`,
+      chainId: residue.chainId,
+      start: residue.position,
+      end: residue.position,
+      sequence: residue.code,
+      label: `${residue.chainId}:${residue.position}`,
+    };
+    addSelectionRegion(newRegion);
+  }, [readOnly, addSelectionRegion]);
 
   // Handle mouse down for drag selection
   const handleMouseDown = useCallback((residue: SequenceResidue) => {
-    if (readOnly || config.selectionMode !== 'range') return;
+    if (readOnly) return;
     
     setIsDragging(true);
     setDragStart(residue);
-  }, [readOnly, config.selectionMode]);
+  }, [readOnly]);
 
   // Track if modifier key is pressed for multi-selection
   const [isAddMode, setIsAddMode] = useState(false);
@@ -224,7 +209,14 @@ export function ResidueGrid({
     setDragRegion(null);
   }, [dragRegion, isAddMode, addSelectionRegion, replaceSelection]);
 
-  // Handle mouse leave
+  // Handle mouse leave (for individual residues)
+  const handleResidueMouseLeave = useCallback(() => {
+    if (!isDragging && !readOnly) {
+      setHighlightedResidues([]);
+    }
+  }, [isDragging, setHighlightedResidues, readOnly]);
+
+  // Handle mouse leave (for entire grid)
   const handleMouseLeave = useCallback(() => {
     if (!isDragging && !readOnly) {
       setHighlightedResidues([]);
@@ -258,14 +250,14 @@ export function ResidueGrid({
 
   // Handle double-click to copy sequence
   const handleDoubleClick = useCallback((residue: SequenceResidue) => {
-    if (readOnly || !config.enableCopyPaste) return;
+    if (readOnly) return;
     
     const region = getResidueRegion(residue);
     if (region) {
       const sequence = getSelectionSequence(region);
       copyToClipboard(sequence);
     }
-  }, [readOnly, config.enableCopyPaste, getResidueRegion, getSelectionSequence, copyToClipboard]);
+  }, [readOnly, getResidueRegion, getSelectionSequence, copyToClipboard]);
 
   return (
     <div
@@ -308,7 +300,7 @@ export function ResidueGrid({
         return (
           <div key={chain.id} className="chain-section mb-8">
             {/* Chain header */}
-            {config.showChainLabels && (
+            {SHOW_CHAIN_LABELS && (
               <div className="chain-header mb-3 pb-2 border-b border-gray-200">
                 <div className="flex items-baseline justify-between">
                   <h3 className="text-base font-semibold text-gray-800">
@@ -328,7 +320,7 @@ export function ResidueGrid({
                 return (
                   <div key={rowIndex} className="sequence-row">
                     {/* Position numbers - every odd number, aligned above residues */}
-                    {config.showPositions && (
+                    {SHOW_POSITIONS && (
                         <div className="mb-1">
                           <div className="text-xs text-gray-400 text-center" style={{ 
                             display: 'grid',
@@ -382,11 +374,12 @@ export function ResidueGrid({
                                     ? '#FFD700' // Gold for selection
                                     : highlighted 
                                       ? '#245F73' // Your specified hover color
-                                      : getResidueColor(residue.code, config.colorScheme),
+                                      : getResidueColor(residue.code, DEFAULT_COLOR_SCHEME),
                                 }}
                                 onClick={(e) => handleResidueClick(residue, e)}
                                 onMouseDown={() => handleMouseDown(residue)}
                                 onMouseEnter={() => handleMouseEnter(residue)}
+                                onMouseLeave={handleResidueMouseLeave}
                                 onDoubleClick={() => handleDoubleClick(residue)}
                                 title={`${residueInfo.name} (${residue.code}${residue.position}) - Chain ${residue.chainId}${region ? ` - Region: ${region.label}` : ''}`}
                               >

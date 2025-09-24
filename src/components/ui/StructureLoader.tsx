@@ -1,9 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 interface StructureLoaderProps {
-  inputValue: string;
-  onInputChange: (value: string) => void;
-  onLoadStructure: () => void;
+  initialValue?: string;
+  onLoadStructure: (pdbId: string) => void;
   isViewerReady: boolean;
   currentPdbId: string;
 }
@@ -16,16 +15,26 @@ const EXAMPLE_STRUCTURES = [
 ];
 
 export function StructureLoader({
-  inputValue,
-  onInputChange,
+  initialValue = '7MT0',
   onLoadStructure,
   isViewerReady,
   currentPdbId,
 }: StructureLoaderProps) {
+  const [inputValue, setInputValue] = useState(initialValue);
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
-      onLoadStructure();
+      onLoadStructure(inputValue);
     }
+  };
+
+  const handleLoadClick = () => {
+    onLoadStructure(inputValue);
+  };
+
+  const handleExampleClick = (structureId: string) => {
+    setInputValue(structureId);
+    onLoadStructure(structureId);
   };
 
   return (
@@ -42,13 +51,13 @@ export function StructureLoader({
             <input
               type="text"
               value={inputValue}
-              onChange={(e) => onInputChange(e.target.value.toUpperCase())}
+              onChange={(e) => setInputValue(e.target.value.toUpperCase())}
               placeholder="e.g., 1CRN"
               className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               onKeyDown={handleKeyDown}
             />
             <button
-              onClick={onLoadStructure}
+              onClick={handleLoadClick}
               disabled={!isViewerReady}
               className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
             >
@@ -66,11 +75,7 @@ export function StructureLoader({
             {EXAMPLE_STRUCTURES.map((structure) => (
               <button
                 key={structure.id}
-                onClick={() => {
-                  onInputChange(structure.id);
-                  // Auto-load the example structure
-                  setTimeout(() => onLoadStructure(), 0);
-                }}
+                onClick={() => handleExampleClick(structure.id)}
                 disabled={!isViewerReady}
                 className="w-full text-left px-3 py-2 text-sm bg-gray-50 hover:bg-gray-100 rounded border disabled:opacity-50"
               >

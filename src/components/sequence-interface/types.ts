@@ -43,15 +43,7 @@ export interface SequenceSelection {
   clipboard: string | null;
 }
 
-// Configuration
-export interface SequenceInterfaceConfig {
-  residuesPerRow: number;
-  showPositions: boolean;
-  showChainLabels: boolean;
-  colorScheme: string;
-  selectionMode: 'single' | 'multiple' | 'range';
-  enableCopyPaste: boolean;
-}
+// Configuration is now handled by constants in individual components
 
 // Callbacks and events
 export interface SequenceInterfaceCallbacks {
@@ -66,8 +58,6 @@ export interface SequenceInterfaceCallbacks {
 export interface SequenceInterfaceProps {
   /** Sequence data to display */
   data: SequenceData;
-  /** Initial configuration */
-  initialConfig?: Partial<SequenceInterfaceConfig>;
   /** Event callbacks */
   callbacks?: SequenceInterfaceCallbacks;
   /** CSS class name */
@@ -79,7 +69,6 @@ export interface SequenceInterfaceProps {
 // Context state
 export interface SequenceInterfaceState {
   data: SequenceData;
-  config: SequenceInterfaceConfig;
   selection: SequenceSelection;
   highlightedResidues: SequenceResidue[];
   isLoading: boolean;
@@ -89,7 +78,6 @@ export interface SequenceInterfaceState {
 // Actions for useReducer
 export type SequenceInterfaceAction =
   | { type: 'SET_DATA'; payload: SequenceData }
-  | { type: 'UPDATE_CONFIG'; payload: Partial<SequenceInterfaceConfig> }
   | { type: 'SET_SELECTION'; payload: SequenceSelection }
   | { type: 'ADD_SELECTION_REGION'; payload: SelectionRegion }
   | { type: 'REMOVE_SELECTION_REGION'; payload: string }

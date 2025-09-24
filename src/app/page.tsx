@@ -2,8 +2,7 @@
 
 import { useState } from 'react';
 import MolstarViewer from '@/components/MolstarViewer';
-import { SequenceInterface } from '@/components/sequence-interface';
-import { usePDBSequence } from '@/hooks/use-pdb-sequence';
+import { SequenceViewer } from '@/components/SequenceViewer';
 import { SlidingSidebar } from '@/components/ui/SlidingSidebar';
 import { StructureLoader } from '@/components/ui/StructureLoader';
 import { AgentPlaceholder } from '@/components/ui/AgentPlaceholder';
@@ -11,18 +10,8 @@ import { AppHeader } from '@/components/ui/AppHeader';
 import type { PluginUIContext } from 'molstar/lib/mol-plugin-ui/context';
 
 export default function Home() {
-  const [pdbId, setPdbId] = useState('1CRN');
-  const [inputValue, setInputValue] = useState('1CRN');
+  const [pdbId, setPdbId] = useState('7MT0');
   const [isViewerReady, setIsViewerReady] = useState(false);
-
-  const { data: sequenceData, isLoading: isSequenceLoading, error: sequenceError } = usePDBSequence(pdbId, {
-    onDataLoaded: (data) => {
-      console.log('PDB sequence data loaded:', data);
-    },
-    onError: (error) => {
-      console.error('Failed to load PDB sequence data:', error);
-    },
-  });
 
   const handleViewerReady = (plugin: PluginUIContext) => {
     setIsViewerReady(true);
@@ -38,9 +27,9 @@ export default function Home() {
     // Error handling could be enhanced with user notifications
   };
 
-  const handleLoadStructure = () => {
-    if (inputValue.trim()) {
-      setPdbId(inputValue.trim().toUpperCase());
+  const handleLoadStructure = (newPdbId: string) => {
+    if (newPdbId.trim()) {
+      setPdbId(newPdbId.trim().toUpperCase());
     }
   };
 
@@ -49,8 +38,7 @@ export default function Home() {
       {/* Sliding Sidebar */}
       <SlidingSidebar>
         <StructureLoader
-          inputValue={inputValue}
-          onInputChange={setInputValue}
+          initialValue={pdbId}
           onLoadStructure={handleLoadStructure}
           isViewerReady={isViewerReady}
           currentPdbId={pdbId}
@@ -75,49 +63,18 @@ export default function Home() {
             />
           </div>
           
-          {/* Sequence Interface */}
-          <div className="bg-white rounded-lg shadow overflow-hidden">
-            {sequenceError ? (
-              <div className="p-6 text-center">
-                <div className="text-red-600 mb-2">Failed to load sequence data</div>
-                <div className="text-sm text-gray-500">{sequenceError}</div>
-              </div>
-            ) : isSequenceLoading ? (
-              <div className="p-6 text-center">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                <div className="text-gray-600">Loading sequence data from PDB...</div>
-              </div>
-            ) : sequenceData ? (
-              <SequenceInterface 
-                data={sequenceData}
-                initialConfig={{
-                  colorScheme: 'default',
-                  showChainLabels: true,
-                }}
-                callbacks={{
-                  onSelectionChange: (selection) => {
-                    console.log('Selection changed:', selection);
-                    // TODO: Update structure highlighting
-                  },
-                  onHighlightChange: (residues) => {
-                    console.log('Highlight changed:', residues);
-                    // TODO: Update structure hover highlighting
-                  },
-                  onSequenceCopy: (sequence, region) => {
-                    console.log('Sequence copied:', sequence, region);
-                  },
-                  onRegionAction: (action, region) => {
-                    console.log('Region action:', action, region);
-                  },
-                }}
-                className="min-h-96"
-              />
-            ) : (
-              <div className="p-6 text-center text-gray-500">
-                No sequence data available
-              </div>
-            )}
-          </div>
+          {/* Sequence Viewer */}
+          <SequenceViewer 
+            pdbId={pdbId}
+            onSelectionChange={(selection) => {
+              console.log('Selection changed:', selection);
+              // TODO: Update structure highlighting
+            }}
+            onHighlightChange={(residues) => {
+              console.log('Highlight changed:', residues);
+              // TODO: Update structure hover highlighting
+            }}
+          />
         </div>
       </div>
     </div>

@@ -14,6 +14,15 @@ export { SequenceSelectionProvider, useSequenceSelection } from './context/Seque
 // Individual components
 export { ResidueGrid } from './ResidueGrid';
 export { SelectionSummary } from './SelectionSummary';
+export { ChainSelector } from './ChainSelector';
+
+// Modular components
+export { SequenceHeader } from './components/SequenceHeader';
+export { ChainControls } from './components/ChainControls';
+export { ErrorState, EmptyState, LoadingState } from './components/ErrorStates';
+
+// Hooks
+export { useSequenceInterface } from './hooks/useSequenceInterface';
 
 // Types
 export type {
@@ -22,7 +31,6 @@ export type {
   SequenceResidue,
   SequenceSelection,
   SelectionRegion,
-  SequenceInterfaceConfig,
   SequenceInterfaceCallbacks,
   SequenceInterfaceProps,
   SequenceInterfaceState,
