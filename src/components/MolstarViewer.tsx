@@ -4,10 +4,12 @@ import { useEffect, useMemo, useCallback } from 'react';
 import type { PluginUIContext } from 'molstar/lib/mol-plugin-ui/context';
 import { useMolstarPlugin } from '@/hooks/use-molstar-plugin';
 import { useStructureLoader, type LoadStructureOptions } from '@/hooks/use-structure-loader';
+import { useBidirectionalHighlighting } from '@/hooks/use-bidirectional-highlighting';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { ErrorDisplay } from '@/components/ui/ErrorDisplay';
 import { MolstarContainer } from '@/components/ui/MolstarContainer';
 import { StatusIndicator } from '@/components/ui/StatusIndicator';
+import type { SelectionRegion, SequenceResidue } from '@/components/sequence-interface/types';
 
 type ViewerConfig = {
   hideSequencePanel?: boolean;
@@ -24,6 +26,10 @@ export interface MolstarViewerProps {
   onReady?: (plugin: PluginUIContext) => void;
   onStructureLoaded?: (pdbId: string) => void;
   onError?: (error: unknown) => void;
+  // Bidirectional highlighting props
+  selectedRegions?: SelectionRegion[];
+  hoveredResidues?: SequenceResidue[];
+  onStructureSelectionChange?: (regions: SelectionRegion[]) => void;
 }
 
 const DEFAULT_CONFIG: Required<ViewerConfig> = {
@@ -41,6 +47,9 @@ export function MolstarViewer({
   onReady,
   onStructureLoaded,
   onError,
+  selectedRegions = [],
+  hoveredResidues = [],
+  onStructureSelectionChange,
 }: MolstarViewerProps) {
   const mergedConfig = useMemo(
     () => ({ ...DEFAULT_CONFIG, ...(config ?? {}) }),
@@ -57,6 +66,14 @@ export function MolstarViewer({
     onStructureLoaded,
     onError,
   });
+
+  // Set up bidirectional highlighting
+  const { highlightSelection, highlightHover, clearStructureHighlights } = useBidirectionalHighlighting(
+    plugin,
+    {
+      onStructureSelectionChange,
+    }
+  );
 
   const mergedLoadOptions = useMemo<Omit<LoadStructureOptions, 'pdbId'>>(
     () => ({
@@ -85,6 +102,20 @@ export function MolstarViewer({
     loadStructure,
     mergedLoadOptions,
   ]);
+
+  // Handle sequence selection → structure highlighting
+  useEffect(() => {
+    if (!plugin || !pluginState.isInitialized) return;
+    
+    void highlightSelection(selectedRegions);
+  }, [selectedRegions, plugin, pluginState.isInitialized, highlightSelection]);
+
+  // Handle sequence hover → structure highlighting  
+  useEffect(() => {
+    if (!plugin || !pluginState.isInitialized) return;
+    
+    void highlightHover(hoveredResidues);
+  }, [hoveredResidues, plugin, pluginState.isInitialized, highlightHover]);
 
   const handleRetry = useCallback(() => {
     if (!plugin || !pdbId) {

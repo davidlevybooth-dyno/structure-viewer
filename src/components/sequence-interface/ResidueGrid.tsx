@@ -61,20 +61,9 @@ export const ResidueGrid = React.memo(function ResidueGrid({
         const padding = 48; // 6 * 8px padding on each side
         const availableWidth = containerWidth - padding;
         
-        // Each residue needs ~25px (24px + 1px gap)
         const residueWidth = 25;
         const calculatedResidues = Math.floor(availableWidth / residueWidth);
         
-        console.log('Responsive calculation:', {
-          containerWidth,
-          availableWidth,
-          calculatedResidues,
-          currentConfig: DEFAULT_RESIDUES_PER_ROW,
-          currentState: residuesPerRow
-        });
-        
-        // For now, let's just use default value and ensure scrolling works
-        // We can make this truly responsive later
         if (residuesPerRow !== DEFAULT_RESIDUES_PER_ROW) {
           console.log('Resetting to default value:', DEFAULT_RESIDUES_PER_ROW);
           setResiduesPerRow(DEFAULT_RESIDUES_PER_ROW);
@@ -98,9 +87,8 @@ export const ResidueGrid = React.memo(function ResidueGrid({
       clearTimeout(timer);
       resizeObserver.disconnect();
     };
-  }, []); // No dependencies needed since we use constants
+  }, []);
 
-  // Optimize lookups with Sets/Maps for O(1) performance
   const residueKey = useCallback((r: SequenceResidue) => `${r.chainId}:${r.position}`, []);
 
   // Pre-compute selection regions by chain for fast lookups
@@ -122,7 +110,6 @@ export const ResidueGrid = React.memo(function ResidueGrid({
 
   // Optimized selection check using Map lookup
   const isResidueSelected = useCallback((residue: SequenceResidue) => {
-    // Check actual selections
     const chainRegions = regionsByChain.get(residue.chainId);
     const inSelection = chainRegions?.some((region: SelectionRegion) =>
       residue.position >= region.start && residue.position <= region.end

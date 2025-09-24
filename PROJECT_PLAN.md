@@ -156,7 +156,15 @@ interface AgentAction {
 - [ ] **Difference Highlighting**: Show variations between structures
 - [ ] **Animation**: Morph between conformations
 
-### **5.2 Scientific Analysis Tools**
+### **5.2 Region Extraction & Isolation** 🔥 **HIGH PRIORITY**
+- [ ] **Chain Extraction**: Cut out specific chains from multi-chain structures
+- [ ] **Sequence Region Extraction**: Extract selected sequence regions as new structures
+- [ ] **Spatial Region Extraction**: Cut out regions within a distance from selection
+- [ ] **Export Options**: Export extracted regions as PDB/mmCIF files
+- [ ] **Visual Preview**: Show extraction preview before committing
+- [ ] **Undo/Redo**: Reversible extraction operations
+
+### **5.3 Scientific Analysis Tools**
 - [ ] **Conservation Analysis**: Evolutionary conservation scoring
 - [ ] **Domain Annotation**: Functional domain highlighting
 - [ ] **Binding Site Prediction**: AI-powered active site identification

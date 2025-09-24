@@ -15,14 +15,7 @@ export function SequenceViewer({
   onSelectionChange,
   onHighlightChange,
 }: SequenceViewerProps) {
-  const { data: sequenceData, isLoading: isSequenceLoading, error: sequenceError } = usePDBSequence(pdbId, {
-    onDataLoaded: (data) => {
-      console.log('PDB sequence data loaded:', data);
-    },
-    onError: (error) => {
-      console.error('Failed to load PDB sequence data:', error);
-    },
-  });
+  const { data: sequenceData, isLoading: isSequenceLoading, error: sequenceError } = usePDBSequence(pdbId);
 
   if (sequenceError) {
     return (
@@ -65,20 +58,8 @@ export function SequenceViewer({
           showChainLabels: true,
         }}
         callbacks={{
-          onSelectionChange: (selection) => {
-            console.log('Selection changed:', selection);
-            onSelectionChange?.(selection);
-          },
-          onHighlightChange: (residues) => {
-            console.log('Highlight changed:', residues);
-            onHighlightChange?.(residues);
-          },
-          onSequenceCopy: (sequence, region) => {
-            console.log('Sequence copied:', sequence, region);
-          },
-          onRegionAction: (action, region) => {
-            console.log('Region action:', action, region);
-          },
+          onSelectionChange,
+          onHighlightChange,
         }}
         className="min-h-96"
       />

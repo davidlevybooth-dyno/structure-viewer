@@ -1,26 +1,29 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import MolstarViewer from '@/components/MolstarViewer';
 import { SequenceViewer } from '@/components/SequenceViewer';
 import { SlidingSidebar } from '@/components/ui/SlidingSidebar';
 import { StructureLoader } from '@/components/ui/StructureLoader';
 import { AgentPlaceholder } from '@/components/ui/AgentPlaceholder';
 import { AppHeader } from '@/components/ui/AppHeader';
+import type { SelectionRegion, SequenceResidue, SequenceSelection } from '@/components/sequence-interface/types';
 import type { PluginUIContext } from 'molstar/lib/mol-plugin-ui/context';
 
 export default function Home() {
-  const [pdbId, setPdbId] = useState('7MT0');
+  const [pdbId, setPdbId] = useState('1CRN');
   const [isViewerReady, setIsViewerReady] = useState(false);
+
+  // State for bidirectional highlighting
+  const [selectedRegions, setSelectedRegions] = useState<SelectionRegion[]>([]);
+  const [hoveredResidues, setHoveredResidues] = useState<SequenceResidue[]>([]);
 
   const handleViewerReady = (plugin: PluginUIContext) => {
     setIsViewerReady(true);
   };
 
   const handleStructureLoaded = (loadedPdbId: string) => {
-    console.log('Structure loaded:', loadedPdbId);
-    // Sequence extraction triggered automatically by the useMolstarSequence hook
-    // when it detects the structure change
+    // Structure loaded successfully - sequence data will be fetched automatically
   };
 
   const handleError = (error: unknown) => {
@@ -32,6 +35,19 @@ export default function Home() {
       setPdbId(newPdbId.trim().toUpperCase());
     }
   };
+
+  // Stable callbacks to prevent infinite re-renders
+  const handleStructureSelectionChange = useCallback((regions: SelectionRegion[]) => {
+    // TODO: Implement structure → sequence highlighting when bidirectional support is ready
+  }, []);
+
+  const handleSequenceSelectionChange = useCallback((selection: SequenceSelection) => {
+    setSelectedRegions(selection.regions);
+  }, []);
+
+  const handleHighlightChange = useCallback((residues: SequenceResidue[]) => {
+    setHoveredResidues(residues);
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -60,20 +76,18 @@ export default function Home() {
               onReady={handleViewerReady}
               onStructureLoaded={handleStructureLoaded}
               onError={handleError}
+              selectedRegions={selectedRegions}
+              hoveredResidues={hoveredResidues}
+              onStructureSelectionChange={handleStructureSelectionChange}
             />
           </div>
+          
           
           {/* Sequence Viewer */}
           <SequenceViewer 
             pdbId={pdbId}
-            onSelectionChange={(selection) => {
-              console.log('Selection changed:', selection);
-              // TODO: Update structure highlighting
-            }}
-            onHighlightChange={(residues) => {
-              console.log('Highlight changed:', residues);
-              // TODO: Update structure hover highlighting
-            }}
+            onSelectionChange={handleSequenceSelectionChange}
+            onHighlightChange={handleHighlightChange}
           />
         </div>
       </div>

@@ -80,6 +80,11 @@ export function useSequenceInterface({
     callbacks?.onHighlightChange?.(residues);
   }, [callbacks]);
 
+  // Trigger onSelectionChange callback when selection state changes
+  useEffect(() => {
+    callbacks?.onSelectionChange?.(state.selection);
+  }, [state.selection, callbacks]);
+
   return {
     // State (single source of truth)
     state,
