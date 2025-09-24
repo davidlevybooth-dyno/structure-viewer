@@ -45,14 +45,17 @@ export interface SequenceSelection {
 
 // Configuration is now handled by constants in individual components
 
-// Callbacks and events
+// Callbacks and events - all optional for flexible usage
 export interface SequenceInterfaceCallbacks {
   onSelectionChange?: (selection: SequenceSelection) => void;
   onHighlightChange?: (residues: SequenceResidue[]) => void;
   onSequencePaste?: (sequence: string, position?: { chainId: string; position: number }) => void;
   onSequenceCopy?: (sequence: string, region: SelectionRegion) => void;
-  onRegionAction?: (action: string, region: SelectionRegion) => void;
+  onRegionAction?: (region: SelectionRegion | null, action: RegionAction) => void;
 }
+
+// Region actions for better type safety
+export type RegionAction = 'copy' | 'export' | 'highlight' | 'delete' | 'edit';
 
 // Component props
 export interface SequenceInterfaceProps {

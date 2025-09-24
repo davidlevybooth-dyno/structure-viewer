@@ -8,15 +8,15 @@ import { SequenceHeader } from './components/SequenceHeader';
 import { ChainControls } from './components/ChainControls';
 import { ErrorState, EmptyState, LoadingState } from './components/ErrorStates';
 import { useSequenceInterface } from './hooks/useSequenceInterface';
+import { cn } from './utils/cn';
 import type { SequenceInterfaceProps } from './types';
 
-function SequenceInterfaceInternal(props: SequenceInterfaceProps) {
-  const {
-    className = '',
-    readOnly = false,
-    callbacks = {},
-  } = props;
-
+function SequenceInterfaceInternal({
+  className = '',
+  readOnly = false,
+  callbacks,
+  ...rest
+}: SequenceInterfaceProps) {
   const {
     state,
     selectedChainIds,
@@ -24,37 +24,30 @@ function SequenceInterfaceInternal(props: SequenceInterfaceProps) {
     isMultiChain,
     isLargeStructure,
     totalResidues,
-    
     handleChainSelectionChange,
-    handleHighlightChange,
     clearSelection,
-  } = useSequenceInterface(props);
+    copyToClipboard,
+  } = useSequenceInterface({ readOnly, callbacks, ...rest });
 
-  // Loading state
   if (state.isLoading) {
     return <LoadingState className={className} />;
   }
-
-  // Error state
+  
   if (state.error) {
     return <ErrorState error={state.error} className={className} />;
   }
-
-  // Empty state
-  if (!state.data.chains.length) {
-    return <EmptyState className={className} />;
-  }
-
+  
   return (
-    <div className={`sequence-interface bg-white ${className}`}>
-      {/* Header */}
+    <section 
+      className={cn('sequence-interface bg-white', className)} 
+      aria-label="Protein sequence interface"
+    >
       <SequenceHeader 
         data={state.data} 
         selection={state.selection} 
         readOnly={readOnly} 
       />
 
-      {/* Chain controls for multi-chain structures */}
       {isMultiChain && (
         <ChainControls
           chains={originalData.chains}
@@ -65,7 +58,6 @@ function SequenceInterfaceInternal(props: SequenceInterfaceProps) {
         />
       )}
 
-      {/* Main sequence grid */}
       <div className="w-full">
         <ResidueGrid
           data={state.data}
@@ -75,16 +67,16 @@ function SequenceInterfaceInternal(props: SequenceInterfaceProps) {
         />
       </div>
 
-      {/* Selection summary footer */}
       {state.selection.regions.length > 0 && (
         <SelectionSummary
           selection={state.selection}
           onClearSelection={clearSelection}
-          onRegionAction={callbacks.onRegionAction}
+          onRegionAction={callbacks?.onRegionAction}
+          onCopy={copyToClipboard}
           readOnly={readOnly}
         />
       )}
-    </div>
+    </section>
   );
 }
 

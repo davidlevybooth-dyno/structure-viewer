@@ -22,7 +22,11 @@ export function ChainControls({
   }
 
   return (
-    <div className="border-b bg-gray-50 px-6 py-3">
+    <div 
+      className="border-b bg-gray-50 px-6 py-3" 
+      role="region" 
+      aria-label="Chain selection controls"
+    >
       <div className="flex items-center justify-between">
         <div className="flex-1 max-w-md">
           <ChainSelector
@@ -31,7 +35,7 @@ export function ChainControls({
             onSelectionChange={onSelectionChange}
           />
         </div>
-        <div className="text-xs text-gray-500">
+        <div className="text-xs text-gray-500" aria-live="polite">
           {selectedChainIds.length} of {chains.length} chains selected
           {chains.length > 6 && (
             <span className="ml-2 text-amber-600">• Large structure detected</span>

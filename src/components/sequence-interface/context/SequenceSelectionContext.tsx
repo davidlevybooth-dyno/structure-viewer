@@ -124,7 +124,7 @@ interface SequenceSelectionContextType {
   setHighlightedResidues: (residues: SequenceResidue[]) => void;
   clearSelection: () => void;
   replaceSelection: (region: SelectionRegion) => void;
-  copyToClipboard: (text: string) => void;
+  copyToClipboard: (text: string) => Promise<void>;
   getSelectionSequence: (region: SelectionRegion) => string;
 }
 
@@ -194,12 +194,14 @@ export function SequenceSelectionProvider({ children }: { children: React.ReactN
     dispatch({ type: 'SET_SELECTION', payload: { regions: [region], activeRegion: region.id, clipboard: state.selection.clipboard } });
   }, [state.selection.clipboard]);
 
-  const copyToClipboard = useCallback((text: string) => {
-    navigator.clipboard.writeText(text).then(() => {
+  const copyToClipboard = useCallback(async (text: string): Promise<void> => {
+    try {
+      await navigator.clipboard.writeText(text);
       dispatch({ type: 'SET_CLIPBOARD', payload: text });
-    }).catch((error) => {
+    } catch (error) {
       console.warn('Failed to copy to clipboard:', error);
-    });
+      throw error; // Re-throw so callers can handle
+    }
   }, []);
 
   const getSelectionSequence = useCallback((region: SelectionRegion) => {

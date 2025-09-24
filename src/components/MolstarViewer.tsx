@@ -1,119 +1,106 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useMemo, useCallback } from 'react';
 import type { PluginUIContext } from 'molstar/lib/mol-plugin-ui/context';
-
-// Custom hooks (business logic)
 import { useMolstarPlugin } from '@/hooks/use-molstar-plugin';
 import { useStructureLoader, type LoadStructureOptions } from '@/hooks/use-structure-loader';
-
-// UI Components (presentation)
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { ErrorDisplay } from '@/components/ui/ErrorDisplay';
 import { MolstarContainer } from '@/components/ui/MolstarContainer';
 import { StatusIndicator } from '@/components/ui/StatusIndicator';
 
+type ViewerConfig = {
+  hideSequencePanel?: boolean;
+  hideLogPanel?: boolean;
+  hideLeftPanel?: boolean;
+  showRightPanel?: boolean;
+};
+
 export interface MolstarViewerProps {
-  /** PDB ID to load initially */
   pdbId?: string;
-  /** CSS class name for the container */
   className?: string;
-  /** Configuration for the Molstar plugin */
-  config?: {
-    hideSequencePanel?: boolean;
-    hideLogPanel?: boolean;
-    hideLeftPanel?: boolean;
-    showRightPanel?: boolean;
-  };
-  /** Structure loading options */
+  config?: ViewerConfig;
   loadOptions?: Omit<LoadStructureOptions, 'pdbId'>;
-  /** Called when the Molstar plugin is ready */
   onReady?: (plugin: PluginUIContext) => void;
-  /** Called when a structure is successfully loaded */
   onStructureLoaded?: (pdbId: string) => void;
-  /** Called when an error occurs */
-  onError?: (error: string) => void;
+  onError?: (error: unknown) => void;
 }
 
-/* Main Molstar viewer component */
+const DEFAULT_CONFIG: Required<ViewerConfig> = {
+  hideSequencePanel: false,
+  hideLogPanel: true,
+  hideLeftPanel: true,
+  showRightPanel: false,
+};
+
 export function MolstarViewer({
   pdbId,
   className = '',
-  config = {
-    hideSequencePanel: false,
-    hideLogPanel: true,
-    hideLeftPanel: true,
-    showRightPanel: false,
-  },
-  loadOptions = {},
+  config,
+  loadOptions,
   onReady,
   onStructureLoaded,
   onError,
 }: MolstarViewerProps) {
-  // Plugin lifecycle management
+  const mergedConfig = useMemo(
+    () => ({ ...DEFAULT_CONFIG, ...(config ?? {}) }),
+    [config]
+  );
+
   const { containerRef, state: pluginState, plugin } = useMolstarPlugin({
-    config,
+    config: mergedConfig,
     onReady,
     onError,
   });
 
-  // Structure loading management  
   const { state: loadingState, loadStructure } = useStructureLoader(plugin, {
     onStructureLoaded,
     onError,
   });
 
-  // Load initial structure when plugin is ready and pdbId is provided
+  const mergedLoadOptions = useMemo<Omit<LoadStructureOptions, 'pdbId'>>(
+    () => ({
+      representation: 'cartoon',
+      colorScheme: 'chain-id',
+      autoFocus: true,
+      ...(loadOptions ?? {}),
+    }),
+    [loadOptions]
+  );
+
   useEffect(() => {
-    // Simple condition check - only load if everything is ready and we don't have this structure loaded
-    if (
-      pluginState.isInitialized && 
-      pdbId && 
-      plugin && 
-      !loadingState.isLoading &&
-      loadingState.currentPdbId !== pdbId.toUpperCase()
-    ) {
-      // Add a delay to ensure plugin is fully ready and reference is passed down
-      const timer = setTimeout(() => {
-        loadStructure({
-          pdbId,
-          representation: 'cartoon',
-          colorScheme: 'chain-id',
-          autoFocus: true,
-          ...loadOptions,
-        }).catch(() => {
-          // Error handled by useStructureLoader
-        });
-      }, 500);
+    if (!pluginState.isInitialized || !plugin || !pdbId) return;
+    if (loadingState.isLoading) return;
 
-      return () => clearTimeout(timer);
-    }
-  }, [pluginState.isInitialized, pdbId]);
+    const nextId = pdbId.toUpperCase();
+    if (loadingState.currentPdbId === nextId) return;
 
-  // Handle retry functionality
-  const handleRetry = () => {
-    if (pdbId && plugin) {
-      loadStructure({
-        pdbId,
-        representation: 'cartoon',
-        colorScheme: 'chain-id',
-        autoFocus: true,
-        ...loadOptions,
-      }).catch(() => {
-        // Error handled by useStructureLoader
-      });
-    } else {
+    void loadStructure({ pdbId: nextId, ...mergedLoadOptions });
+  }, [
+    pdbId,
+    plugin,
+    pluginState.isInitialized,
+    loadingState.isLoading,
+    loadingState.currentPdbId,
+    loadStructure,
+    mergedLoadOptions,
+  ]);
+
+  const handleRetry = useCallback(() => {
+    if (!plugin || !pdbId) {
       window.location.reload();
+      return;
     }
-  };
+    const nextId = pdbId.toUpperCase();
+    void loadStructure({ pdbId: nextId, ...mergedLoadOptions });
+  }, [plugin, pdbId, loadStructure, mergedLoadOptions]);
 
-  // Error state - prioritize plugin errors over loading errors
   if (pluginState.error) {
     return (
       <ErrorDisplay
         error={pluginState.error}
         title="Failed to Initialize Viewer"
-        onRetry={() => window.location.reload()}
+        onRetry={handleRetry}
         className={className}
       />
     );
@@ -130,29 +117,21 @@ export function MolstarViewer({
     );
   }
 
+  const isBusy = pluginState.isLoading || loadingState.isLoading;
+
   return (
-    <div className={`relative ${className}`}>
-      {/* Loading overlay */}
-      {(pluginState.isLoading || loadingState.isLoading) && (
-        <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-80 z-10">
-          <LoadingSpinner 
-            message={
-              pluginState.isLoading 
-                ? 'Initializing Molstar...' 
-                : `Loading ${pdbId}...`
-            }
+    <div className={`relative ${className}`} aria-busy={isBusy} aria-live="polite">
+      {isBusy && (
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/80">
+          <LoadingSpinner
+            message={pluginState.isLoading ? 'Initializing Mol*…' : (pdbId ? `Loading ${pdbId}…` : 'Loading…')}
             size="md"
           />
         </div>
       )}
-      
-      {/* Molstar container */}
-      <MolstarContainer 
-        ref={containerRef}
-        className="w-full h-full"
-      />
-      
-      {/* Status indicator */}
+
+      <MolstarContainer ref={containerRef} className="w-full h-full" />
+
       <StatusIndicator
         isReady={pluginState.isInitialized}
         currentStructure={loadingState.currentPdbId || undefined}

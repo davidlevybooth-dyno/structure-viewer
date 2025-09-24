@@ -1,12 +1,19 @@
 import React from 'react';
-import type { SequenceSelection, SelectionRegion } from './types';
+import type { SequenceSelection, SelectionRegion, RegionAction } from './types';
 
 interface SelectionSummaryProps {
   selection: SequenceSelection;
   onClearSelection: () => void;
-  onRegionAction?: (action: string, region: SelectionRegion) => void;
+  onRegionAction?: (region: SelectionRegion | null, action: RegionAction) => void;
+  onCopy?: (text: string) => Promise<void>;
   readOnly?: boolean;
 }
+
+// Helper to sort regions consistently
+const sortRegions = (regions: SelectionRegion[]) =>
+  [...regions].sort((a, b) => 
+    a.chainId === b.chainId ? a.start - b.start : a.chainId.localeCompare(b.chainId)
+  );
 
 /**
  * Selection summary footer showing selected regions and actions
@@ -15,6 +22,7 @@ export function SelectionSummary({
   selection,
   onClearSelection,
   onRegionAction,
+  onCopy,
   readOnly = false,
 }: SelectionSummaryProps) {
   if (selection.regions.length === 0) {
@@ -25,25 +33,24 @@ export function SelectionSummary({
     sum + (region.end - region.start + 1), 0
   );
 
-  const handleCopyAllRegions = () => {
-    // Sort regions by position before copying
-    const sortedRegions = [...selection.regions].sort((a, b) => {
-      if (a.chainId !== b.chainId) {
-        return a.chainId.localeCompare(b.chainId);
-      }
-      return a.start - b.start;
-    });
-    
-    const allSequences = sortedRegions.map(r => r.sequence).join('');
-    navigator.clipboard.writeText(allSequences).then(() => {
-      onRegionAction?.('copy-all', sortedRegions[0]);
-    }).catch(console.warn);
+  const handleCopyAllRegions = async () => {
+    const sorted = sortRegions(selection.regions);
+    const allSequences = sorted.map(r => r.sequence).join('');
+    try {
+      await onCopy?.(allSequences);
+      onRegionAction?.(null, 'copy'); // null indicates "all regions"
+    } catch (error) {
+      console.warn('Failed to copy:', error);
+    }
   };
 
-  const handleCopyRegion = (region: SelectionRegion) => {
-    navigator.clipboard.writeText(region.sequence).then(() => {
-      onRegionAction?.('copy', region);
-    }).catch(console.warn);
+  const handleCopyRegion = async (region: SelectionRegion) => {
+    try {
+      await onCopy?.(region.sequence);
+      onRegionAction?.(region, 'copy');
+    } catch (error) {
+      console.warn('Failed to copy:', error);
+    }
   };
 
   // Single region display

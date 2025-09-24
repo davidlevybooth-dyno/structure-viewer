@@ -23,6 +23,7 @@ export { ErrorState, EmptyState, LoadingState } from './components/ErrorStates';
 
 // Hooks
 export { useSequenceInterface } from './hooks/useSequenceInterface';
+export { usePerformanceOptimization } from './hooks/usePerformanceOptimization';
 
 // Types
 export type {
@@ -39,6 +40,7 @@ export type {
   SelectionRange,
   SequenceSelectionExport,
   SequenceColorScheme,
+  RegionAction,
 } from './types';
 
 // Utilities
@@ -49,3 +51,5 @@ export {
   getResidueInfo,
   getResidueGroup,
 } from '@/lib/amino-acid-colors';
+
+export { cn } from './utils/cn';

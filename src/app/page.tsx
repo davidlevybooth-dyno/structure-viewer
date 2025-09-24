@@ -19,12 +19,12 @@ export default function Home() {
 
   const handleStructureLoaded = (loadedPdbId: string) => {
     console.log('Structure loaded:', loadedPdbId);
-    // The sequence extraction will be triggered automatically by the useMolstarSequence hook
+    // Sequence extraction triggered automatically by the useMolstarSequence hook
     // when it detects the structure change
   };
 
-  const handleError = (error: string) => {
-    // Error handling could be enhanced with user notifications
+  const handleError = (error: unknown) => {
+    console.error('Structure loading error:', error);
   };
 
   const handleLoadStructure = (newPdbId: string) => {

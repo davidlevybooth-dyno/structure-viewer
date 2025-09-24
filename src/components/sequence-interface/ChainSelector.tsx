@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import type { SequenceChain } from './types';
 
 interface ChainSelectorProps {
@@ -16,16 +16,7 @@ export function ChainSelector({
 }: ChainSelectorProps) {
   const [isOpen, setIsOpen] = useState(false);
 
-  // Smart defaults: show max 3 chains, default to 1 if >3 chains
-  useEffect(() => {
-    if (selectedChainIds.length === 0 && chains.length > 0) {
-      const defaultSelection = chains.length > 3 
-        ? [chains[0].id] // Default to first chain if >3 chains
-        : chains.slice(0, 3).map(chain => chain.id); // Show up to 3 chains
-      
-      onSelectionChange(defaultSelection);
-    }
-  }, [chains, selectedChainIds.length, onSelectionChange]);
+  // Auto-selection is handled by the parent hook, not here
 
   const handleChainToggle = (chainId: string) => {
     const newSelection = selectedChainIds.includes(chainId)
@@ -43,20 +34,24 @@ export function ChainSelector({
     onSelectionChange([]);
   };
 
-  const handleSelectUnique = () => {
-    // Select only chains with unique sequences
-    const uniqueChains = chains.reduce((unique, chain) => {
-      const sequence = chain.residues.map(r => r.code).join('');
-      const isDuplicate = unique.some(c => 
-        c.residues.map(r => r.code).join('') === sequence
-      );
-      if (!isDuplicate) {
-        unique.push(chain);
-      }
-      return unique;
-    }, [] as SequenceChain[]);
+  // Optimize unique sequence detection with memoization
+  const uniqueChainIds = useMemo(() => {
+    const seen = new Set<string>();
+    const unique: string[] = [];
     
-    onSelectionChange(uniqueChains.map(chain => chain.id));
+    for (const chain of chains) {
+      const sequence = chain.residues.map(r => r.code).join('');
+      if (!seen.has(sequence)) {
+        seen.add(sequence);
+        unique.push(chain.id);
+      }
+    }
+    
+    return unique;
+  }, [chains]);
+
+  const handleSelectUnique = () => {
+    onSelectionChange(uniqueChainIds);
   };
 
   if (chains.length <= 1) {
@@ -72,9 +67,13 @@ export function ChainSelector({
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center justify-between w-full px-3 py-2 text-sm bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        aria-haspopup="listbox"
+        aria-expanded={isOpen}
+        aria-controls="chain-selector-listbox"
+        aria-label={`Select chains. Currently ${selectedCount} of ${totalChains} chains selected`}
       >
         <div className="flex items-center space-x-2">
-          <span className="text-gray-700">
+          <span className="text-gray-700" aria-live="polite">
             Chains: {selectedCount}/{totalChains}
           </span>
           {selectedCount > 0 && (
@@ -115,7 +114,12 @@ export function ChainSelector({
           />
           
           {/* Dropdown Content */}
-          <div className="absolute z-20 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+          <div 
+            id="chain-selector-listbox"
+            role="listbox"
+            aria-multiselectable="true"
+            className="absolute z-20 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto"
+          >
             {/* Quick Actions */}
             <div className="p-2 border-b border-gray-200 bg-gray-50">
               <div className="flex flex-wrap gap-1">
@@ -149,6 +153,8 @@ export function ChainSelector({
                 return (
                   <label
                     key={chain.id}
+                    role="option"
+                    aria-selected={isSelected}
                     className="flex items-center px-3 py-2 hover:bg-gray-50 cursor-pointer"
                   >
                     <input

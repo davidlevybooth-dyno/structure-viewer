@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, useEffect } from 'react';
+import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import { useSequenceSelection } from './context/SequenceSelectionContext';
 import { getResidueColor, getResidueInfo } from '@/lib/amino-acid-colors';
 import type {
@@ -29,8 +29,9 @@ interface ResidueGridProps {
  * - Modern scrollbar styling
  * - Multi-region selection support
  * - Copy/paste functionality
+ * - Memoized for performance with large structures
  */
-export function ResidueGrid({
+export const ResidueGrid = React.memo(function ResidueGrid({
   data,
   selection,
   highlightedResidues,
@@ -99,14 +100,33 @@ export function ResidueGrid({
     };
   }, []); // No dependencies needed since we use constants
 
-  // Check if a residue is in any selection region or drag region
+  // Optimize lookups with Sets/Maps for O(1) performance
+  const residueKey = useCallback((r: SequenceResidue) => `${r.chainId}:${r.position}`, []);
+
+  // Pre-compute selection regions by chain for fast lookups
+  const regionsByChain = useMemo(() => {
+    const byChain = new Map<string, SelectionRegion[]>();
+    for (const region of selection.regions) {
+      const existing = byChain.get(region.chainId) ?? [];
+      existing.push(region);
+      byChain.set(region.chainId, existing);
+    }
+    return byChain;
+  }, [selection.regions]);
+
+  // Pre-compute highlighted residues as Set for O(1) lookups
+  const highlightedSet = useMemo(
+    () => new Set(highlightedResidues.map(residueKey)),
+    [highlightedResidues, residueKey]
+  );
+
+  // Optimized selection check using Map lookup
   const isResidueSelected = useCallback((residue: SequenceResidue) => {
     // Check actual selections
-    const inSelection = selection.regions.some(region =>
-      region.chainId === residue.chainId &&
-      residue.position >= region.start &&
-      residue.position <= region.end
-    );
+    const chainRegions = regionsByChain.get(residue.chainId);
+    const inSelection = chainRegions?.some((region: SelectionRegion) =>
+      residue.position >= region.start && residue.position <= region.end
+    ) || false;
     
     // Check temporary drag region
     const inDragRegion = dragRegion &&
@@ -114,24 +134,21 @@ export function ResidueGrid({
       residue.position >= dragRegion.start &&
       residue.position <= dragRegion.end;
     
-    return inSelection || inDragRegion;
-  }, [selection.regions, dragRegion]);
+    return inSelection || !!inDragRegion;
+  }, [regionsByChain, dragRegion]);
 
-  // Check if a residue is highlighted
+  // Optimized highlight check using Set lookup
   const isResidueHighlighted = useCallback((residue: SequenceResidue) => {
-    return highlightedResidues.some(r =>
-      r.chainId === residue.chainId && r.position === residue.position
-    );
-  }, [highlightedResidues]);
+    return highlightedSet.has(residueKey(residue));
+  }, [highlightedSet, residueKey]);
 
-  // Get the selection region for a residue
+  // Optimized region lookup using Map
   const getResidueRegion = useCallback((residue: SequenceResidue) => {
-    return selection.regions.find(region =>
-      region.chainId === residue.chainId &&
-      residue.position >= region.start &&
-      residue.position <= region.end
+    const chainRegions = regionsByChain.get(residue.chainId);
+    return chainRegions?.find((region: SelectionRegion) =>
+      residue.position >= region.start && residue.position <= region.end
     );
-  }, [selection.regions]);
+  }, [regionsByChain]);
 
   // Handle residue click
   const handleResidueClick = useCallback((residue: SequenceResidue, event: React.MouseEvent) => {
@@ -249,13 +266,17 @@ export function ResidueGrid({
   }, [handleMouseUp]);
 
   // Handle double-click to copy sequence
-  const handleDoubleClick = useCallback((residue: SequenceResidue) => {
+  const handleDoubleClick = useCallback(async (residue: SequenceResidue) => {
     if (readOnly) return;
     
     const region = getResidueRegion(residue);
     if (region) {
       const sequence = getSelectionSequence(region);
-      copyToClipboard(sequence);
+      try {
+        await copyToClipboard(sequence);
+      } catch (error) {
+        console.warn('Failed to copy sequence:', error);
+      }
     }
   }, [readOnly, getResidueRegion, getSelectionSequence, copyToClipboard]);
 
@@ -362,7 +383,7 @@ export function ResidueGrid({
                               <div
                                 key={`${residue.chainId}-${residue.position}`}
                                 className={`
-                                  flex items-center justify-center font-mono cursor-pointer
+                                  flex items-center justify-center font-mono
                                   transition-all duration-150 text-white font-medium
                                   ${readOnly ? 'cursor-default' : 'cursor-pointer'}
                                 `}
@@ -400,4 +421,4 @@ export function ResidueGrid({
       })}
     </div>
   );
-}
+});
