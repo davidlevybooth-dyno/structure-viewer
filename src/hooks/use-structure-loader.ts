@@ -91,6 +91,13 @@ export function useStructureLoader(
       // Apply preset to create proper component separation (Water, Ligand, Ion, etc.)
       await plugin.builders.structure.hierarchy.applyPreset(structure, 'default');
 
+      // Also add the main representation for highlighting compatibility
+      // This ensures the highlighting system can find the expected representation structure
+      await plugin.builders.structure.representation.addRepresentation(structure, {
+        type: representation,
+        color: colorScheme,
+      });
+
       // Focus camera if requested
       if (autoFocus && structure.data) {
         const { StructureElement } = await import('molstar/lib/mol-model/structure');
