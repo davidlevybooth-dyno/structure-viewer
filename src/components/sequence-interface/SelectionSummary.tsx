@@ -79,6 +79,14 @@ export function SelectionSummary({
                 Copy
               </button>
               <button
+                onClick={() => onRegionAction?.(region, 'isolate')}
+                className="text-xs text-gray-500 hover:text-orange-600 transition-colors"
+                title="Isolate this region"
+                disabled={!onRegionAction}
+              >
+                Isolate
+              </button>
+              <button
                 onClick={onClearSelection}
                 className="text-xs text-gray-500 hover:text-red-600 transition-colors"
                 title="Clear selection"
@@ -128,6 +136,14 @@ export function SelectionSummary({
               title="Copy all sequences concatenated"
             >
               Copy All
+            </button>
+            <button
+              onClick={() => onRegionAction?.(null, 'isolate')}
+              className="text-xs text-gray-500 hover:text-orange-600 transition-colors"
+              title="Isolate all selected regions"
+              disabled={!onRegionAction}
+            >
+              Isolate All
             </button>
             <button
               onClick={onClearSelection}

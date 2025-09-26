@@ -88,11 +88,8 @@ export function useStructureLoader(
       const model = await plugin.builders.structure.createModel(trajectory);
       const structure = await plugin.builders.structure.createStructure(model);
 
-      // Apply representation
-      await plugin.builders.structure.representation.addRepresentation(structure, {
-        type: representation,
-        color: colorScheme,
-      });
+      // Apply preset to create proper component separation (Water, Ligand, Ion, etc.)
+      await plugin.builders.structure.hierarchy.applyPreset(structure, 'default');
 
       // Focus camera if requested
       if (autoFocus && structure.data) {
