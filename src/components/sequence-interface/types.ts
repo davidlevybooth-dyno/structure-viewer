@@ -55,7 +55,7 @@ export interface SequenceInterfaceCallbacks {
 }
 
 // Region actions for better type safety
-export type RegionAction = 'copy' | 'export' | 'highlight' | 'delete' | 'edit';
+export type RegionAction = 'copy' | 'export' | 'highlight' | 'delete' | 'edit' | 'isolate';
 
 // Component props
 export interface SequenceInterfaceProps {

@@ -7,7 +7,10 @@ import { SlidingSidebar } from '@/components/ui/SlidingSidebar';
 import { StructureLoader } from '@/components/ui/StructureLoader';
 import { AgentPlaceholder } from '@/components/ui/AgentPlaceholder';
 import { AppHeader } from '@/components/ui/AppHeader';
-import type { SelectionRegion, SequenceResidue, SequenceSelection } from '@/components/sequence-interface/types';
+import { RegionIsolationControls } from '@/components/ui/RegionIsolationControls';
+import { ComponentRemovalControls } from '@/components/ui/ComponentRemovalControls';
+import { isolateRegion } from '@/lib/molstar/isolation';
+import type { SelectionRegion, SequenceResidue, SequenceSelection, RegionAction } from '@/components/sequence-interface/types';
 import type { PluginUIContext } from 'molstar/lib/mol-plugin-ui/context';
 
 export default function Home() {
@@ -17,9 +20,13 @@ export default function Home() {
   // State for bidirectional highlighting
   const [selectedRegions, setSelectedRegions] = useState<SelectionRegion[]>([]);
   const [hoveredResidues, setHoveredResidues] = useState<SequenceResidue[]>([]);
+  
+  // Plugin reference for isolation controls
+  const [currentPlugin, setCurrentPlugin] = useState<PluginUIContext | null>(null);
 
   const handleViewerReady = (plugin: PluginUIContext) => {
     setIsViewerReady(true);
+    setCurrentPlugin(plugin);
   };
 
   const handleStructureLoaded = (loadedPdbId: string) => {
@@ -49,6 +56,38 @@ export default function Home() {
     setHoveredResidues(residues);
   }, []);
 
+  const handleRegionAction = useCallback(async (region: SelectionRegion | null, action: RegionAction) => {
+    if (action === 'isolate' && currentPlugin) {
+      if (region) {
+        // Isolate single region
+        await isolateRegion(currentPlugin, {
+          chain: region.chainId,
+          start: region.start,
+          end: region.end,
+          useAuth: true
+        }, {
+          representation: 'cartoon',
+          focusCamera: true,
+          hideOthers: true
+        });
+      } else if (selectedRegions.length > 0) {
+        // Isolate all selected regions (for now, just isolate the first one)
+        // TODO: Support multiple regions in a single isolation
+        const firstRegion = selectedRegions[0];
+        await isolateRegion(currentPlugin, {
+          chain: firstRegion.chainId,
+          start: firstRegion.start,
+          end: firstRegion.end,
+          useAuth: true
+        }, {
+          representation: 'cartoon',
+          focusCamera: true,
+          hideOthers: true
+        });
+      }
+    }
+  }, [currentPlugin, selectedRegions]);
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Sliding Sidebar */}
@@ -59,6 +98,23 @@ export default function Home() {
           isViewerReady={isViewerReady}
           currentPdbId={pdbId}
         />
+        
+        {/* Chain Isolation Controls */}
+        {isViewerReady && currentPlugin && (
+          <RegionIsolationControls 
+            plugin={currentPlugin}
+            className="mt-4"
+          />
+        )}
+        
+        {/* Component Removal Controls */}
+        {isViewerReady && currentPlugin && (
+          <ComponentRemovalControls 
+            plugin={currentPlugin}
+            className="mt-4 pt-4 border-t border-gray-200"
+          />
+        )}
+        
         <AgentPlaceholder />
       </SlidingSidebar>
 
@@ -88,6 +144,7 @@ export default function Home() {
             pdbId={pdbId}
             onSelectionChange={handleSequenceSelectionChange}
             onHighlightChange={handleHighlightChange}
+            onRegionAction={handleRegionAction}
           />
         </div>
       </div>

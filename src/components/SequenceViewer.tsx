@@ -1,12 +1,14 @@
 import React from 'react';
 import { SequenceInterface } from '@/components/sequence-interface';
 import { usePDBSequence } from '@/hooks/use-pdb-sequence';
+import type { SequenceSelection, SequenceResidue, SelectionRegion, RegionAction } from '@/components/sequence-interface/types';
 
 interface SequenceViewerProps {
   pdbId: string;
   className?: string;
-  onSelectionChange?: (selection: any) => void;
-  onHighlightChange?: (residues: any[]) => void;
+  onSelectionChange?: (selection: SequenceSelection) => void;
+  onHighlightChange?: (residues: SequenceResidue[]) => void;
+  onRegionAction?: (region: SelectionRegion | null, action: RegionAction) => void;
 }
 
 export function SequenceViewer({
@@ -14,6 +16,7 @@ export function SequenceViewer({
   className = '',
   onSelectionChange,
   onHighlightChange,
+  onRegionAction,
 }: SequenceViewerProps) {
   const { data: sequenceData, isLoading: isSequenceLoading, error: sequenceError } = usePDBSequence(pdbId);
 
@@ -53,13 +56,10 @@ export function SequenceViewer({
     <div className={`bg-white rounded-lg shadow overflow-hidden ${className}`}>
       <SequenceInterface 
         data={sequenceData}
-        initialConfig={{
-          colorScheme: 'default',
-          showChainLabels: true,
-        }}
         callbacks={{
           onSelectionChange,
           onHighlightChange,
+          onRegionAction,
         }}
         className="min-h-96"
       />

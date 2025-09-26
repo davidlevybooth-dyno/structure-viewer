@@ -88,7 +88,11 @@ export function useStructureLoader(
       const model = await plugin.builders.structure.createModel(trajectory);
       const structure = await plugin.builders.structure.createStructure(model);
 
-      // Apply representation
+      // Apply preset to create proper component separation (Water, Ligand, Ion, etc.)
+      await plugin.builders.structure.hierarchy.applyPreset(structure, 'default');
+
+      // Also add the main representation for highlighting compatibility
+      // This ensures the highlighting system can find the expected representation structure
       await plugin.builders.structure.representation.addRepresentation(structure, {
         type: representation,
         color: colorScheme,

@@ -31,3 +31,14 @@ export {
   type HighlightingConfig,
   type SequenceHighlightingConfig,
 } from './config';
+
+// Region isolation utilities
+export {
+  isolateRegion,
+  showAllComponents,
+  getAvailableChains,
+  getIsolationStatus,
+  type IsolationRegion,
+  type IsolationOptions,
+  type RepresentationType,
+} from './isolation';
