@@ -1,0 +1,132 @@
+{
+  "name": "dyno-structure-theme",
+  "colors": {
+    "background": {
+      "primary": "hsl(240, 10%, 3.9%)",
+      "secondary": "hsl(240, 4.8%, 95.9%)",
+      "muted": "hsl(240, 4.8%, 95.9%)",
+      "accent": "hsl(240, 4.8%, 95.9%)"
+    },
+    "foreground": {
+      "primary": "hsl(0, 0%, 98%)",
+      "secondary": "hsl(240, 5.9%, 10%)",
+      "muted": "hsl(240, 3.8%, 46.1%)",
+      "accent": "hsl(240, 5.9%, 10%)"
+    },
+    "border": {
+      "default": "hsl(240, 5.9%, 90%)",
+      "muted": "hsl(240, 4.8%, 95.9%)",
+      "accent": "hsl(240, 5%, 84%)"
+    },
+    "sidebar": {
+      "background": "rgba(15, 23, 42, 0.8)",
+      "backdrop": "rgba(15, 23, 42, 0.4)",
+      "text": "hsl(210, 40%, 98%)",
+      "textMuted": "hsl(215, 20.2%, 65.1%)",
+      "divider": "hsl(215, 27.9%, 16.9%)",
+      "hover": "rgba(59, 130, 246, 0.1)",
+      "active": "hsl(217.2, 91.2%, 59.8%)"
+    },
+    "chat": {
+      "background": "hsl(240, 10%, 3.9%)",
+      "userBubble": "hsl(217.2, 91.2%, 59.8%)",
+      "agentBubble": "hsl(240, 5.9%, 90%)",
+      "userText": "hsl(0, 0%, 98%)",
+      "agentText": "hsl(240, 5.9%, 10%)",
+      "input": "hsl(240, 3.7%, 15.9%)",
+      "inputBorder": "hsl(240, 3.7%, 15.9%)"
+    },
+    "accent": {
+      "blue": "hsl(217.2, 91.2%, 59.8%)",
+      "green": "hsl(142.1, 76.2%, 36.3%)",
+      "yellow": "hsl(47.9, 95.8%, 53.1%)",
+      "red": "hsl(0, 84.2%, 60.2%)",
+      "purple": "hsl(263.4, 70%, 50.4%)"
+    }
+  },
+  "spacing": {
+    "sidebar": {
+      "width": "280px",
+      "expandedWidth": "400px",
+      "padding": "1rem",
+      "itemSpacing": "0.5rem"
+    },
+    "chat": {
+      "padding": "1.5rem",
+      "bubbleSpacing": "1rem",
+      "inputHeight": "3rem"
+    }
+  },
+  "typography": {
+    "sidebar": {
+      "sectionTitle": {
+        "fontSize": "0.875rem",
+        "fontWeight": "600",
+        "letterSpacing": "0.025em"
+      },
+      "menuItem": {
+        "fontSize": "0.875rem",
+        "fontWeight": "500"
+      }
+    },
+    "chat": {
+      "message": {
+        "fontSize": "0.875rem",
+        "lineHeight": "1.5"
+      },
+      "timestamp": {
+        "fontSize": "0.75rem",
+        "opacity": "0.7"
+      }
+    }
+  },
+  "effects": {
+    "blur": {
+      "sidebar": "blur(16px)",
+      "backdrop": "blur(8px)"
+    },
+    "shadows": {
+      "sidebar": "0 8px 32px rgba(0, 0, 0, 0.12)",
+      "chat": "0 4px 16px rgba(0, 0, 0, 0.08)",
+      "elevated": "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)"
+    },
+    "transitions": {
+      "fast": "150ms ease-out",
+      "normal": "250ms ease-out",
+      "slow": "350ms ease-out"
+    }
+  },
+  "layout": {
+    "sidebar": {
+      "sections": [
+        {
+          "id": "navigation",
+          "title": "Navigation",
+          "items": [
+            { "id": "structures", "label": "Structures", "icon": "molecule" },
+            { "id": "sequences", "label": "Sequences", "icon": "dna" },
+            { "id": "analysis", "label": "Analysis", "icon": "chart" }
+          ]
+        },
+        {
+          "id": "tools",
+          "title": "Tools",
+          "items": [
+            { "id": "isolation", "label": "Isolation", "icon": "scissors" },
+            { "id": "highlighting", "label": "Highlighting", "icon": "marker" },
+            { "id": "export", "label": "Export", "icon": "download" }
+          ]
+        },
+        {
+          "id": "ai",
+          "title": "AI Assistant",
+          "expandable": true,
+          "items": [
+            { "id": "chat", "label": "Chat", "icon": "message" },
+            { "id": "suggestions", "label": "Suggestions", "icon": "lightbulb" }
+          ]
+        }
+      ]
+    }
+  }
+}
