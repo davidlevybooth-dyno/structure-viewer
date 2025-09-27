@@ -68,7 +68,7 @@ export function AgentSection({ className = '' }: AgentSectionProps) {
             </svg>
           </div>
           <div>
-            <h3 className="font-medium text-gray-900">AI Assistant</h3>
+            <h3 className="font-medium text-gray-900">p0</h3>
             <p className="text-xs text-gray-500">Molecular structure expert</p>
           </div>
         </div>

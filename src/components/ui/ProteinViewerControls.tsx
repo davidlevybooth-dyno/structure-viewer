@@ -41,7 +41,7 @@ function DropdownItem({ children, onClick, disabled = false }) {
   )
 }
 
-export default function ProteinViewerControls() {
+export function ProteinViewerControls() {
   const [openDropdown, setOpenDropdown] = useState(null)
   const [viewMode, setViewMode] = useState("Cartoon")
   const [colorScheme, setColorScheme] = useState("By Chain")

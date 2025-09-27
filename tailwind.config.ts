@@ -1,92 +1,44 @@
 import type { Config } from 'tailwindcss';
-import { heroui } from '@heroui/react';
 
 const config: Config = {
   content: [
     './src/**/*.{js,ts,jsx,tsx,mdx}',
-    './node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}',
   ],
   theme: {
     extend: {
       colors: {
-        background: 'hsl(var(--background))',
-        foreground: 'hsl(var(--foreground))',
+        // Custom colors for our minimal design
         primary: {
-          DEFAULT: 'hsl(var(--primary))',
-          foreground: 'hsl(var(--primary-foreground))',
+          50: '#eff6ff',
+          100: '#dbeafe',
+          200: '#bfdbfe',
+          300: '#93c5fd',
+          400: '#60a5fa',
+          500: '#3b82f6',
+          600: '#2563eb',
+          700: '#1d4ed8',
+          800: '#1e40af',
+          900: '#1e3a8a',
+          DEFAULT: '#3b82f6',
         },
-        secondary: {
-          DEFAULT: 'hsl(var(--secondary))',
-          foreground: 'hsl(var(--secondary-foreground))',
-        },
-        muted: {
-          DEFAULT: 'hsl(var(--muted))',
-          foreground: 'hsl(var(--muted-foreground))',
-        },
-        accent: {
-          DEFAULT: 'hsl(var(--accent))',
-          foreground: 'hsl(var(--accent-foreground))',
-        },
-        border: 'hsl(var(--border))',
-        input: 'hsl(var(--input))',
-        ring: 'hsl(var(--ring))',
       },
-      borderRadius: {
-        lg: 'var(--radius)',
-        md: 'calc(var(--radius) - 2px)',
-        sm: 'calc(var(--radius) - 4px)',
+      animation: {
+        'fade-in': 'fadeIn 0.2s ease-in-out',
+        'slide-in': 'slideIn 0.3s ease-out',
+      },
+      keyframes: {
+        fadeIn: {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
+        slideIn: {
+          '0%': { transform: 'translateX(-10px)', opacity: '0' },
+          '100%': { transform: 'translateX(0)', opacity: '1' },
+        },
       },
     },
   },
-  darkMode: 'class',
-  plugins: [
-    heroui({
-      themes: {
-        light: {
-          colors: {
-            background: '#ffffff',
-            foreground: '#11181C',
-            primary: {
-              50: '#e6f1fe',
-              100: '#cce3fd',
-              200: '#99c7fb',
-              300: '#66aaf9',
-              400: '#338ef7',
-              500: '#006FEE',
-              600: '#005bc4',
-              700: '#004493',
-              800: '#002e62',
-              900: '#001731',
-              DEFAULT: '#006FEE',
-              foreground: '#ffffff',
-            },
-            focus: '#006FEE',
-          },
-        },
-        dark: {
-          colors: {
-            background: '#000000',
-            foreground: '#ECEDEE',
-            primary: {
-              50: '#3B096C',
-              100: '#520A83',
-              200: '#7318A2',
-              300: '#9823C2',
-              400: '#c031e2',
-              500: '#DD62ED',
-              600: '#F182F6',
-              700: '#FCADF9',
-              800: '#FDD5F9',
-              900: '#FEECFE',
-              DEFAULT: '#DD62ED',
-              foreground: '#ffffff',
-            },
-            focus: '#DD62ED',
-          },
-        },
-      },
-    }),
-  ],
+  plugins: [],
 };
 
 export default config;

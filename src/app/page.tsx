@@ -3,8 +3,8 @@
 import { useState, useCallback } from 'react';
 import MolstarViewer from '@/components/MolstarViewer';
 import { SequenceViewer } from '@/components/SequenceViewer';
-import { ProfessionalSidebar } from '@/components/ui/ProfessionalSidebar';
-import { ProfessionalChat } from '@/components/ui/ProfessionalChat';
+// import { ProfessionalSidebar } from '@/components/ui/ProfessionalSidebar';
+// import { ProfessionalChat } from '@/components/ui/ProfessionalChat';
 import { StructureLoader } from '@/components/ui/StructureLoader';
 import { AppHeader } from '@/components/ui/AppHeader';
 import type { SelectionRegion, SequenceResidue, SequenceSelection } from '@/components/sequence-interface/types';
@@ -57,9 +57,12 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background">
       {/* Professional Sidebar */}
-      <ProfessionalSidebar onItemClick={handleSidebarItemClick}>
+      {/* <ProfessionalSidebar onItemClick={handleSidebarItemClick}>
         <ProfessionalChat />
-      </ProfessionalSidebar>
+      </ProfessionalSidebar> */}
+      <div className="w-80 bg-zinc-100 p-4">
+        <p>Original sidebar temporarily disabled. Visit <a href="/ui" className="text-blue-600 underline">/ui</a> for the new interface.</p>
+      </div>
 
       {/* Header */}
       <AppHeader isViewerReady={isViewerReady} />

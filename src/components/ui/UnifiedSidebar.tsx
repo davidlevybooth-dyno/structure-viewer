@@ -7,8 +7,36 @@ import SearchModal from "./SearchModal"
 import ChatPane from "./ChatPane"
 import ConversationRow from "./ConversationRow"
 import SidebarSection from "./SidebarSection"
+import { Conversation, Template, Folder, CollapsedState } from "../../types/chat"
 
-const UnifiedSidebar = forwardRef(function UnifiedSidebar(
+interface UnifiedSidebarProps {
+  collapsed: CollapsedState;
+  setCollapsed: (collapsed: CollapsedState | ((prev: CollapsedState) => CollapsedState)) => void;
+  conversations: Conversation[];
+  pinned: Conversation[];
+  recent: Conversation[];
+  folders: Folder[];
+  folderCounts: Record<string, number>;
+  selectedId: string | null;
+  onSelect: (id: string) => void;
+  togglePin: (id: string) => void;
+  query: string;
+  setQuery: (query: string) => void;
+  searchRef: React.RefObject<HTMLInputElement | null>;
+  createFolder: () => void;
+  createNewChat: () => void;
+  templates: Template[];
+  setTemplates: (templates: Template[]) => void;
+  onUseTemplate: (template: Template) => void;
+  conversation: Conversation | null;
+  onSend: (content: string) => void;
+  onEditMessage: (messageId: string, newContent: string) => void;
+  onResendMessage: (messageId: string) => void;
+  isThinking: boolean;
+  onPauseThinking: () => void;
+}
+
+const UnifiedSidebar = forwardRef<any, UnifiedSidebarProps>(function UnifiedSidebar(
   {
     collapsed,
     setCollapsed,
@@ -104,7 +132,7 @@ const UnifiedSidebar = forwardRef(function UnifiedSidebar(
 
   return (
     <>
-      <div className="flex w-[30%] min-w-0 border-r border-zinc-200/60 bg-white">
+      <div className="flex w-full min-w-0 border-r border-zinc-200/60 bg-white">
         <div className="flex flex-col w-full h-full">
           <div className="h-1/4 border-b border-zinc-200/60 bg-zinc-50/50 flex flex-col">
             {/* Header */}
@@ -113,7 +141,7 @@ const UnifiedSidebar = forwardRef(function UnifiedSidebar(
                 <div className="grid h-6 w-6 place-items-center rounded-md bg-blue-600 text-white">
                   <Asterisk className="h-3 w-3" />
                 </div>
-                <div className="text-sm font-medium tracking-tight">AI Assistant</div>
+                <div className="text-sm font-medium tracking-tight">p0</div>
               </div>
             </div>
 
@@ -228,4 +256,5 @@ const UnifiedSidebar = forwardRef(function UnifiedSidebar(
   )
 })
 
+export { UnifiedSidebar }
 export default UnifiedSidebar

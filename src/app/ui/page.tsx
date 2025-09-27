@@ -1,7 +1,4 @@
-"use client"
-
-import React, { useEffect, useMemo, useRef, useState } from "react"
-import AIAssistantUI from "../../components/ui/AIAssistantUI"
+import { AIAssistantUI } from "../../components/AIAssistantUI"
 
 export default function UIPage() {
   return <AIAssistantUI />
