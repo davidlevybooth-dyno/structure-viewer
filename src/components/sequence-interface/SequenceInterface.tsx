@@ -1,44 +1,44 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { SequenceSelectionProvider } from './context/SequenceSelectionContext';
-import { ResidueGrid } from './ResidueGrid';
-import { SelectionSummary } from './SelectionSummary';
-import { SequenceHeader } from './components/SequenceHeader';
-import { ErrorState, LoadingState } from './components/ErrorStates';
-import { useSequenceInterface } from './hooks/useSequenceInterface';
-import { cn } from './utils/cn';
-import type { SequenceInterfaceProps } from './types';
+import React from "react";
+import { SequenceSelectionProvider } from "./context/SequenceSelectionContext";
+import { ResidueGrid } from "./ResidueGrid";
+import { SelectionSummary } from "./SelectionSummary";
+import { SequenceHeader } from "./components/SequenceHeader";
+import { ErrorState, LoadingState } from "./components/ErrorStates";
+import { useSequenceInterface } from "./hooks/useSequenceInterface";
+import { cn } from "./utils/cn";
+import type { SequenceInterfaceProps } from "./types";
 
 function SequenceInterfaceInternal({
-  className = '',
+  className = "",
   readOnly = false,
   callbacks,
   ...rest
 }: SequenceInterfaceProps) {
-  const {
-    state,
-    clearSelection,
-    copyToClipboard,
-  } = useSequenceInterface({ readOnly, callbacks, ...rest });
+  const { state, clearSelection, copyToClipboard } = useSequenceInterface({
+    readOnly,
+    callbacks,
+    ...rest,
+  });
 
   if (state.isLoading) {
     return <LoadingState className={className} />;
   }
-  
+
   if (state.error) {
     return <ErrorState error={state.error} className={className} />;
   }
-  
+
   return (
-    <section 
-      className={cn('sequence-interface bg-white', className)} 
+    <section
+      className={cn("sequence-interface bg-white", className)}
       aria-label="Protein sequence interface"
     >
-      <SequenceHeader 
-        data={state.data} 
-        selection={state.selection} 
-        readOnly={readOnly} 
+      <SequenceHeader
+        data={state.data}
+        selection={state.selection}
+        readOnly={readOnly}
       />
 
       <ResidueGrid

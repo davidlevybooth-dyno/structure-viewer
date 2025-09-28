@@ -1,5 +1,5 @@
-import { useRef, useEffect, useState } from 'react';
-import type { PluginUIContext } from 'molstar/lib/mol-plugin-ui/context';
+import { useRef, useEffect, useState } from "react";
+import type { PluginUIContext } from "molstar/lib/mol-plugin-ui/context";
 
 interface MolstarPluginState {
   plugin: PluginUIContext | null;
@@ -27,12 +27,12 @@ interface UseMolstarPluginOptions {
  */
 export function useMolstarPlugin(options: UseMolstarPluginOptions = {}) {
   const { config = {}, onReady, onError } = options;
-  
+
   const containerRef = useRef<HTMLDivElement>(null);
   const pluginRef = useRef<PluginUIContext | null>(null);
   const rootRef = useRef<any>(null);
   const initializationStartedRef = useRef(false);
-  
+
   const [state, setState] = useState<MolstarPluginState>({
     plugin: null,
     isInitialized: false,
@@ -50,7 +50,7 @@ export function useMolstarPlugin(options: UseMolstarPluginOptions = {}) {
 
     const initialize = async () => {
       try {
-        setState(prev => ({ ...prev, isLoading: true, error: null }));
+        setState((prev) => ({ ...prev, isLoading: true, error: null }));
 
         // Dynamic imports
         const [
@@ -58,13 +58,13 @@ export function useMolstarPlugin(options: UseMolstarPluginOptions = {}) {
           { DefaultPluginUISpec },
           { Plugin },
           { createRoot },
-          React
+          React,
         ] = await Promise.all([
-          import('molstar/lib/mol-plugin-ui/context'),
-          import('molstar/lib/mol-plugin-ui/spec'),
-          import('molstar/lib/mol-plugin-ui/plugin'),
-          import('react-dom/client'),
-          import('react')
+          import("molstar/lib/mol-plugin-ui/context"),
+          import("molstar/lib/mol-plugin-ui/spec"),
+          import("molstar/lib/mol-plugin-ui/plugin"),
+          import("react-dom/client"),
+          import("react"),
         ]);
 
         if (!mounted) return;
@@ -75,10 +75,10 @@ export function useMolstarPlugin(options: UseMolstarPluginOptions = {}) {
           ...spec.components,
           controls: {
             ...spec.components?.controls,
-            top: config.hideSequencePanel ? 'none' : undefined,
-            bottom: config.hideLogPanel ? 'none' : undefined,
-            left: config.hideLeftPanel ? 'none' : undefined,
-            right: config.showRightPanel ? undefined : 'none',
+            top: config.hideSequencePanel ? "none" : undefined,
+            bottom: config.hideLogPanel ? "none" : undefined,
+            left: config.hideLeftPanel ? "none" : undefined,
+            right: config.showRightPanel ? undefined : "none",
           },
         };
 
@@ -97,7 +97,7 @@ export function useMolstarPlugin(options: UseMolstarPluginOptions = {}) {
         rootRef.current = root;
 
         if (mounted) {
-          setState(prev => ({
+          setState((prev) => ({
             ...prev,
             plugin,
             isInitialized: true,
@@ -105,14 +105,14 @@ export function useMolstarPlugin(options: UseMolstarPluginOptions = {}) {
           }));
           onReady?.(plugin);
         }
-
       } catch (err) {
         if (mounted) {
-          const message = err instanceof Error ? err.message : 'Failed to initialize Molstar';
-          setState(prev => ({ 
-            ...prev, 
-            isLoading: false, 
-            error: message 
+          const message =
+            err instanceof Error ? err.message : "Failed to initialize Molstar";
+          setState((prev) => ({
+            ...prev,
+            isLoading: false,
+            error: message,
           }));
           onError?.(message);
         }
@@ -124,20 +124,20 @@ export function useMolstarPlugin(options: UseMolstarPluginOptions = {}) {
     // Cleanup function
     return () => {
       mounted = false;
-      
+
       if (rootRef.current) {
         try {
           rootRef.current.unmount();
         } catch (e) {
-          console.warn('Error unmounting React root:', e);
+          console.warn("Error unmounting React root:", e);
         }
       }
-      
+
       if (pluginRef.current) {
         try {
           pluginRef.current.dispose();
         } catch (e) {
-          console.warn('Error disposing Molstar plugin:', e);
+          console.warn("Error disposing Molstar plugin:", e);
         }
       }
     };

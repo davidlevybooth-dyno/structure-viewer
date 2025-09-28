@@ -1,48 +1,57 @@
-"use client"
-import { motion, AnimatePresence } from "framer-motion"
-import { X, Lightbulb } from "lucide-react"
-import { useState } from "react"
+"use client";
+import { motion, AnimatePresence } from "framer-motion";
+import { X, Lightbulb } from "lucide-react";
+import { useState } from "react";
 
-export default function CreateTemplateModal({ isOpen, onClose, onCreateTemplate, editingTemplate = null }) {
-  const [templateName, setTemplateName] = useState(editingTemplate?.name || "")
-  const [templateContent, setTemplateContent] = useState(editingTemplate?.content || "")
+export default function CreateTemplateModal({
+  isOpen,
+  onClose,
+  onCreateTemplate,
+  editingTemplate = null,
+}) {
+  const [templateName, setTemplateName] = useState(editingTemplate?.name || "");
+  const [templateContent, setTemplateContent] = useState(
+    editingTemplate?.content || "",
+  );
 
-  const isEditing = !!editingTemplate
+  const isEditing = !!editingTemplate;
 
   const handleSubmit = (e) => {
-    e.preventDefault()
+    e.preventDefault();
     if (templateName.trim() && templateContent.trim()) {
       const templateData = {
         name: templateName.trim(),
         content: templateContent.trim(),
-        snippet: templateContent.trim().slice(0, 100) + (templateContent.trim().length > 100 ? "..." : ""),
+        snippet:
+          templateContent.trim().slice(0, 100) +
+          (templateContent.trim().length > 100 ? "..." : ""),
         createdAt: editingTemplate?.createdAt || new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-      }
+      };
 
       if (isEditing) {
-        onCreateTemplate({ ...templateData, id: editingTemplate.id })
+        onCreateTemplate({ ...templateData, id: editingTemplate.id });
       } else {
-        onCreateTemplate(templateData)
+        onCreateTemplate(templateData);
       }
 
-      handleCancel()
+      handleCancel();
     }
-  }
+  };
 
   const handleCancel = () => {
-    setTemplateName("")
-    setTemplateContent("")
-    onClose()
-  }
+    setTemplateName("");
+    setTemplateContent("");
+    onClose();
+  };
 
   // Update form when editingTemplate changes
   useState(() => {
     if (editingTemplate) {
-      setTemplateName(editingTemplate.name || "")
-      setTemplateContent(editingTemplate.content || "")
+      setTemplateName(editingTemplate.name || "");
+      setTemplateContent(editingTemplate.content || "");
     }
-  }, [editingTemplate])
+  }, [editingTemplate]);
 
   return (
     <AnimatePresence>
@@ -62,15 +71,23 @@ export default function CreateTemplateModal({ isOpen, onClose, onCreateTemplate,
             className="fixed left-1/2 top-1/2 z-50 w-full max-w-2xl -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-zinc-200 bg-white p-6 shadow-xl dark:border-zinc-800 dark:bg-zinc-900"
           >
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold">{isEditing ? "Edit Template" : "Create Template"}</h2>
-              <button onClick={handleCancel} className="rounded-lg p-1 hover:bg-zinc-100 dark:hover:bg-zinc-800">
+              <h2 className="text-lg font-semibold">
+                {isEditing ? "Edit Template" : "Create Template"}
+              </h2>
+              <button
+                onClick={handleCancel}
+                className="rounded-lg p-1 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+              >
                 <X className="h-5 w-5" />
               </button>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label htmlFor="templateName" className="block text-sm font-medium mb-2">
+                <label
+                  htmlFor="templateName"
+                  className="block text-sm font-medium mb-2"
+                >
                   Template Name
                 </label>
                 <input
@@ -85,7 +102,10 @@ export default function CreateTemplateModal({ isOpen, onClose, onCreateTemplate,
               </div>
 
               <div>
-                <label htmlFor="templateContent" className="block text-sm font-medium mb-2">
+                <label
+                  htmlFor="templateContent"
+                  className="block text-sm font-medium mb-2"
+                >
                   Template Content
                 </label>
                 <textarea
@@ -103,8 +123,9 @@ export default function CreateTemplateModal({ isOpen, onClose, onCreateTemplate,
                 <div className="text-sm text-zinc-600 dark:text-zinc-400">
                   <div className="font-medium mb-1">Pro tip</div>
                   <div>
-                    Templates are perfect for frequently used prompts, instructions, or conversation starters. They'll
-                    be inserted directly into your chat input when selected.
+                    Templates are perfect for frequently used prompts,
+                    instructions, or conversation starters. They'll be inserted
+                    directly into your chat input when selected.
                   </div>
                 </div>
               </div>
@@ -130,5 +151,5 @@ export default function CreateTemplateModal({ isOpen, onClose, onCreateTemplate,
         </>
       )}
     </AnimatePresence>
-  )
+  );
 }

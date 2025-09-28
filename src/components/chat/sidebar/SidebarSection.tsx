@@ -2,7 +2,13 @@ import React from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown, ChevronRight } from "lucide-react";
 
-export default function SidebarSection({ icon, title, children, collapsed, onToggle }) {
+export default function SidebarSection({
+  icon,
+  title,
+  children,
+  collapsed,
+  onToggle,
+}) {
   return (
     <section>
       <button
@@ -11,7 +17,11 @@ export default function SidebarSection({ icon, title, children, collapsed, onTog
         aria-expanded={!collapsed}
       >
         <span className="mr-1" aria-hidden>
-          {collapsed ? <ChevronRight className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+          {collapsed ? (
+            <ChevronRight className="h-3.5 w-3.5" />
+          ) : (
+            <ChevronDown className="h-3.5 w-3.5" />
+          )}
         </span>
         <span className="flex items-center gap-2">
           <span className="opacity-70" aria-hidden>

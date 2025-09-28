@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { EXAMPLE_STRUCTURES } from '@/config/constants';
+import React, { useState } from "react";
+import { EXAMPLE_STRUCTURES } from "@/config/constants";
 
 interface StructureLoaderProps {
   initialValue?: string;
@@ -9,7 +9,7 @@ interface StructureLoaderProps {
 }
 
 export function StructureLoader({
-  initialValue = '7MT0',
+  initialValue = "7MT0",
   onLoadStructure,
   isViewerReady,
   currentPdbId,
@@ -17,7 +17,7 @@ export function StructureLoader({
   const [inputValue, setInputValue] = useState(initialValue);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       onLoadStructure(inputValue);
     }
   };

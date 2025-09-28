@@ -1,8 +1,10 @@
-import { useState, useEffect } from 'react';
-import { getStorageItem, setStorageItem } from '../utils/storage';
+import { useState, useEffect } from "react";
+import { getStorageItem, setStorageItem } from "../utils/storage";
 
 export function useLocalStorage<T>(key: string, defaultValue: T) {
-  const [value, setValue] = useState<T>(() => getStorageItem(key, defaultValue));
+  const [value, setValue] = useState<T>(() =>
+    getStorageItem(key, defaultValue),
+  );
 
   useEffect(() => {
     setStorageItem(key, value);

@@ -1,15 +1,21 @@
-'use client';
+"use client";
 
-import { useEffect, useMemo, useCallback } from 'react';
-import type { PluginUIContext } from 'molstar/lib/mol-plugin-ui/context';
-import { useMolstarPlugin } from '@/hooks/useMolstarPlugin';
-import { useStructureLoader, type LoadStructureOptions } from '@/hooks/useStructureLoader';
-import { useBidirectionalHighlighting } from '@/hooks/useBidirectionalHighlighting';
-import { LoadingSpinner } from '@/components/ui/common/LoadingSpinner';
-import { ErrorDisplay } from '@/components/ui/common/ErrorDisplay';
-import { MolstarContainer } from './MolstarContainer';
-import { StatusIndicator } from '@/components/ui/common/StatusIndicator';
-import type { SelectionRegion, SequenceResidue } from '@/components/sequence-interface/types';
+import { useEffect, useMemo, useCallback } from "react";
+import type { PluginUIContext } from "molstar/lib/mol-plugin-ui/context";
+import { useMolstarPlugin } from "@/hooks/useMolstarPlugin";
+import {
+  useStructureLoader,
+  type LoadStructureOptions,
+} from "@/hooks/useStructureLoader";
+import { useBidirectionalHighlighting } from "@/hooks/useBidirectionalHighlighting";
+import { LoadingSpinner } from "@/components/ui/common/LoadingSpinner";
+import { ErrorDisplay } from "@/components/ui/common/ErrorDisplay";
+import { MolstarContainer } from "./MolstarContainer";
+import { StatusIndicator } from "@/components/ui/common/StatusIndicator";
+import type {
+  SelectionRegion,
+  SequenceResidue,
+} from "@/components/sequence-interface/types";
 
 type ViewerConfig = {
   hideSequencePanel?: boolean;
@@ -22,7 +28,7 @@ export interface MolstarViewerProps {
   pdbId?: string;
   className?: string;
   config?: ViewerConfig;
-  loadOptions?: Omit<LoadStructureOptions, 'pdbId'>;
+  loadOptions?: Omit<LoadStructureOptions, "pdbId">;
   onReady?: (plugin: PluginUIContext) => void;
   onStructureLoaded?: (pdbId: string) => void;
   onError?: (error: unknown) => void;
@@ -41,7 +47,7 @@ const DEFAULT_CONFIG: Required<ViewerConfig> = {
 
 export function MolstarViewer({
   pdbId,
-  className = '',
+  className = "",
   config,
   loadOptions,
   onReady,
@@ -53,10 +59,14 @@ export function MolstarViewer({
 }: MolstarViewerProps) {
   const mergedConfig = useMemo(
     () => ({ ...DEFAULT_CONFIG, ...(config ?? {}) }),
-    [config]
+    [config],
   );
 
-  const { containerRef, state: pluginState, plugin } = useMolstarPlugin({
+  const {
+    containerRef,
+    state: pluginState,
+    plugin,
+  } = useMolstarPlugin({
     config: mergedConfig,
     onReady,
     onError,
@@ -68,21 +78,19 @@ export function MolstarViewer({
   });
 
   // Set up bidirectional highlighting
-  const { highlightSelection, highlightHover, clearStructureHighlights } = useBidirectionalHighlighting(
-    plugin,
-    {
+  const { highlightSelection, highlightHover, clearStructureHighlights } =
+    useBidirectionalHighlighting(plugin, {
       onStructureSelectionChange,
-    }
-  );
+    });
 
-  const mergedLoadOptions = useMemo<Omit<LoadStructureOptions, 'pdbId'>>(
+  const mergedLoadOptions = useMemo<Omit<LoadStructureOptions, "pdbId">>(
     () => ({
-      representation: 'cartoon',
-      colorScheme: 'chain-id',
+      representation: "cartoon",
+      colorScheme: "chain-id",
       autoFocus: true,
       ...(loadOptions ?? {}),
     }),
-    [loadOptions]
+    [loadOptions],
   );
 
   useEffect(() => {
@@ -106,14 +114,14 @@ export function MolstarViewer({
   // Handle sequence selection → structure highlighting
   useEffect(() => {
     if (!plugin || !pluginState.isInitialized) return;
-    
+
     void highlightSelection(selectedRegions);
   }, [selectedRegions, plugin, pluginState.isInitialized, highlightSelection]);
 
-  // Handle sequence hover → structure highlighting  
+  // Handle sequence hover → structure highlighting
   useEffect(() => {
     if (!plugin || !pluginState.isInitialized) return;
-    
+
     void highlightHover(hoveredResidues);
   }, [hoveredResidues, plugin, pluginState.isInitialized, highlightHover]);
 
@@ -151,11 +159,21 @@ export function MolstarViewer({
   const isBusy = pluginState.isLoading || loadingState.isLoading;
 
   return (
-    <div className={`relative ${className}`} aria-busy={isBusy} aria-live="polite">
+    <div
+      className={`relative ${className}`}
+      aria-busy={isBusy}
+      aria-live="polite"
+    >
       {isBusy && (
         <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/80">
           <LoadingSpinner
-            message={pluginState.isLoading ? 'Initializing Mol*…' : (pdbId ? `Loading ${pdbId}…` : 'Loading…')}
+            message={
+              pluginState.isLoading
+                ? "Initializing Mol*…"
+                : pdbId
+                  ? `Loading ${pdbId}…`
+                  : "Loading…"
+            }
             size="md"
           />
         </div>

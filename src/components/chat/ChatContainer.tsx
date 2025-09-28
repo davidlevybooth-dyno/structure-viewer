@@ -1,25 +1,26 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { useChatState } from '../../hooks/useChatState';
-import { useKeyboardShortcuts } from '../../hooks/useKeyboardShortcuts';
-import { usePanelResize } from '../../hooks/usePanelResize';
-import { KeyboardShortcut } from '../../types/ui';
-import { Conversation, Template, Folder } from '../../types/chat';
+import React from "react";
+import { useChatState } from "../../hooks/useChatState";
+import { useKeyboardShortcuts } from "../../hooks/useKeyboardShortcuts";
+import { usePanelResize } from "../../hooks/usePanelResize";
+import { KeyboardShortcut } from "../../types/ui";
+import { Conversation, Template, Folder } from "../../types/chat";
 
 interface ChatContainerProps {
   initialConversations: Conversation[];
   initialTemplates: Template[];
   initialFolders: Folder[];
-  children: (props: ReturnType<typeof useChatState> & ReturnType<typeof usePanelResize>) => React.ReactNode;
+  children: (
+    props: ReturnType<typeof useChatState> & ReturnType<typeof usePanelResize>,
+  ) => React.ReactNode;
 }
 
-
-export function ChatContainer({ 
-  initialConversations, 
-  initialTemplates, 
-  initialFolders, 
-  children 
+export function ChatContainer({
+  initialConversations,
+  initialTemplates,
+  initialFolders,
+  children,
 }: ChatContainerProps) {
   const chatState = useChatState({
     initialConversations,
@@ -31,27 +32,27 @@ export function ChatContainer({
 
   const shortcuts: KeyboardShortcut[] = [
     {
-      key: 'n',
+      key: "n",
       metaKey: true,
       action: chatState.createNewChat,
-      description: 'Create new chat',
+      description: "Create new chat",
     },
     {
-      key: '/',
+      key: "/",
       action: () => chatState.searchRef.current?.focus(),
-      description: 'Focus search',
+      description: "Focus search",
     },
     {
-      key: '[',
+      key: "[",
       metaKey: true,
       action: panelResize.collapseSidebar,
-      description: 'Collapse sidebar',
+      description: "Collapse sidebar",
     },
     {
-      key: ']',
+      key: "]",
       metaKey: true,
       action: panelResize.expandSidebar,
-      description: 'Expand sidebar',
+      description: "Expand sidebar",
     },
   ];
 

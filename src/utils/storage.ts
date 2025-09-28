@@ -11,7 +11,6 @@ export function getStorageItem<T>(key: string, defaultValue: T): T {
   }
 }
 
-
 export function setStorageItem<T>(key: string, value: T): void {
   if (typeof window === "undefined") {
     return;
@@ -25,7 +24,7 @@ export function setStorageItem<T>(key: string, value: T): void {
 }
 
 export const STORAGE_KEYS = {
-  PANEL_SIZES: 'panel-sizes',
-  SIDEBAR_COLLAPSED: 'sidebar-collapsed',
-  THEME: 'theme',
+  PANEL_SIZES: "panel-sizes",
+  SIDEBAR_COLLAPSED: "sidebar-collapsed",
+  THEME: "theme",
 } as const;

@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import React, { useState } from "react"
-import { ChevronDown, Settings } from "lucide-react"
-import { cls } from "../../data/utils"
-import { STYLE_REPRESENTATIONS, COLOR_SCHEMES } from "@/config/constants"
+import React, { useState } from "react";
+import { ChevronDown, Settings } from "lucide-react";
+import { cls } from "../../data/utils";
+import { STYLE_REPRESENTATIONS, COLOR_SCHEMES } from "@/config/constants";
 
 interface DropdownMenuProps {
   trigger: React.ReactNode;
@@ -12,7 +12,12 @@ interface DropdownMenuProps {
   onToggle: () => void;
 }
 
-function DropdownMenu({ trigger, children, isOpen, onToggle }: DropdownMenuProps) {
+function DropdownMenu({
+  trigger,
+  children,
+  isOpen,
+  onToggle,
+}: DropdownMenuProps) {
   return (
     <div className="relative">
       <button
@@ -20,7 +25,12 @@ function DropdownMenu({ trigger, children, isOpen, onToggle }: DropdownMenuProps
         className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium text-zinc-700 hover:bg-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-zinc-300 dark:hover:bg-zinc-800"
       >
         {trigger}
-        <ChevronDown className={cls("h-3.5 w-3.5 transition-transform", isOpen && "rotate-180")} />
+        <ChevronDown
+          className={cls(
+            "h-3.5 w-3.5 transition-transform",
+            isOpen && "rotate-180",
+          )}
+        />
       </button>
 
       {isOpen && (
@@ -29,7 +39,7 @@ function DropdownMenu({ trigger, children, isOpen, onToggle }: DropdownMenuProps
         </div>
       )}
     </div>
-  )
+  );
 }
 
 interface DropdownItemProps {
@@ -38,7 +48,11 @@ interface DropdownItemProps {
   disabled?: boolean;
 }
 
-function DropdownItem({ children, onClick, disabled = false }: DropdownItemProps) {
+function DropdownItem({
+  children,
+  onClick,
+  disabled = false,
+}: DropdownItemProps) {
   return (
     <button
       onClick={onClick}
@@ -52,32 +66,32 @@ function DropdownItem({ children, onClick, disabled = false }: DropdownItemProps
     >
       {children}
     </button>
-  )
+  );
 }
 
 export function ProteinViewerControls() {
-  const [openDropdown, setOpenDropdown] = useState<string | null>(null)
-  const [viewMode, setViewMode] = useState("Cartoon")
-  const [colorScheme, setColorScheme] = useState("By Chain")
-  const [representation, setRepresentation] = useState("Ribbon")
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState("Cartoon");
+  const [colorScheme, setColorScheme] = useState("By Chain");
+  const [representation, setRepresentation] = useState("Ribbon");
 
   const toggleDropdown = (name: string) => {
-    setOpenDropdown(openDropdown === name ? null : name)
-  }
+    setOpenDropdown(openDropdown === name ? null : name);
+  };
 
-  const closeDropdowns = () => setOpenDropdown(null)
+  const closeDropdowns = () => setOpenDropdown(null);
 
   // Close dropdowns when clicking outside
   React.useEffect(() => {
     const handleClick = (e: MouseEvent) => {
       const target = e.target as Element;
       if (!target.closest("[data-dropdown]")) {
-        closeDropdowns()
+        closeDropdowns();
       }
-    }
-    document.addEventListener("click", handleClick)
-    return () => document.removeEventListener("click", handleClick)
-  }, [])
+    };
+    document.addEventListener("click", handleClick);
+    return () => document.removeEventListener("click", handleClick);
+  }, []);
 
   return (
     <div className="border-b border-zinc-200/60 bg-white px-4 py-2.5 dark:border-zinc-800 dark:bg-zinc-900">
@@ -88,7 +102,9 @@ export function ProteinViewerControls() {
             <option>GPT-4</option>
             <option>Claude-3</option>
           </select>
-          <span className="text-sm font-medium text-zinc-600 dark:text-zinc-400">Structure Controls</span>
+          <span className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
+            Structure Controls
+          </span>
         </div>
 
         <div className="flex items-center gap-1" data-dropdown>
@@ -100,24 +116,24 @@ export function ProteinViewerControls() {
           >
             <DropdownItem
               onClick={() => {
-                setViewMode("Cartoon")
-                closeDropdowns()
+                setViewMode("Cartoon");
+                closeDropdowns();
               }}
             >
               Cartoon
             </DropdownItem>
             <DropdownItem
               onClick={() => {
-                setViewMode("Surface")
-                closeDropdowns()
+                setViewMode("Surface");
+                closeDropdowns();
               }}
             >
               Surface
             </DropdownItem>
             <DropdownItem
               onClick={() => {
-                setViewMode("Ball & Stick")
-                closeDropdowns()
+                setViewMode("Ball & Stick");
+                closeDropdowns();
               }}
             >
               Ball & Stick
@@ -134,8 +150,8 @@ export function ProteinViewerControls() {
               <DropdownItem
                 key={scheme.value}
                 onClick={() => {
-                  setColorScheme(scheme.label)
-                  closeDropdowns()
+                  setColorScheme(scheme.label);
+                  closeDropdowns();
                 }}
               >
                 {scheme.label}
@@ -153,8 +169,8 @@ export function ProteinViewerControls() {
               <DropdownItem
                 key={rep.value}
                 onClick={() => {
-                  setRepresentation(rep.label)
-                  closeDropdowns()
+                  setRepresentation(rep.label);
+                  closeDropdowns();
                 }}
               >
                 {rep.label}
@@ -173,15 +189,23 @@ export function ProteinViewerControls() {
             isOpen={openDropdown === "settings"}
             onToggle={() => toggleDropdown("settings")}
           >
-            <DropdownItem onClick={closeDropdowns}>Show Hydrogen Bonds</DropdownItem>
-            <DropdownItem onClick={closeDropdowns}>Show Water Molecules</DropdownItem>
+            <DropdownItem onClick={closeDropdowns}>
+              Show Hydrogen Bonds
+            </DropdownItem>
+            <DropdownItem onClick={closeDropdowns}>
+              Show Water Molecules
+            </DropdownItem>
             <DropdownItem onClick={closeDropdowns}>Show Ligands</DropdownItem>
             <div className="my-1 border-t border-zinc-200 dark:border-zinc-800" />
-            <DropdownItem onClick={closeDropdowns}>Animation Settings</DropdownItem>
-            <DropdownItem onClick={closeDropdowns}>Quality Settings</DropdownItem>
+            <DropdownItem onClick={closeDropdowns}>
+              Animation Settings
+            </DropdownItem>
+            <DropdownItem onClick={closeDropdowns}>
+              Quality Settings
+            </DropdownItem>
           </DropdownMenu>
         </div>
       </div>
     </div>
-  )
+  );
 }

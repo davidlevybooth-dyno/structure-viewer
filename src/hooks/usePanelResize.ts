@@ -1,5 +1,5 @@
-import { useCallback, useState, useEffect, useMemo } from 'react';
-import { getStorageItem, setStorageItem, STORAGE_KEYS } from '../utils/storage';
+import { useCallback, useState, useEffect, useMemo } from "react";
+import { getStorageItem, setStorageItem, STORAGE_KEYS } from "../utils/storage";
 
 interface UsePanelResizeOptions {
   defaultSizes?: [number, number];
@@ -9,16 +9,23 @@ interface UsePanelResizeOptions {
 
 export function usePanelResize(options: UsePanelResizeOptions = {}) {
   const { defaultSizes = [30, 70], minSize = 20, maxSize = 60 } = options;
-  
+
   // Memoize default sizes to prevent re-renders
-  const memoizedDefaults = useMemo(() => defaultSizes, [defaultSizes[0], defaultSizes[1]]);
-  
+  const memoizedDefaults = useMemo(
+    () => defaultSizes,
+    [defaultSizes[0], defaultSizes[1]],
+  );
+
   // Initialize with default sizes to avoid hydration mismatch
-  const [panelSizes, setPanelSizes] = useState<[number, number]>(memoizedDefaults);
+  const [panelSizes, setPanelSizes] =
+    useState<[number, number]>(memoizedDefaults);
 
   // Load from localStorage after component mounts (client-side only)
   useEffect(() => {
-    const savedSizes = getStorageItem(STORAGE_KEYS.PANEL_SIZES, memoizedDefaults);
+    const savedSizes = getStorageItem(
+      STORAGE_KEYS.PANEL_SIZES,
+      memoizedDefaults,
+    );
     setPanelSizes(savedSizes);
   }, []); // Empty dependency - only run once on mount
 

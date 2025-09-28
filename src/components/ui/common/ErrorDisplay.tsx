@@ -8,21 +8,19 @@ interface ErrorDisplayProps {
 /**
  * Reusable error display component
  */
-export function ErrorDisplay({ 
-  error, 
-  title = 'Error',
+export function ErrorDisplay({
+  error,
+  title = "Error",
   onRetry,
-  className = '' 
+  className = "",
 }: ErrorDisplayProps) {
   return (
-    <div className={`flex items-center justify-center bg-gray-100 ${className}`}>
+    <div
+      className={`flex items-center justify-center bg-gray-100 ${className}`}
+    >
       <div className="text-center p-8">
-        <div className="text-red-500 text-lg font-semibold mb-2">
-          {title}
-        </div>
-        <div className="text-gray-600 text-sm mb-4">
-          {error}
-        </div>
+        <div className="text-red-500 text-lg font-semibold mb-2">{title}</div>
+        <div className="text-gray-600 text-sm mb-4">{error}</div>
         {onRetry && (
           <button
             onClick={onRetry}

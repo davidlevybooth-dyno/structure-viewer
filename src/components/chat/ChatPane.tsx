@@ -1,10 +1,20 @@
-"use client"
+"use client";
 
-import { useState, forwardRef, useImperativeHandle, useRef } from "react"
-import { Pencil, RefreshCw, Check, X, Square } from "lucide-react"
-import Message from "./Message"
-import Composer from "./Composer"
-import { cls, timeAgo } from "../data/utils"
+import { useState, forwardRef, useImperativeHandle, useRef } from "react";
+import { Pencil, RefreshCw, Check, X, Square } from "lucide-react";
+import Message from "./Message";
+import Composer from "./Composer";
+import { cls, timeAgo } from "../data/utils";
+import type { Conversation } from "../../types/chat";
+
+interface ChatPaneProps {
+  conversation?: Conversation;
+  onSend?: (message: string) => void;
+  onEditMessage?: (id: string, content: string) => void;
+  onResendMessage?: (id: string) => void;
+  isThinking?: boolean;
+  onPauseThinking?: () => void;
+}
 
 function ThinkingMessage({ onPause }: { onPause: () => void }) {
   return (
@@ -24,59 +34,70 @@ function ThinkingMessage({ onPause }: { onPause: () => void }) {
         </button>
       </div>
     </Message>
-  )
+  );
 }
 
-const ChatPane = forwardRef(function ChatPane(
-  { conversation, onSend, onEditMessage, onResendMessage, isThinking, onPauseThinking },
+const ChatPane = forwardRef<any, ChatPaneProps>(function ChatPane(
+  {
+    conversation,
+    onSend,
+    onEditMessage,
+    onResendMessage,
+    isThinking,
+    onPauseThinking,
+  },
   ref,
 ) {
-  const [editingId, setEditingId] = useState(null)
-  const [draft, setDraft] = useState("")
-  const [busy, setBusy] = useState(false)
-  const composerRef = useRef(null)
+  const [editingId, setEditingId] = useState(null);
+  const [draft, setDraft] = useState("");
+  const [busy, setBusy] = useState(false);
+  const composerRef = useRef(null);
 
   useImperativeHandle(
     ref,
     () => ({
       insertTemplate: (templateContent) => {
-        composerRef.current?.insertTemplate(templateContent)
+        composerRef.current?.insertTemplate(templateContent);
       },
     }),
     [],
-  )
+  );
 
-  if (!conversation) return null
+  if (!conversation) return null;
 
-  const tags = ["Certified", "Personalized", "Experienced", "Helpful"]
-  const messages = Array.isArray(conversation.messages) ? conversation.messages : []
-  const count = messages.length || conversation.messageCount || 0
+  const tags = ["Certified", "Personalized", "Experienced", "Helpful"];
+  const messages = Array.isArray(conversation.messages)
+    ? conversation.messages
+    : [];
+  const count = messages.length || conversation.messageCount || 0;
 
   function startEdit(m) {
-    setEditingId(m.id)
-    setDraft(m.content)
+    setEditingId(m.id);
+    setDraft(m.content);
   }
   function cancelEdit() {
-    setEditingId(null)
-    setDraft("")
+    setEditingId(null);
+    setDraft("");
   }
   function saveEdit() {
-    if (!editingId) return
-    onEditMessage?.(editingId, draft)
-    cancelEdit()
+    if (!editingId) return;
+    onEditMessage?.(editingId, draft);
+    cancelEdit();
   }
   function saveAndResend() {
-    if (!editingId) return
-    onEditMessage?.(editingId, draft)
-    onResendMessage?.(editingId)
-    cancelEdit()
+    if (!editingId) return;
+    onEditMessage?.(editingId, draft);
+    onResendMessage?.(editingId);
+    cancelEdit();
   }
 
   return (
     <div className="flex h-full min-h-0 flex-1 flex-col">
       <div className="flex-1 space-y-5 overflow-y-auto px-4 py-6 sm:px-8">
         <div className="mb-2 text-3xl font-serif tracking-tight sm:text-4xl md:text-5xl">
-          <span className="block leading-[1.05] font-sans text-2xl">{conversation.title}</span>
+          <span className="block leading-[1.05] font-sans text-2xl">
+            {conversation.title}
+          </span>
         </div>
         <div className="mb-4 text-sm text-zinc-500 dark:text-zinc-400">
           Updated {timeAgo(conversation.updatedAt)} · {count} messages
@@ -102,7 +123,12 @@ const ChatPane = forwardRef(function ChatPane(
             {messages.map((m) => (
               <div key={m.id} className="space-y-2">
                 {editingId === m.id ? (
-                  <div className={cls("rounded-2xl border p-2", "border-zinc-200 dark:border-zinc-800")}>
+                  <div
+                    className={cls(
+                      "rounded-2xl border p-2",
+                      "border-zinc-200 dark:border-zinc-800",
+                    )}
+                  >
                     <textarea
                       value={draft}
                       onChange={(e) => setDraft(e.target.value)}
@@ -135,7 +161,10 @@ const ChatPane = forwardRef(function ChatPane(
                     <div className="whitespace-pre-wrap">{m.content}</div>
                     {m.role === "user" && (
                       <div className="mt-1 flex gap-2 text-[11px] text-zinc-500">
-                        <button className="inline-flex items-center gap-1 hover:underline" onClick={() => startEdit(m)}>
+                        <button
+                          className="inline-flex items-center gap-1 hover:underline"
+                          onClick={() => startEdit(m)}
+                        >
                           <Pencil className="h-3.5 w-3.5" /> Edit
                         </button>
                         <button
@@ -158,15 +187,15 @@ const ChatPane = forwardRef(function ChatPane(
       <Composer
         ref={composerRef}
         onSend={async (text) => {
-          if (!text.trim()) return
-          setBusy(true)
-          await onSend?.(text)
-          setBusy(false)
+          if (!text.trim()) return;
+          setBusy(true);
+          await onSend?.(text);
+          setBusy(false);
         }}
         busy={busy}
       />
     </div>
-  )
-})
+  );
+});
 
-export default ChatPane
+export default ChatPane;

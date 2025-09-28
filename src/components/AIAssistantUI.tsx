@@ -1,13 +1,17 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { AppLayout } from './layout/AppLayout';
-import { ResizableLayout } from './layout/ResizableLayout';
-import { ChatContainer } from './chat/ChatContainer';
-import { UnifiedSidebar } from './chat/sidebar/UnifiedSidebar';
-import { ProteinViewerControls } from './protein/controls/ProteinViewerControls';
-import { ProteinViewer } from './protein/viewers/ProteinViewer';
-import { INITIAL_CONVERSATIONS, INITIAL_TEMPLATES, INITIAL_FOLDERS } from './data/mockData';
+import React from "react";
+import { AppLayout } from "./layout/AppLayout";
+import { ResizableLayout } from "./layout/ResizableLayout";
+import { ChatContainer } from "./chat/ChatContainer";
+import { UnifiedSidebar } from "./chat/sidebar/UnifiedSidebar";
+import { ProteinViewerControls } from "./protein/controls/ProteinViewerControls";
+import { ProteinViewer } from "./protein/viewers/ProteinViewer";
+import {
+  INITIAL_CONVERSATIONS,
+  INITIAL_TEMPLATES,
+  INITIAL_FOLDERS,
+} from "./data/mockData";
 
 /**
  * Main AI Assistant interface
@@ -44,16 +48,26 @@ export function AIAssistantUI() {
                 setTemplates={chatProps.setTemplates}
                 onUseTemplate={chatProps.handleUseTemplate}
                 conversation={chatProps.selected}
-                onSend={(content: string) => 
-                  chatProps.selected && chatProps.sendMessage(chatProps.selected.id, content)
+                onSend={(content: string) =>
+                  chatProps.selected &&
+                  chatProps.sendMessage(chatProps.selected.id, content)
                 }
-                onEditMessage={(messageId: string, newContent: string) => 
-                  chatProps.selected && chatProps.editMessage(chatProps.selected.id, messageId, newContent)
+                onEditMessage={(messageId: string, newContent: string) =>
+                  chatProps.selected &&
+                  chatProps.editMessage(
+                    chatProps.selected.id,
+                    messageId,
+                    newContent,
+                  )
                 }
-                onResendMessage={(messageId: string) => 
-                  chatProps.selected && chatProps.resendMessage(chatProps.selected.id, messageId)
+                onResendMessage={(messageId: string) =>
+                  chatProps.selected &&
+                  chatProps.resendMessage(chatProps.selected.id, messageId)
                 }
-                isThinking={chatProps.isThinking && chatProps.thinkingConvId === chatProps.selected?.id}
+                isThinking={
+                  chatProps.isThinking &&
+                  chatProps.thinkingConvId === chatProps.selected?.id
+                }
                 onPauseThinking={chatProps.pauseThinking}
               />
             }

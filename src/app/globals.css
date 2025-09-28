@@ -53,7 +53,9 @@
 }
 
 /* Also target by the flex container */
-.compact-sequence .sequence-interface .flex.items-center.justify-center.font-mono {
+.compact-sequence
+  .sequence-interface
+  .flex.items-center.justify-center.font-mono {
   width: 18px !important;
   height: 18px !important;
   font-size: 10px !important;

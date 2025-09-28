@@ -1,24 +1,24 @@
-"use client"
-import { motion, AnimatePresence } from "framer-motion"
-import { X, Lightbulb } from "lucide-react"
-import { useState } from "react"
+"use client";
+import { motion, AnimatePresence } from "framer-motion";
+import { X, Lightbulb } from "lucide-react";
+import { useState } from "react";
 
 export default function CreateFolderModal({ isOpen, onClose, onCreateFolder }) {
-  const [folderName, setFolderName] = useState("")
+  const [folderName, setFolderName] = useState("");
 
   const handleSubmit = (e) => {
-    e.preventDefault()
+    e.preventDefault();
     if (folderName.trim()) {
-      onCreateFolder(folderName.trim())
-      setFolderName("")
-      onClose()
+      onCreateFolder(folderName.trim());
+      setFolderName("");
+      onClose();
     }
-  }
+  };
 
   const handleCancel = () => {
-    setFolderName("")
-    onClose()
-  }
+    setFolderName("");
+    onClose();
+  };
 
   return (
     <AnimatePresence>
@@ -39,7 +39,10 @@ export default function CreateFolderModal({ isOpen, onClose, onCreateFolder }) {
           >
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold">Folder name</h2>
-              <button onClick={handleCancel} className="rounded-lg p-1 hover:bg-zinc-100 dark:hover:bg-zinc-800">
+              <button
+                onClick={handleCancel}
+                className="rounded-lg p-1 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+              >
                 <X className="h-5 w-5" />
               </button>
             </div>
@@ -59,8 +62,9 @@ export default function CreateFolderModal({ isOpen, onClose, onCreateFolder }) {
                 <div className="text-sm text-zinc-600 dark:text-zinc-400">
                   <div className="font-medium mb-1">What's a folder?</div>
                   <div>
-                    Folders keep chats, files, and custom instructions in one place. Use them for ongoing work, or just
-                    to keep things tidy.
+                    Folders keep chats, files, and custom instructions in one
+                    place. Use them for ongoing work, or just to keep things
+                    tidy.
                   </div>
                 </div>
               </div>
@@ -86,5 +90,5 @@ export default function CreateFolderModal({ isOpen, onClose, onCreateFolder }) {
         </>
       )}
     </AnimatePresence>
-  )
+  );
 }

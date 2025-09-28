@@ -3,12 +3,12 @@
  */
 
 // Main UI component
-export { AIAssistantUI } from './AIAssistantUI';
+export { AIAssistantUI } from "./AIAssistantUI";
 
 // Clean exports from organized modules
-export * from './layout';
-export * from './chat';
-export * from './ui';
-export * from './protein';
-export * from './data';
-export * from './sequence-interface';
+export * from "./layout";
+export * from "./chat";
+export * from "./ui";
+export * from "./protein";
+export * from "./data";
+export * from "./sequence-interface";

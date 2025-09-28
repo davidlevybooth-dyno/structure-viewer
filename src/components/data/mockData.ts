@@ -1,8 +1,8 @@
-import { makeId } from "./utils"
-import { Message, Conversation, Template, Folder } from "../../types/chat"
+import { makeId } from "./utils";
+import { Message, Conversation, Template, Folder } from "../../types/chat";
 
 // Re-export types for backward compatibility
-export type { Message, Conversation, Template, Folder }
+export type { Message, Conversation, Template, Folder };
 
 export const INITIAL_CONVERSATIONS: Conversation[] = [
   {
@@ -24,7 +24,9 @@ export const INITIAL_CONVERSATIONS: Conversation[] = [
         id: makeId("m"),
         role: "assistant",
         content: "Sure — phases, owners, risks, and KPIs coming up.",
-        createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000 + 60000).toISOString(),
+        createdAt: new Date(
+          Date.now() - 2 * 60 * 60 * 1000 + 60000,
+        ).toISOString(),
       },
     ],
   },
@@ -53,7 +55,8 @@ export const INITIAL_CONVERSATIONS: Conversation[] = [
     title: "Refactor prompt templates for support",
     updatedAt: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
     messageCount: 17,
-    preview: "Turn macros into reusable templates with variables and guardrails...",
+    preview:
+      "Turn macros into reusable templates with variables and guardrails...",
     pinned: true,
     folder: "Work Projects",
     messages: [],
@@ -128,7 +131,7 @@ export const INITIAL_CONVERSATIONS: Conversation[] = [
     folder: "Personal",
     messages: [],
   },
-]
+];
 
 export const INITIAL_TEMPLATES: Template[] = [
   {
@@ -232,14 +235,15 @@ What happens next
 
 **Notes:**
 Additional context and discussion points`,
-    snippet: "Meeting notes template with agenda, decisions, and action items...",
+    snippet:
+      "Meeting notes template with agenda, decisions, and action items...",
     createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
     updatedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
   },
-]
+];
 
 export const INITIAL_FOLDERS: Folder[] = [
   { id: "f1", name: "Work Projects" },
   { id: "f2", name: "Personal" },
   { id: "f3", name: "Code Reviews" },
-]
+];

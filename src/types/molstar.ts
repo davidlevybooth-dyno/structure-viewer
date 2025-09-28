@@ -1,4 +1,4 @@
-import type { PluginUIContext } from 'molstar/lib/mol-plugin-ui/context';
+import type { PluginUIContext } from "molstar/lib/mol-plugin-ui/context";
 
 export interface MolstarPlugin {
   readonly plugin: PluginUIContext;
@@ -18,7 +18,7 @@ export interface Chain {
   readonly id: string;
   readonly entityId?: string;
   readonly description?: string;
-  readonly type: 'protein' | 'nucleic' | 'ligand' | 'water' | 'other';
+  readonly type: "protein" | "nucleic" | "ligand" | "water" | "other";
   readonly residueCount: number;
 }
 
@@ -30,23 +30,21 @@ export interface LoadStructureOptions {
   colorScheme?: ColorScheme;
 }
 
+export type RepresentationType =
+  | "cartoon"
+  | "ball-and-stick"
+  | "spacefill"
+  | "surface"
+  | "line"
+  | "point";
 
-export type RepresentationType = 
-  | 'cartoon'
-  | 'ball-and-stick'
-  | 'spacefill'
-  | 'surface'
-  | 'line'
-  | 'point';
-
-
-export type ColorScheme = 
-  | 'chain-id'
-  | 'sequence-id'
-  | 'entity-id'
-  | 'residue-name'
-  | 'element-symbol'
-  | 'uniform';
+export type ColorScheme =
+  | "chain-id"
+  | "sequence-id"
+  | "entity-id"
+  | "residue-name"
+  | "element-symbol"
+  | "uniform";
 
 export interface SelectionTarget {
   chainId?: string;
@@ -75,5 +73,5 @@ export interface MolstarViewerProps extends MolstarEvents {
   pdbId?: string;
   className?: string;
   config?: MolstarConfig;
-  loadOptions?: Omit<LoadStructureOptions, 'id'>;
+  loadOptions?: Omit<LoadStructureOptions, "id">;
 }

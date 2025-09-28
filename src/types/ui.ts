@@ -1,10 +1,10 @@
-import { ReactNode } from 'react';
+import { ReactNode } from "react";
 
 export interface PopoverProps {
   trigger: ReactNode;
   children: ReactNode;
   className?: string;
-  align?: 'start' | 'center' | 'end';
+  align?: "start" | "center" | "end";
 }
 
 export interface ResizeHandleProps {

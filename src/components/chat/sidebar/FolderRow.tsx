@@ -1,9 +1,14 @@
-"use client"
+"use client";
 
-import { useState, useRef, useEffect } from "react"
-import { FolderIcon, ChevronRight, ChevronDown, MoreHorizontal } from "lucide-react"
-import ConversationRow from "./ConversationRow"
-import { motion, AnimatePresence } from "framer-motion"
+import { useState, useRef, useEffect } from "react";
+import {
+  FolderIcon,
+  ChevronRight,
+  ChevronDown,
+  MoreHorizontal,
+} from "lucide-react";
+import ConversationRow from "./ConversationRow";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function FolderRow({
   name,
@@ -15,37 +20,37 @@ export default function FolderRow({
   onDeleteFolder,
   onRenameFolder,
 }) {
-  const [isExpanded, setIsExpanded] = useState(false)
-  const [showMenu, setShowMenu] = useState(false)
-  const menuRef = useRef(null)
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
+  const menuRef = useRef(null);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
-        setShowMenu(false)
+        setShowMenu(false);
       }
-    }
+    };
 
     if (showMenu) {
-      document.addEventListener("mousedown", handleClickOutside)
+      document.addEventListener("mousedown", handleClickOutside);
     }
 
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside)
-    }
-  }, [showMenu])
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showMenu]);
 
   const handleToggle = () => {
-    setIsExpanded(!isExpanded)
-  }
+    setIsExpanded(!isExpanded);
+  };
 
   const handleRename = () => {
-    const newName = prompt(`Rename folder "${name}" to:`, name)
+    const newName = prompt(`Rename folder "${name}" to:`, name);
     if (newName && newName.trim() && newName !== name) {
-      onRenameFolder?.(name, newName.trim())
+      onRenameFolder?.(name, newName.trim());
     }
-    setShowMenu(false)
-  }
+    setShowMenu(false);
+  };
 
   const handleDelete = () => {
     if (
@@ -53,15 +58,18 @@ export default function FolderRow({
         `Are you sure you want to delete the folder "${name}"? This will move all conversations to the root level.`,
       )
     ) {
-      onDeleteFolder?.(name)
+      onDeleteFolder?.(name);
     }
-    setShowMenu(false)
-  }
+    setShowMenu(false);
+  };
 
   return (
     <div className="group">
       <div className="flex items-center justify-between rounded-lg px-2 py-2 text-sm hover:bg-zinc-100 dark:hover:bg-zinc-800">
-        <button onClick={handleToggle} className="flex items-center gap-2 flex-1 text-left">
+        <button
+          onClick={handleToggle}
+          className="flex items-center gap-2 flex-1 text-left"
+        >
           {isExpanded ? (
             <ChevronDown className="h-4 w-4 text-zinc-500" />
           ) : (
@@ -79,8 +87,8 @@ export default function FolderRow({
           <div className="relative" ref={menuRef}>
             <button
               onClick={(e) => {
-                e.stopPropagation()
-                setShowMenu(!showMenu)
+                e.stopPropagation();
+                setShowMenu(!showMenu);
               }}
               className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-opacity"
             >
@@ -143,5 +151,5 @@ export default function FolderRow({
         )}
       </AnimatePresence>
     </div>
-  )
+  );
 }

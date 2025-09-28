@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { Panel, PanelGroup } from 'react-resizable-panels';
-import { CustomResizeHandle } from '../ui/layout/CustomResizeHandle';
-import { usePanelResize } from '../../hooks/usePanelResize';
+import React from "react";
+import { Panel, PanelGroup } from "react-resizable-panels";
+import { CustomResizeHandle } from "../ui/layout/CustomResizeHandle";
+import { usePanelResize } from "../../hooks/usePanelResize";
 
 interface ResizableLayoutProps {
   sidebar: React.ReactNode;
@@ -15,12 +15,12 @@ interface ResizableLayoutProps {
 /**
  * Resizable two-panel layout with persistence
  */
-export function ResizableLayout({ 
-  sidebar, 
-  main, 
+export function ResizableLayout({
+  sidebar,
+  main,
   defaultSizes = [30, 70],
   minSize = 20,
-  maxSize = 60 
+  maxSize = 60,
 }: ResizableLayoutProps) {
   const { panelSizes, handleResize, constraints } = usePanelResize({
     defaultSizes,
@@ -29,14 +29,14 @@ export function ResizableLayout({
   });
 
   return (
-    <PanelGroup 
-      direction="horizontal" 
+    <PanelGroup
+      direction="horizontal"
       onLayout={handleResize}
       id="main-layout-panels"
     >
-      <Panel 
-        defaultSize={panelSizes[0]} 
-        minSize={constraints.minSize} 
+      <Panel
+        defaultSize={panelSizes[0]}
+        minSize={constraints.minSize}
         maxSize={constraints.maxSize}
         className="flex"
         id="sidebar-panel"
@@ -46,10 +46,7 @@ export function ResizableLayout({
 
       <CustomResizeHandle />
 
-      <Panel 
-        className="flex flex-col"
-        id="main-panel"
-      >
+      <Panel className="flex flex-col" id="main-panel">
         {main}
       </Panel>
     </PanelGroup>

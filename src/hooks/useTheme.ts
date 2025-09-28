@@ -1,5 +1,5 @@
-import { useMemo } from 'react';
-import themeConfig from '@/config/theme.json';
+import { useMemo } from "react";
+import themeConfig from "@/config/theme.json";
 
 export function useTheme() {
   return useMemo(() => themeConfig, []);

@@ -17,23 +17,23 @@ src/components/sequence-interface/
 ## Usage
 
 ```tsx
-import { SequenceInterface } from '@/components/sequence-interface';
+import { SequenceInterface } from "@/components/sequence-interface";
 
-<SequenceInterface 
+<SequenceInterface
   data={sequenceData}
-  selectedChainIds={['A', 'B']}
+  selectedChainIds={["A", "B"]}
   onChainSelectionChange={setSelectedChains}
   callbacks={{
     onSelectionChange: handleSelection,
-    onHighlightChange: handleHighlight
+    onHighlightChange: handleHighlight,
   }}
-/>
+/>;
 ```
 
 ## Key Features
 
 - **Multi-region selection**: Drag to select sequence ranges
-- **Chain filtering**: Show/hide specific protein chains  
+- **Chain filtering**: Show/hide specific protein chains
 - **Copy/export**: One-click sequence copying
 - **Responsive**: Auto-adjusts layout to container width
 - **Type-safe**: Full TypeScript support

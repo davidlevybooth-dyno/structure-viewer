@@ -1,12 +1,18 @@
-import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react';
-import { useSequenceSelection } from './context/SequenceSelectionContext';
-import { getResidueColor, getResidueInfo } from '@/lib/amino-acid-colors';
+import React, {
+  useState,
+  useCallback,
+  useRef,
+  useEffect,
+  useMemo,
+} from "react";
+import { useSequenceSelection } from "./context/SequenceSelectionContext";
+import { getResidueColor, getResidueInfo } from "@/lib/amino-acid-colors";
 import type {
   SequenceData,
   SequenceSelection,
   SequenceResidue,
   SelectionRegion,
-} from './types';
+} from "./types";
 
 const DEFAULT_RESIDUES_PER_ROW = 40;
 
@@ -34,10 +40,15 @@ export const ResidueGrid = React.memo(function ResidueGrid({
     replaceSelection,
   } = useSequenceSelection();
 
-  const [dragStart, setDragStart] = useState<{ chainId: string; position: number } | null>(null);
+  const [dragStart, setDragStart] = useState<{
+    chainId: string;
+    position: number;
+  } | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [dragRegion, setDragRegion] = useState<SelectionRegion | null>(null);
-  const [residuesPerRow, setResiduesPerRow] = useState(DEFAULT_RESIDUES_PER_ROW);
+  const [residuesPerRow, setResiduesPerRow] = useState(
+    DEFAULT_RESIDUES_PER_ROW,
+  );
   const gridRef = useRef<HTMLDivElement>(null);
 
   // Responsive residues per row calculation
@@ -47,8 +58,11 @@ export const ResidueGrid = React.memo(function ResidueGrid({
         const containerWidth = gridRef.current.clientWidth;
         const availableWidth = containerWidth - 24; // padding
         const residueWidth = 19; // 18px + 1px gap
-        const calculatedResidues = Math.max(30, Math.floor(availableWidth / residueWidth));
-        
+        const calculatedResidues = Math.max(
+          30,
+          Math.floor(availableWidth / residueWidth),
+        );
+
         if (calculatedResidues !== residuesPerRow) {
           setResiduesPerRow(calculatedResidues);
         }
@@ -56,8 +70,10 @@ export const ResidueGrid = React.memo(function ResidueGrid({
     };
 
     const timer = setTimeout(updateResiduesPerRow, 100);
-    const resizeObserver = new ResizeObserver(() => setTimeout(updateResiduesPerRow, 50));
-    
+    const resizeObserver = new ResizeObserver(() =>
+      setTimeout(updateResiduesPerRow, 50),
+    );
+
     if (gridRef.current) {
       resizeObserver.observe(gridRef.current);
     }
@@ -68,7 +84,10 @@ export const ResidueGrid = React.memo(function ResidueGrid({
     };
   }, [residuesPerRow]);
 
-  const residueKey = useCallback((r: SequenceResidue) => `${r.chainId}:${r.position}`, []);
+  const residueKey = useCallback(
+    (r: SequenceResidue) => `${r.chainId}:${r.position}`,
+    [],
+  );
 
   const regionsByChain = useMemo(() => {
     const byChain = new Map<string, SelectionRegion[]>();
@@ -82,93 +101,117 @@ export const ResidueGrid = React.memo(function ResidueGrid({
 
   const highlightedSet = useMemo(
     () => new Set(highlightedResidues.map(residueKey)),
-    [highlightedResidues, residueKey]
+    [highlightedResidues, residueKey],
   );
 
-  const isResidueSelected = useCallback((residue: SequenceResidue) => {
-    const chainRegions = regionsByChain.get(residue.chainId);
-    const inSelection = chainRegions?.some((region: SelectionRegion) =>
-      residue.position >= region.start && residue.position <= region.end
-    ) || false;
-    
-    const inDragRegion = dragRegion &&
-      dragRegion.chainId === residue.chainId &&
-      residue.position >= dragRegion.start &&
-      residue.position <= dragRegion.end;
-    
-    return inSelection || !!inDragRegion;
-  }, [regionsByChain, dragRegion]);
+  const isResidueSelected = useCallback(
+    (residue: SequenceResidue) => {
+      const chainRegions = regionsByChain.get(residue.chainId);
+      const inSelection =
+        chainRegions?.some(
+          (region: SelectionRegion) =>
+            residue.position >= region.start && residue.position <= region.end,
+        ) || false;
 
-  const isResidueHighlighted = useCallback((residue: SequenceResidue) => {
-    return highlightedSet.has(residueKey(residue));
-  }, [highlightedSet, residueKey]);
+      const inDragRegion =
+        dragRegion &&
+        dragRegion.chainId === residue.chainId &&
+        residue.position >= dragRegion.start &&
+        residue.position <= dragRegion.end;
 
-  const getResidueRegion = useCallback((residue: SequenceResidue) => {
-    const chainRegions = regionsByChain.get(residue.chainId);
-    return chainRegions?.find((region: SelectionRegion) =>
-      residue.position >= region.start && residue.position <= region.end
-    );
-  }, [regionsByChain]);
+      return inSelection || !!inDragRegion;
+    },
+    [regionsByChain, dragRegion],
+  );
 
-  const handleResidueClick = useCallback((residue: SequenceResidue, event: React.MouseEvent) => {
-    if (readOnly) return;
-    event.preventDefault();
+  const isResidueHighlighted = useCallback(
+    (residue: SequenceResidue) => {
+      return highlightedSet.has(residueKey(residue));
+    },
+    [highlightedSet, residueKey],
+  );
 
-    const newRegion: SelectionRegion = {
-      id: `${residue.chainId}-${residue.position}`,
-      chainId: residue.chainId,
-      start: residue.position,
-      end: residue.position,
-      sequence: residue.code,
-      label: `${residue.chainId}:${residue.position}`,
-    };
-    addSelectionRegion(newRegion);
-  }, [readOnly, addSelectionRegion]);
+  const getResidueRegion = useCallback(
+    (residue: SequenceResidue) => {
+      const chainRegions = regionsByChain.get(residue.chainId);
+      return chainRegions?.find(
+        (region: SelectionRegion) =>
+          residue.position >= region.start && residue.position <= region.end,
+      );
+    },
+    [regionsByChain],
+  );
+
+  const handleResidueClick = useCallback(
+    (residue: SequenceResidue, event: React.MouseEvent) => {
+      if (readOnly) return;
+      event.preventDefault();
+
+      const newRegion: SelectionRegion = {
+        id: `${residue.chainId}-${residue.position}`,
+        chainId: residue.chainId,
+        start: residue.position,
+        end: residue.position,
+        sequence: residue.code,
+        label: `${residue.chainId}:${residue.position}`,
+      };
+      addSelectionRegion(newRegion);
+    },
+    [readOnly, addSelectionRegion],
+  );
 
   const [isAddMode, setIsAddMode] = useState(false);
 
-  const handleMouseDown = useCallback((residue: SequenceResidue) => {
-    if (readOnly) return;
-    
-    setIsDragging(true);
-    setDragStart(residue);
-    
-    const initialDragRegion: SelectionRegion = {
-      id: `drag-${residue.chainId}-${residue.position}`,
-      chainId: residue.chainId,
-      start: residue.position,
-      end: residue.position,
-      sequence: residue.code,
-      label: `${residue.chainId}:${residue.position}`,
-    };
-    setDragRegion(initialDragRegion);
-  }, [readOnly]);
+  const handleMouseDown = useCallback(
+    (residue: SequenceResidue) => {
+      if (readOnly) return;
 
-  const handleMouseEnter = useCallback((residue: SequenceResidue) => {
-    if (isDragging && dragStart && dragStart.chainId === residue.chainId) {
-      const start = Math.min(dragStart.position, residue.position);
-      const end = Math.max(dragStart.position, residue.position);
+      setIsDragging(true);
+      setDragStart(residue);
 
-      const chain = data.chains.find(c => c.id === residue.chainId);
-      if (chain) {
-        const residuesInRange = chain.residues.filter(r => r.position >= start && r.position <= end);
-        const sequence = residuesInRange.map(r => r.code).join('');
-        
-        const newDragRegion: SelectionRegion = {
-          id: `drag-${residue.chainId}-${start}-${end}`,
-          chainId: residue.chainId,
-          start,
-          end,
-          sequence,
-          label: `${residue.chainId}:${start}-${end}`,
-        };
-        
-        setDragRegion(newDragRegion);
+      const initialDragRegion: SelectionRegion = {
+        id: `drag-${residue.chainId}-${residue.position}`,
+        chainId: residue.chainId,
+        start: residue.position,
+        end: residue.position,
+        sequence: residue.code,
+        label: `${residue.chainId}:${residue.position}`,
+      };
+      setDragRegion(initialDragRegion);
+    },
+    [readOnly],
+  );
+
+  const handleMouseEnter = useCallback(
+    (residue: SequenceResidue) => {
+      if (isDragging && dragStart && dragStart.chainId === residue.chainId) {
+        const start = Math.min(dragStart.position, residue.position);
+        const end = Math.max(dragStart.position, residue.position);
+
+        const chain = data.chains.find((c) => c.id === residue.chainId);
+        if (chain) {
+          const residuesInRange = chain.residues.filter(
+            (r) => r.position >= start && r.position <= end,
+          );
+          const sequence = residuesInRange.map((r) => r.code).join("");
+
+          const newDragRegion: SelectionRegion = {
+            id: `drag-${residue.chainId}-${start}-${end}`,
+            chainId: residue.chainId,
+            start,
+            end,
+            sequence,
+            label: `${residue.chainId}:${start}-${end}`,
+          };
+
+          setDragRegion(newDragRegion);
+        }
+      } else if (!isDragging && !readOnly) {
+        setHighlightedResidues([residue]);
       }
-    } else if (!isDragging && !readOnly) {
-      setHighlightedResidues([residue]);
-    }
-  }, [isDragging, dragStart, data.chains, setHighlightedResidues, readOnly]);
+    },
+    [isDragging, dragStart, data.chains, setHighlightedResidues, readOnly],
+  );
 
   const handleMouseUp = useCallback(() => {
     if (dragRegion) {
@@ -178,7 +221,7 @@ export const ResidueGrid = React.memo(function ResidueGrid({
         replaceSelection(dragRegion);
       }
     }
-    
+
     setIsDragging(false);
     setDragStart(null);
     setDragRegion(null);
@@ -199,45 +242,47 @@ export const ResidueGrid = React.memo(function ResidueGrid({
       if (!event.shiftKey) setIsAddMode(false);
     };
 
-    document.addEventListener('keydown', handleKeyDown);
-    document.addEventListener('keyup', handleKeyUp);
-    document.addEventListener('mouseup', handleMouseUp);
+    document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("keyup", handleKeyUp);
+    document.addEventListener("mouseup", handleMouseUp);
 
     return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-      document.removeEventListener('keyup', handleKeyUp);
-      document.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("keyup", handleKeyUp);
+      document.removeEventListener("mouseup", handleMouseUp);
     };
   }, [handleMouseUp]);
 
-  const handleDoubleClick = useCallback(async (residue: SequenceResidue) => {
-    if (readOnly) return;
-    
-    const region = getResidueRegion(residue);
-    if (region) {
-      const sequence = getSelectionSequence(region);
-      try {
-        await copyToClipboard(sequence);
-      } catch (error) {
-        console.warn('Failed to copy sequence:', error);
+  const handleDoubleClick = useCallback(
+    async (residue: SequenceResidue) => {
+      if (readOnly) return;
+
+      const region = getResidueRegion(residue);
+      if (region) {
+        const sequence = getSelectionSequence(region);
+        try {
+          await copyToClipboard(sequence);
+        } catch (error) {
+          console.warn("Failed to copy sequence:", error);
+        }
       }
-    }
-  }, [readOnly, getResidueRegion, getSelectionSequence, copyToClipboard]);
+    },
+    [readOnly, getResidueRegion, getSelectionSequence, copyToClipboard],
+  );
 
   return (
     <div
       ref={gridRef}
       className="sequence-grid p-6 overflow-hidden select-none"
       onMouseLeave={handleMouseLeave}
-      style={{ userSelect: 'none', WebkitUserSelect: 'none' }}
+      style={{ userSelect: "none", WebkitUserSelect: "none" }}
     >
-
-          {data.chains.map((chain) => {
-            // Split residues into rows using dynamic residuesPerRow
-            const rows: SequenceResidue[][] = [];
-            for (let i = 0; i < chain.residues.length; i += residuesPerRow) {
-              rows.push(chain.residues.slice(i, i + residuesPerRow));
-            }
+      {data.chains.map((chain) => {
+        // Split residues into rows using dynamic residuesPerRow
+        const rows: SequenceResidue[][] = [];
+        for (let i = 0; i < chain.residues.length; i += residuesPerRow) {
+          rows.push(chain.residues.slice(i, i + residuesPerRow));
+        }
 
         return (
           <div key={chain.id} className="chain-section mb-8">
@@ -245,7 +290,11 @@ export const ResidueGrid = React.memo(function ResidueGrid({
               <div className="flex items-baseline justify-between">
                 <h3 className="text-xs font-medium text-gray-600">
                   Chain {chain.id}
-                  {chain.name && <span className="text-gray-500 ml-1 font-normal text-xs">({chain.name})</span>}
+                  {chain.name && (
+                    <span className="text-gray-500 ml-1 font-normal text-xs">
+                      ({chain.name})
+                    </span>
+                  )}
                 </h3>
                 <div className="text-xs text-gray-500">
                   {chain.residues.length} residues
@@ -257,29 +306,34 @@ export const ResidueGrid = React.memo(function ResidueGrid({
               {rows.map((row, rowIndex) => (
                 <div key={rowIndex} className="sequence-row">
                   <div className="mb-1">
-                    <div className="text-xs text-gray-400 text-center" style={{ 
-                      display: 'grid',
-                      gridTemplateColumns: `repeat(${row.length}, 18px)`,
-                      gap: '1px',
-                      fontSize: '10px',
-                    }}>
+                    <div
+                      className="text-xs text-gray-400 text-center"
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: `repeat(${row.length}, 18px)`,
+                        gap: "1px",
+                        fontSize: "10px",
+                      }}
+                    >
                       {row.map((residue, i) => (
-                        <span 
-                          key={i} 
+                        <span
+                          key={i}
                           className="text-center overflow-hidden text-ellipsis whitespace-nowrap"
-                          style={{ width: '18px' }}
+                          style={{ width: "18px" }}
                         >
-                          {residue.position % 2 === 1 ? residue.position : ''}
+                          {residue.position % 2 === 1 ? residue.position : ""}
                         </span>
                       ))}
                     </div>
                   </div>
 
-                  <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: `repeat(${row.length}, 18px)`,
-                    gap: '1px',
-                  }}>
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: `repeat(${row.length}, 18px)`,
+                      gap: "1px",
+                    }}
+                  >
                     {row.map((residue) => {
                       const selected = isResidueSelected(residue);
                       const highlighted = isResidueHighlighted(residue);
@@ -292,24 +346,24 @@ export const ResidueGrid = React.memo(function ResidueGrid({
                           className={`
                             flex items-center justify-center font-mono
                             transition-all duration-150 text-white font-medium
-                            ${readOnly ? 'cursor-default' : 'cursor-pointer'}
+                            ${readOnly ? "cursor-default" : "cursor-pointer"}
                           `}
                           style={{
-                            width: '18px',
-                            height: '18px',
-                            fontSize: '11px',
-                            backgroundColor: selected 
-                              ? '#000000'
-                              : highlighted 
-                                ? '#245F73'
-                                : getResidueColor(residue.code, 'default'),
+                            width: "18px",
+                            height: "18px",
+                            fontSize: "11px",
+                            backgroundColor: selected
+                              ? "#000000"
+                              : highlighted
+                                ? "#245F73"
+                                : getResidueColor(residue.code, "default"),
                           }}
                           onClick={(e) => handleResidueClick(residue, e)}
                           onMouseDown={() => handleMouseDown(residue)}
                           onMouseEnter={() => handleMouseEnter(residue)}
                           onMouseLeave={handleMouseLeave}
                           onDoubleClick={() => handleDoubleClick(residue)}
-                          title={`${residueInfo.name} (${residue.code}${residue.position}) - Chain ${residue.chainId}${region ? ` - Region: ${region.label}` : ''}`}
+                          title={`${residueInfo.name} (${residue.code}${residue.position}) - Chain ${residue.chainId}${region ? ` - Region: ${region.label}` : ""}`}
                         >
                           {residue.code}
                         </div>

@@ -22,29 +22,37 @@ src/
 ## Key Components
 
 ### `AIAssistantUI`
+
 Main component that orchestrates the entire interface. Minimal and focused on composition.
 
 ### `ChatContainer`
+
 Provides chat state management and keyboard shortcuts to child components using render props pattern.
 
 ### `ResizableLayout`
+
 Handles the resizable panel layout with persistence. Completely reusable.
 
 ### `AppLayout`
+
 Root layout wrapper that provides consistent styling and constraints.
 
 ## Custom Hooks
 
 ### `useChatState`
+
 Manages all chat-related state including conversations, messages, and UI state.
 
 ### `usePanelResize`
+
 Handles resizable panel logic with localStorage persistence.
 
 ### `useKeyboardShortcuts`
+
 Manages keyboard shortcuts in a declarative way.
 
 ### `useLocalStorage`
+
 Type-safe localStorage hook with error handling.
 
 ## Design Principles
@@ -59,7 +67,7 @@ Type-safe localStorage hook with error handling.
 ## Usage
 
 ```tsx
-import { AIAssistantUI } from './components';
+import { AIAssistantUI } from "./components";
 
 export default function App() {
   return <AIAssistantUI />;
@@ -77,6 +85,7 @@ export default function App() {
 ## Testing Strategy
 
 Each component and hook is designed to be easily testable:
+
 - Pure functions in utils
 - Isolated custom hooks
 - Components with clear props interfaces

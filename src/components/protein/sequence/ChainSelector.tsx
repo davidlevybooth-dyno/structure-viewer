@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { ChainTooltip } from './ChainTooltip';
+import React, { useState } from "react";
+import { ChainTooltip } from "./ChainTooltip";
 
 interface ChainInfo {
   id: string;
@@ -19,35 +19,50 @@ interface ChainSelectorProps {
 
 // Colors for selected chains - unselected will be grey
 const CHAIN_COLORS = [
-  'bg-blue-500', 'bg-emerald-500', 'bg-purple-500', 'bg-orange-500',
-  'bg-pink-500', 'bg-indigo-500', 'bg-red-500', 'bg-teal-500',
-  'bg-amber-500', 'bg-cyan-500', 'bg-lime-500', 'bg-rose-500',
-  'bg-violet-500', 'bg-fuchsia-500', 'bg-sky-500', 'bg-green-500',
-  'bg-yellow-500', 'bg-blue-600', 'bg-emerald-600', 'bg-purple-600',
+  "bg-blue-500",
+  "bg-emerald-500",
+  "bg-purple-500",
+  "bg-orange-500",
+  "bg-pink-500",
+  "bg-indigo-500",
+  "bg-red-500",
+  "bg-teal-500",
+  "bg-amber-500",
+  "bg-cyan-500",
+  "bg-lime-500",
+  "bg-rose-500",
+  "bg-violet-500",
+  "bg-fuchsia-500",
+  "bg-sky-500",
+  "bg-green-500",
+  "bg-yellow-500",
+  "bg-blue-600",
+  "bg-emerald-600",
+  "bg-purple-600",
 ];
 
-export function ChainSelector({ 
-  chains, 
-  selectedChainIds, 
-  onSelectionChange, 
-  className = '' 
+export function ChainSelector({
+  chains,
+  selectedChainIds,
+  onSelectionChange,
+  className = "",
 }: ChainSelectorProps) {
   const [hoveredChain, setHoveredChain] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(0);
-  
+
   // Pagination settings
   const CHAINS_PER_PAGE = 12;
   const totalPages = Math.ceil(chains.length / CHAINS_PER_PAGE);
   const startIndex = currentPage * CHAINS_PER_PAGE;
   const visibleChains = chains.slice(startIndex, startIndex + CHAINS_PER_PAGE);
-  
+
   const handleChainToggle = (chainId: string) => {
     const isSelected = selectedChainIds.includes(chainId);
-    
+
     if (isSelected) {
       // Deselect - but ensure at least one chain remains selected
       if (selectedChainIds.length > 1) {
-        onSelectionChange(selectedChainIds.filter(id => id !== chainId));
+        onSelectionChange(selectedChainIds.filter((id) => id !== chainId));
       }
     } else {
       // Select
@@ -56,7 +71,7 @@ export function ChainSelector({
   };
 
   const handleSelectAll = () => {
-    onSelectionChange(chains.map(chain => chain.id));
+    onSelectionChange(chains.map((chain) => chain.id));
   };
 
   const handleSelectNone = () => {
@@ -79,7 +94,7 @@ export function ChainSelector({
           const globalIndex = startIndex + index;
           const selectedColor = CHAIN_COLORS[globalIndex % CHAIN_COLORS.length];
           const isHovered = hoveredChain === chain.id;
-          
+
           return (
             <div key={chain.id} className="relative">
               {/* Chain pill button with high contrast */}
@@ -91,26 +106,24 @@ export function ChainSelector({
                   px-2.5 py-1 text-xs rounded-md font-mono font-medium
                   transition-all duration-200 ease-out
                   min-w-[28px] flex items-center justify-center
-                  ${isSelected 
-                    ? `${selectedColor} text-white shadow-md hover:shadow-lg` 
-                    : 'bg-gray-300 text-gray-600 hover:bg-gray-400 hover:text-gray-700'
+                  ${
+                    isSelected
+                      ? `${selectedColor} text-white shadow-md hover:shadow-lg`
+                      : "bg-gray-300 text-gray-600 hover:bg-gray-400 hover:text-gray-700"
                   }
                   hover:scale-105 active:scale-95
                 `}
-                title={`Chain ${chain.id}${chain.name ? ` - ${chain.name}` : ''}`}
+                title={`Chain ${chain.id}${chain.name ? ` - ${chain.name}` : ""}`}
               >
                 {chain.id}
               </button>
 
-              <ChainTooltip 
-                chain={chain} 
-                isVisible={isHovered} 
-              />
+              <ChainTooltip chain={chain} isVisible={isHovered} />
             </div>
           );
         })}
       </div>
-        
+
       {/* Compact inline controls */}
       <div className="flex items-center gap-2 text-xs text-gray-500">
         {/* Selection summary */}
@@ -119,7 +132,7 @@ export function ChainSelector({
           <span className="mx-0.5">/</span>
           <span>{chains.length}</span>
         </div>
-        
+
         {/* Pagination controls - inline and compact */}
         {totalPages > 1 && (
           <div className="flex items-center gap-1">
@@ -135,7 +148,9 @@ export function ChainSelector({
               {currentPage + 1}/{totalPages}
             </span>
             <button
-              onClick={() => setCurrentPage(Math.min(totalPages - 1, currentPage + 1))}
+              onClick={() =>
+                setCurrentPage(Math.min(totalPages - 1, currentPage + 1))
+              }
               disabled={currentPage === totalPages - 1}
               className="w-6 h-6 flex items-center justify-center rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed text-xs"
               title="Next page"
@@ -144,7 +159,7 @@ export function ChainSelector({
             </button>
           </div>
         )}
-        
+
         {/* Quick action buttons for many chains */}
         {chains.length > 6 && (
           <div className="flex gap-1">

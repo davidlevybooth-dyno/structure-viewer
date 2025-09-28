@@ -1,9 +1,16 @@
-"use client"
+"use client";
 
-import React, { useState, useRef, useEffect } from "react"
-import { ChevronDown, Search, Download, Upload, Database, Check } from "lucide-react"
-import { cls } from "../../data/utils"
-import { EXAMPLE_STRUCTURES } from "@/config/constants"
+import React, { useState, useRef, useEffect } from "react";
+import {
+  ChevronDown,
+  Search,
+  Download,
+  Upload,
+  Database,
+  Check,
+} from "lucide-react";
+import { cls } from "../../data/utils";
+import { EXAMPLE_STRUCTURES } from "@/config/constants";
 
 interface PDBLoaderProps {
   currentPdbId?: string;
@@ -11,47 +18,51 @@ interface PDBLoaderProps {
   isLoading?: boolean;
 }
 
-export function PDBLoader({ currentPdbId, onLoadStructure, isLoading }: PDBLoaderProps) {
-  const [isOpen, setIsOpen] = useState(false)
-  const [searchQuery, setSearchQuery] = useState("")
-  const [inputValue, setInputValue] = useState(currentPdbId || "")
-  const searchInputRef = useRef<HTMLInputElement>(null)
+export function PDBLoader({
+  currentPdbId,
+  onLoadStructure,
+  isLoading,
+}: PDBLoaderProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [inputValue, setInputValue] = useState(currentPdbId || "");
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   // Filter popular structures based on search
   const filteredStructures = EXAMPLE_STRUCTURES.filter(
-    structure =>
+    (structure) =>
       structure.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
       structure.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      structure.description.toLowerCase().includes(searchQuery.toLowerCase())
-  )
+      structure.description.toLowerCase().includes(searchQuery.toLowerCase()),
+  );
 
   // Focus search input when dropdown opens
   useEffect(() => {
     if (isOpen && searchInputRef.current) {
-      searchInputRef.current.focus()
+      searchInputRef.current.focus();
     }
-  }, [isOpen])
+  }, [isOpen]);
 
   const handleLoadPDB = (pdbId: string) => {
-    const cleanId = pdbId.toLowerCase().trim()
+    const cleanId = pdbId.toLowerCase().trim();
     if (cleanId && cleanId !== currentPdbId) {
-      onLoadStructure(cleanId)
-      setInputValue(cleanId)
-      setIsOpen(false)
-      setSearchQuery("")
+      onLoadStructure(cleanId);
+      setInputValue(cleanId);
+      setIsOpen(false);
+      setSearchQuery("");
     }
-  }
+  };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       if (inputValue.trim()) {
-        handleLoadPDB(inputValue.trim())
+        handleLoadPDB(inputValue.trim());
       }
-    } else if (e.key === 'Escape') {
-      setIsOpen(false)
-      setSearchQuery("")
+    } else if (e.key === "Escape") {
+      setIsOpen(false);
+      setSearchQuery("");
     }
-  }
+  };
 
   return (
     <div className="relative">
@@ -74,13 +85,18 @@ export function PDBLoader({ currentPdbId, onLoadStructure, isLoading }: PDBLoade
         ) : (
           <button
             onClick={(e) => {
-              e.stopPropagation()
-              setIsOpen(!isOpen)
+              e.stopPropagation();
+              setIsOpen(!isOpen);
             }}
             className="flex items-center justify-center w-6 h-6 -mr-1 hover:bg-zinc-100 rounded transition-colors cursor-pointer"
             title={isOpen ? "Close dropdown" : "Open dropdown"}
           >
-            <ChevronDown className={cls("h-4 w-4 text-zinc-400 transition-transform", isOpen && "rotate-180")} />
+            <ChevronDown
+              className={cls(
+                "h-4 w-4 text-zinc-400 transition-transform",
+                isOpen && "rotate-180",
+              )}
+            />
           </button>
         )}
       </div>
@@ -120,7 +136,7 @@ export function PDBLoader({ currentPdbId, onLoadStructure, isLoading }: PDBLoade
                         "w-full text-left p-2 rounded-md transition-colors group",
                         currentPdbId === structure.id
                           ? "bg-blue-50 border border-blue-200"
-                          : "hover:bg-zinc-50"
+                          : "hover:bg-zinc-50",
                       )}
                     >
                       <div className="flex items-center justify-between">
@@ -168,5 +184,5 @@ export function PDBLoader({ currentPdbId, onLoadStructure, isLoading }: PDBLoade
         </div>
       )}
     </div>
-  )
+  );
 }

@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import React from 'react';
+import React from "react";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -10,10 +10,7 @@ interface AppLayoutProps {
 export function AppLayout({ children, maxWidth = "1400px" }: AppLayoutProps) {
   return (
     <div className="h-screen w-full bg-zinc-50 text-zinc-900">
-      <div 
-        className="mx-auto h-full" 
-        style={{ maxWidth }}
-      >
+      <div className="mx-auto h-full" style={{ maxWidth }}>
         {children}
       </div>
     </div>

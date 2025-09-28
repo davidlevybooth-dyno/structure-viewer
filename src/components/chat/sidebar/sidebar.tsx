@@ -1,5 +1,5 @@
-"use client"
-import { motion, AnimatePresence } from "framer-motion"
+"use client";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   PanelLeftClose,
   PanelLeftOpen,
@@ -11,18 +11,18 @@ import {
   FileText,
   Settings,
   Asterisk,
-} from "lucide-react"
-import SidebarSection from "./SidebarSection"
-import ConversationRow from "./ConversationRow"
-import FolderRow from "./FolderRow"
-import TemplateRow from "./TemplateRow"
-import ThemeToggle from "./ThemeToggle"
-import CreateFolderModal from "./CreateFolderModal"
-import CreateTemplateModal from "./CreateTemplateModal"
-import SearchModal from "./SearchModal"
-import SettingsPopover from "./SettingsPopover"
-import { cls } from "../../data/utils"
-import { useState } from "react"
+} from "lucide-react";
+import SidebarSection from "./SidebarSection";
+import ConversationRow from "./ConversationRow";
+import FolderRow from "./FolderRow";
+import TemplateRow from "./TemplateRow";
+import ThemeToggle from "./ThemeToggle";
+import CreateFolderModal from "./CreateFolderModal";
+import CreateTemplateModal from "./CreateTemplateModal";
+import SearchModal from "./SearchModal";
+import SettingsPopover from "./SettingsPopover";
+import { cls } from "../../data/utils";
+import { useState } from "react";
 
 export default function Sidebar({
   open,
@@ -50,70 +50,86 @@ export default function Sidebar({
   sidebarCollapsed = false,
   setSidebarCollapsed = () => {},
 }) {
-  const [showCreateFolderModal, setShowCreateFolderModal] = useState(false)
-  const [showCreateTemplateModal, setShowCreateTemplateModal] = useState(false)
-  const [editingTemplate, setEditingTemplate] = useState(null)
-  const [showSearchModal, setShowSearchModal] = useState(false)
+  const [showCreateFolderModal, setShowCreateFolderModal] = useState(false);
+  const [showCreateTemplateModal, setShowCreateTemplateModal] = useState(false);
+  const [editingTemplate, setEditingTemplate] = useState(null);
+  const [showSearchModal, setShowSearchModal] = useState(false);
 
   const getConversationsByFolder = (folderName) => {
-    return conversations.filter((conv) => conv.folder === folderName)
-  }
+    return conversations.filter((conv) => conv.folder === folderName);
+  };
 
   const handleCreateFolder = (folderName) => {
-    createFolder(folderName)
-  }
+    createFolder(folderName);
+  };
 
   const handleDeleteFolder = (folderName) => {
     const updatedConversations = conversations.map((conv) =>
       conv.folder === folderName ? { ...conv, folder: null } : conv,
-    )
-    console.log("Delete folder:", folderName, "Updated conversations:", updatedConversations)
-  }
+    );
+    console.log(
+      "Delete folder:",
+      folderName,
+      "Updated conversations:",
+      updatedConversations,
+    );
+  };
 
   const handleRenameFolder = (oldName, newName) => {
     const updatedConversations = conversations.map((conv) =>
       conv.folder === oldName ? { ...conv, folder: newName } : conv,
-    )
-    console.log("Rename folder:", oldName, "to", newName, "Updated conversations:", updatedConversations)
-  }
+    );
+    console.log(
+      "Rename folder:",
+      oldName,
+      "to",
+      newName,
+      "Updated conversations:",
+      updatedConversations,
+    );
+  };
 
   const handleCreateTemplate = (templateData) => {
     if (editingTemplate) {
       const updatedTemplates = templates.map((t) =>
-        t.id === editingTemplate.id ? { ...templateData, id: editingTemplate.id } : t,
-      )
-      setTemplates(updatedTemplates)
-      setEditingTemplate(null)
+        t.id === editingTemplate.id
+          ? { ...templateData, id: editingTemplate.id }
+          : t,
+      );
+      setTemplates(updatedTemplates);
+      setEditingTemplate(null);
     } else {
       const newTemplate = {
         ...templateData,
         id: Date.now().toString(),
-      }
-      setTemplates([...templates, newTemplate])
+      };
+      setTemplates([...templates, newTemplate]);
     }
-    setShowCreateTemplateModal(false)
-  }
+    setShowCreateTemplateModal(false);
+  };
 
   const handleEditTemplate = (template) => {
-    setEditingTemplate(template)
-    setShowCreateTemplateModal(true)
-  }
+    setEditingTemplate(template);
+    setShowCreateTemplateModal(true);
+  };
 
   const handleRenameTemplate = (templateId, newName) => {
     const updatedTemplates = templates.map((t) =>
-      t.id === templateId ? { ...t, name: newName, updatedAt: new Date().toISOString() } : t,
-    )
-    setTemplates(updatedTemplates)
-  }
+      t.id === templateId
+        ? { ...t, name: newName, updatedAt: new Date().toISOString() }
+        : t,
+    );
+    setTemplates(updatedTemplates);
+  };
 
   const handleDeleteTemplate = (templateId) => {
-    const updatedTemplates = templates.filter((t) => t.id !== templateId)
-    setTemplates(updatedTemplates)
-  }
+    const updatedTemplates = templates.filter((t) => t.id !== templateId);
+    setTemplates(updatedTemplates);
+  };
 
   const handleUseTemplate = (template) => {
-    onUseTemplate(template)
-  }
+    onUseTemplate(template);
+  };
 
   if (sidebarCollapsed) {
     return (
@@ -170,7 +186,7 @@ export default function Sidebar({
           </div>
         </div>
       </motion.aside>
-    )
+    );
   }
 
   return (
@@ -263,7 +279,9 @@ export default function Sidebar({
                 icon={<Star className="h-4 w-4" />}
                 title="PINNED CHATS" // Renamed from "PINNED CONVERSATIONS" to "PINNED CHATS"
                 collapsed={collapsed.pinned}
-                onToggle={() => setCollapsed((s) => ({ ...s, pinned: !s.pinned }))}
+                onToggle={() =>
+                  setCollapsed((s) => ({ ...s, pinned: !s.pinned }))
+                }
               >
                 {pinned.length === 0 ? (
                   <div className="select-none rounded-lg border border-dashed border-zinc-200 px-3 py-3 text-center text-xs text-zinc-500 dark:border-zinc-800 dark:text-zinc-400">
@@ -286,7 +304,9 @@ export default function Sidebar({
                 icon={<Clock className="h-4 w-4" />}
                 title="RECENT"
                 collapsed={collapsed.recent}
-                onToggle={() => setCollapsed((s) => ({ ...s, recent: !s.recent }))}
+                onToggle={() =>
+                  setCollapsed((s) => ({ ...s, recent: !s.recent }))
+                }
               >
                 {recent.length === 0 ? (
                   <div className="select-none rounded-lg border border-dashed border-zinc-200 px-3 py-3 text-center text-xs text-zinc-500 dark:border-zinc-800 dark:text-zinc-400">
@@ -310,7 +330,9 @@ export default function Sidebar({
                 icon={<FolderIcon className="h-4 w-4" />}
                 title="FOLDERS"
                 collapsed={collapsed.folders}
-                onToggle={() => setCollapsed((s) => ({ ...s, folders: !s.folders }))}
+                onToggle={() =>
+                  setCollapsed((s) => ({ ...s, folders: !s.folders }))
+                }
               >
                 <div className="-mx-1">
                   <button
@@ -340,7 +362,9 @@ export default function Sidebar({
                 icon={<FileText className="h-4 w-4" />} // Replaced StarOff with FileText for better template metaphor
                 title="TEMPLATES"
                 collapsed={collapsed.templates}
-                onToggle={() => setCollapsed((s) => ({ ...s, templates: !s.templates }))}
+                onToggle={() =>
+                  setCollapsed((s) => ({ ...s, templates: !s.templates }))
+                }
               >
                 <div className="-mx-1">
                   <button
@@ -350,16 +374,18 @@ export default function Sidebar({
                     <Plus className="h-4 w-4" /> Create template
                   </button>
 
-                  {(Array.isArray(templates) ? templates : []).map((template) => (
-                    <TemplateRow
-                      key={template.id}
-                      template={template}
-                      onUseTemplate={handleUseTemplate}
-                      onEditTemplate={handleEditTemplate}
-                      onRenameTemplate={handleRenameTemplate}
-                      onDeleteTemplate={handleDeleteTemplate}
-                    />
-                  ))}
+                  {(Array.isArray(templates) ? templates : []).map(
+                    (template) => (
+                      <TemplateRow
+                        key={template.id}
+                        template={template}
+                        onUseTemplate={handleUseTemplate}
+                        onEditTemplate={handleEditTemplate}
+                        onRenameTemplate={handleRenameTemplate}
+                        onDeleteTemplate={handleDeleteTemplate}
+                      />
+                    ),
+                  )}
 
                   {(!templates || templates.length === 0) && (
                     <div className="select-none rounded-lg border border-dashed border-zinc-200 px-3 py-3 text-center text-xs text-zinc-500 dark:border-zinc-800 dark:text-zinc-400">
@@ -387,7 +413,9 @@ export default function Sidebar({
                 </div>
                 <div className="min-w-0">
                   <div className="truncate text-sm font-medium">John Doe</div>
-                  <div className="truncate text-xs text-zinc-500 dark:text-zinc-400">Pro workspace</div>
+                  <div className="truncate text-xs text-zinc-500 dark:text-zinc-400">
+                    Pro workspace
+                  </div>
                 </div>
               </div>
             </div>
@@ -404,8 +432,8 @@ export default function Sidebar({
       <CreateTemplateModal
         isOpen={showCreateTemplateModal}
         onClose={() => {
-          setShowCreateTemplateModal(false)
-          setEditingTemplate(null)
+          setShowCreateTemplateModal(false);
+          setEditingTemplate(null);
         }}
         onCreateTemplate={handleCreateTemplate}
         editingTemplate={editingTemplate}
@@ -421,5 +449,5 @@ export default function Sidebar({
         createNewChat={createNewChat}
       />
     </>
-  )
+  );
 }

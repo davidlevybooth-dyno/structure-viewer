@@ -1,6 +1,6 @@
 /**
  * Mol* Highlighting API
- * 
+ *
  * Clean, extensible interface for molecular structure highlighting
  * Provides sequence → structure highlighting with configurable options
  */
@@ -14,15 +14,15 @@ export {
   clearAllSelections,
   focusLoci,
   type ResidueRange,
-} from './highlighting';
+} from "./highlighting";
 
-// Type conversion utilities  
+// Type conversion utilities
 export {
   selectionRegionsToResidueRanges,
   sequenceResiduesToResidueRanges,
   sequenceResidueToResidueRange,
   mergeResidueRanges,
-} from './sequence-to-molstar';
+} from "./sequence-to-molstar";
 
 // Configuration constants
 export {
@@ -30,4 +30,4 @@ export {
   SEQUENCE_HIGHLIGHTING_CONFIG,
   type HighlightingConfig,
   type SequenceHighlightingConfig,
-} from './config';
+} from "./config";
