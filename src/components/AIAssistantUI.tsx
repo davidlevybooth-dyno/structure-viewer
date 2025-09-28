@@ -5,21 +5,22 @@ import { AppLayout } from "./layout/AppLayout";
 import { ResizableLayout } from "./layout/ResizableLayout";
 import { ChatContainer } from "./chat/ChatContainer";
 import { UnifiedSidebar } from "./chat/sidebar/UnifiedSidebar";
-import { ProteinViewerControls } from "./protein/controls/ProteinViewerControls";
 import { ProteinViewer } from "./protein/viewers/ProteinViewer";
 import {
   INITIAL_CONVERSATIONS,
   INITIAL_TEMPLATES,
   INITIAL_FOLDERS,
 } from "./data/mockData";
+import { MolstarProvider } from "@/contexts/MolstarContext";
 
 /**
  * Main AI Assistant interface
  */
 export function AIAssistantUI() {
   return (
-    <AppLayout>
-      <ChatContainer
+    <MolstarProvider>
+      <AppLayout>
+        <ChatContainer
         initialConversations={INITIAL_CONVERSATIONS}
         initialTemplates={INITIAL_TEMPLATES}
         initialFolders={INITIAL_FOLDERS}
@@ -71,15 +72,11 @@ export function AIAssistantUI() {
                 onPauseThinking={chatProps.pauseThinking}
               />
             }
-            main={
-              <>
-                <ProteinViewerControls />
-                <ProteinViewer />
-              </>
-            }
+            main={<ProteinViewer />}
           />
         )}
-      </ChatContainer>
-    </AppLayout>
+        </ChatContainer>
+      </AppLayout>
+    </MolstarProvider>
   );
 }

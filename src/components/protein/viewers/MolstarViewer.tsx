@@ -12,6 +12,7 @@ import { LoadingSpinner } from "@/components/ui/common/LoadingSpinner";
 import { ErrorDisplay } from "@/components/ui/common/ErrorDisplay";
 import { MolstarContainer } from "./MolstarContainer";
 import { StatusIndicator } from "@/components/ui/common/StatusIndicator";
+import { useMolstar } from "@/contexts/MolstarContext";
 import type {
   SelectionRegion,
   SequenceResidue,
@@ -57,6 +58,8 @@ export function MolstarViewer({
   hoveredResidues = [],
   onStructureSelectionChange,
 }: MolstarViewerProps) {
+  const { setPlugin } = useMolstar();
+  
   const mergedConfig = useMemo(
     () => ({ ...DEFAULT_CONFIG, ...(config ?? {}) }),
     [config],
@@ -68,7 +71,10 @@ export function MolstarViewer({
     plugin,
   } = useMolstarPlugin({
     config: mergedConfig,
-    onReady,
+    onReady: (plugin) => {
+      setPlugin(plugin);
+      onReady?.(plugin);
+    },
     onError,
   });
 

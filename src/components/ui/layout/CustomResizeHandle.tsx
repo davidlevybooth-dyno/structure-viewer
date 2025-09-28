@@ -11,6 +11,7 @@ interface CustomResizeHandleProps {
 export function CustomResizeHandle({ className }: CustomResizeHandleProps) {
   return (
     <PanelResizeHandle
+      id="main-resize-handle" // Add stable ID to prevent hydration mismatch
       className={cn(
         "group relative w-5 cursor-col-resize transition-all duration-300", // 20px width (w-5 = 20px)
         // Clean solid background with hover effects

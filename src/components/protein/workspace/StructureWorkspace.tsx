@@ -9,6 +9,7 @@ import React, { useState, useCallback, useMemo } from "react";
 import { MolstarViewer } from "../viewers/MolstarViewer";
 import { SequenceWorkspace } from "../sequence/SequenceWorkspace";
 import { PDBLoader } from "../controls/PDBLoader";
+import { StructureSettingsDropdown } from "../controls/StructureSettingsDropdown";
 import { DEFAULT_STRUCTURE_ID } from "@/config/constants";
 import type {
   SelectionRegion,
@@ -115,16 +116,22 @@ export function StructureWorkspace({
 
   return (
     <div className={`flex-1 flex flex-col bg-zinc-50 ${className}`}>
-      {/* PDB Loader Header */}
+      {/* Structure Header */}
+      <div className="px-4 py-2.5 bg-zinc-100 border-b border-zinc-200">
+        <span className="text-sm font-medium text-zinc-600">Structure</span>
+      </div>
+      
+      {/* PDB Loader and Settings */}
       <div className="p-4 bg-white border-b border-zinc-200">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
           <PDBLoader
             currentPdbId={pdbId}
             onLoadStructure={handleLoadStructure}
             isLoading={isLoading}
           />
+          <StructureSettingsDropdown />
           {error && (
-            <div className="text-sm text-red-600 bg-red-50 px-3 py-1 rounded-md">
+            <div className="text-sm text-red-600 bg-red-50 px-3 py-1 rounded-md ml-auto">
               Error: {error}
             </div>
           )}

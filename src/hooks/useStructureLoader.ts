@@ -104,14 +104,32 @@ export function useStructureLoader(
         const structure =
           await plugin.builders.structure.createStructure(model);
 
-        // Apply representation
-        await plugin.builders.structure.representation.addRepresentation(
-          structure,
-          {
-            type: representation,
-            color: colorScheme,
-          },
-        );
+        // Apply default preset to ensure proper component structure (like working test page)
+        await plugin.builders.structure.hierarchy.applyPreset(structure, 'default');
+        
+        // Enforce representation using the working API pattern
+        try {
+          const hierarchy = plugin.managers.structure.hierarchy.current;
+          const update = plugin.state.data.build();
+          
+          // Update existing representations (preserving component structure)
+          for (const struct of hierarchy.structures) {
+            for (const component of struct.components) {
+              for (const rep of component.representations) {
+                update.to(rep.cell.transform.ref).update({
+                  type: { name: representation, params: {} },
+                  colorTheme: { name: colorScheme, params: {} },
+                  sizeTheme: { name: 'uniform', params: { value: 1 } },
+                });
+              }
+            }
+          }
+          
+          await update.commit();
+          
+        } catch (repError) {
+          console.warn('Representation enforcement failed, keeping default:', repError);
+        }
 
         // Focus camera if requested
         if (autoFocus && structure.data) {
