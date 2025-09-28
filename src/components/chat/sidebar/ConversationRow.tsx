@@ -1,9 +1,17 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Star } from "lucide-react";
-import { cls, timeAgo } from "./utils";
+import { cls, timeAgo } from "../../data/utils";
 
 export default function ConversationRow({ data, active, onSelect, onTogglePin, showMeta }) {
   const count = Array.isArray(data.messages) ? data.messages.length : data.messageCount;
+  
+  // SSR-safe time display - only calculate on client side
+  const [timeDisplay, setTimeDisplay] = useState<string>('');
+  
+  useEffect(() => {
+    // Only calculate time on client side to avoid hydration mismatch
+    setTimeDisplay(timeAgo(data.updatedAt));
+  }, [data.updatedAt]);
   return (
     <div className="group relative">
       <div
@@ -20,7 +28,7 @@ export default function ConversationRow({ data, active, onSelect, onTogglePin, s
           <div className="flex items-center gap-2">
             <span className="truncate text-sm font-medium tracking-tight">{data.title}</span>
             <span className="shrink-0 text-[11px] text-zinc-500 dark:text-zinc-400">
-              {timeAgo(data.updatedAt)}
+              {timeDisplay}
             </span>
           </div>
           {showMeta && (

@@ -2,7 +2,7 @@
 
 import { PanelResizeHandle } from "react-resizable-panels"
 import { ChevronLeft, ChevronRight } from "lucide-react"
-import { cn } from "../../lib/utils"
+import { cn } from "../../../lib/utils"
 
 interface CustomResizeHandleProps {
   className?: string
@@ -20,10 +20,10 @@ export function CustomResizeHandle({ className }: CustomResizeHandleProps) {
         className
       )}
     >
-      {/* Chevron icons indicating sliding direction */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center opacity-0 group-hover:opacity-70 transition-all duration-300">
-        <ChevronLeft className="h-3 w-3 text-zinc-400 -mr-1" />
-        <ChevronRight className="h-3 w-3 text-zinc-400" />
+      {/* Chevron icons at eye height - similar to dropdown */}
+      <div className="absolute top-6 left-1/2 -translate-x-1/2 flex items-center opacity-60 group-hover:opacity-100 transition-all duration-300">
+        <ChevronLeft className="h-4 w-4 text-zinc-400 -mr-1" />
+        <ChevronRight className="h-4 w-4 text-zinc-400" />
       </div>
       
       {/* Subtle center line that appears on hover */}

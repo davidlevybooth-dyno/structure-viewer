@@ -7,6 +7,8 @@ interface SequenceViewerProps {
   className?: string;
   onSelectionChange?: (selection: any) => void;
   onHighlightChange?: (residues: any[]) => void;
+  selectedChainIds?: string[];
+  onChainSelectionChange?: (chainIds: string[]) => void;
 }
 
 export function SequenceViewer({
@@ -14,6 +16,8 @@ export function SequenceViewer({
   className = '',
   onSelectionChange,
   onHighlightChange,
+  selectedChainIds,
+  onChainSelectionChange,
 }: SequenceViewerProps) {
   const { data: sequenceData, isLoading: isSequenceLoading, error: sequenceError } = usePDBSequence(pdbId);
 
@@ -53,10 +57,8 @@ export function SequenceViewer({
     <div className={`bg-white rounded-lg shadow overflow-hidden ${className}`}>
       <SequenceInterface 
         data={sequenceData}
-        initialConfig={{
-          colorScheme: 'default',
-          showChainLabels: true,
-        }}
+        selectedChainIds={selectedChainIds}
+        onChainSelectionChange={onChainSelectionChange}
         callbacks={{
           onSelectionChange,
           onHighlightChange,

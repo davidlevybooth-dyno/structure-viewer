@@ -21,7 +21,7 @@ import CreateFolderModal from "./CreateFolderModal"
 import CreateTemplateModal from "./CreateTemplateModal"
 import SearchModal from "./SearchModal"
 import SettingsPopover from "./SettingsPopover"
-import { cls } from "./utils"
+import { cls } from "../../data/utils"
 import { useState } from "react"
 
 export default function Sidebar({

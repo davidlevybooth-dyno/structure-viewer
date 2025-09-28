@@ -1,4 +1,4 @@
-import { cls } from "./utils"
+import { cls } from "../data/utils"
 
 export default function Message({ role, children }) {
   const isUser = role === "user"

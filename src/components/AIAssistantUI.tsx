@@ -4,10 +4,10 @@ import React from 'react';
 import { AppLayout } from './layout/AppLayout';
 import { ResizableLayout } from './layout/ResizableLayout';
 import { ChatContainer } from './chat/ChatContainer';
-import { UnifiedSidebar } from './ui/UnifiedSidebar';
-import { ProteinViewerControls } from './ui/ProteinViewerControls';
-import { ProteinViewer } from './ui/ProteinViewer';
-import { INITIAL_CONVERSATIONS, INITIAL_TEMPLATES, INITIAL_FOLDERS } from './ui/mockData';
+import { UnifiedSidebar } from './chat/sidebar/UnifiedSidebar';
+import { ProteinViewerControls } from './protein/controls/ProteinViewerControls';
+import { ProteinViewer } from './protein/viewers/ProteinViewer';
+import { INITIAL_CONVERSATIONS, INITIAL_TEMPLATES, INITIAL_FOLDERS } from './data/mockData';
 
 /**
  * Main AI Assistant interface

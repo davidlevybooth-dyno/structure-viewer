@@ -58,15 +58,15 @@ export const ResidueGrid = React.memo(function ResidueGrid({
     const updateResiduesPerRow = () => {
       if (gridRef.current) {
         const containerWidth = gridRef.current.clientWidth;
-        const padding = 48; // 6 * 8px padding on each side
+        const padding = 24; // Reduced padding to allow ~20% more space
         const availableWidth = containerWidth - padding;
         
-        const residueWidth = 25;
-        const calculatedResidues = Math.floor(availableWidth / residueWidth);
+        const residueWidth = 19; // 18px + 1px gap (to match compact CSS)
+        const calculatedResidues = Math.max(30, Math.floor(availableWidth / residueWidth));
         
-        if (residuesPerRow !== DEFAULT_RESIDUES_PER_ROW) {
-          console.log('Resetting to default value:', DEFAULT_RESIDUES_PER_ROW);
-          setResiduesPerRow(DEFAULT_RESIDUES_PER_ROW);
+        // Always update to use maximum available space
+        if (calculatedResidues !== residuesPerRow) {
+          setResiduesPerRow(calculatedResidues);
         }
       }
     };
@@ -161,7 +161,21 @@ export const ResidueGrid = React.memo(function ResidueGrid({
     
     setIsDragging(true);
     setDragStart(residue);
-  }, [readOnly]);
+    
+    // Create initial drag region for single clicks
+    const chain = data.chains.find(c => c.id === residue.chainId);
+    if (chain) {
+      const initialDragRegion: SelectionRegion = {
+        id: `drag-${residue.chainId}-${residue.position}-${residue.position}`,
+        chainId: residue.chainId,
+        start: residue.position,
+        end: residue.position,
+        sequence: residue.code,
+        label: `${residue.chainId}:${residue.position}`,
+      };
+      setDragRegion(initialDragRegion);
+    }
+  }, [readOnly, data.chains]);
 
   // Track if modifier key is pressed for multi-selection
   const [isAddMode, setIsAddMode] = useState(false);
@@ -270,33 +284,10 @@ export const ResidueGrid = React.memo(function ResidueGrid({
   return (
     <div
       ref={gridRef}
-      className="sequence-grid p-6 overflow-x-auto custom-scrollbar"
+      className="sequence-grid p-6 overflow-hidden select-none"
       onMouseLeave={handleMouseLeave}
-      style={{
-        // Custom scrollbar styling
-        scrollbarWidth: 'thin',
-        scrollbarColor: '#cbd5e1 #f1f5f9',
-      }}
+      style={{ userSelect: 'none', WebkitUserSelect: 'none' }}
     >
-      <style jsx>{`
-        .custom-scrollbar::-webkit-scrollbar {
-          height: 6px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: #f8fafc;
-          border-radius: 3px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: #cbd5e1;
-          border-radius: 3px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: #94a3b8;
-        }
-        .custom-scrollbar::-webkit-scrollbar-corner {
-          background: #f8fafc;
-        }
-      `}</style>
 
           {data.chains.map((chain) => {
             // Split residues into rows using dynamic residuesPerRow
@@ -309,11 +300,11 @@ export const ResidueGrid = React.memo(function ResidueGrid({
           <div key={chain.id} className="chain-section mb-8">
             {/* Chain header */}
             {SHOW_CHAIN_LABELS && (
-              <div className="chain-header mb-3 pb-2 border-b border-gray-200">
+              <div className="chain-header mb-2 pb-1 border-b border-gray-200">
                 <div className="flex items-baseline justify-between">
-                  <h3 className="text-base font-semibold text-gray-800">
+                  <h3 className="text-xs font-medium text-gray-600">
                     Chain {chain.id}
-                    {chain.name && <span className="text-gray-600 ml-2 font-normal">({chain.name})</span>}
+                    {chain.name && <span className="text-gray-500 ml-1 font-normal text-xs">({chain.name})</span>}
                   </h3>
                   <div className="text-xs text-gray-500">
                     {chain.residues.length} residues
@@ -332,16 +323,15 @@ export const ResidueGrid = React.memo(function ResidueGrid({
                         <div className="mb-1">
                           <div className="text-xs text-gray-400 text-center" style={{ 
                             display: 'grid',
-                            gridTemplateColumns: `repeat(${row.length}, 24px)`,
+                            gridTemplateColumns: `repeat(${row.length}, 18px)`,
                             gap: '1px',
                             fontSize: '10px', // Smaller text for position numbers
-                            minWidth: `${row.length * 25}px` // Ensure full width
                           }}>
                             {row.map((residue, i) => (
                               <span 
                                 key={i} 
                                 className="text-center overflow-hidden text-ellipsis whitespace-nowrap"
-                                style={{ width: '24px' }}
+                                style={{ width: '18px' }}
                               >
                                 {residue.position % 2 === 1 ? residue.position : ''}
                               </span>
@@ -355,9 +345,8 @@ export const ResidueGrid = React.memo(function ResidueGrid({
                       <div>
                         <div style={{
                           display: 'grid',
-                          gridTemplateColumns: `repeat(${row.length}, 24px)`,
+                          gridTemplateColumns: `repeat(${row.length}, 18px)`,
                           gap: '1px',
-                          minWidth: `${row.length * 25}px` // Ensure full width for scrolling
                         }}>
                           {row.map((residue) => {
                             const selected = isResidueSelected(residue);
@@ -375,11 +364,11 @@ export const ResidueGrid = React.memo(function ResidueGrid({
                                   ${readOnly ? 'cursor-default' : 'cursor-pointer'}
                                 `}
                                 style={{
-                                  width: '24px',
-                                  height: '24px',
+                                  width: '18px',
+                                  height: '18px',
                                   fontSize: '11px', // Smaller text (about 15% reduction from 13px)
                                   backgroundColor: selected 
-                                    ? '#FFD700' // Gold for selection
+                                    ? '#000000' // Black for selection
                                     : highlighted 
                                       ? '#245F73' // Your specified hover color
                                       : getResidueColor(residue.code, DEFAULT_COLOR_SCHEME),

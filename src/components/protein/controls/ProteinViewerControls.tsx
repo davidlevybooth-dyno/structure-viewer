@@ -2,7 +2,7 @@
 
 import React, { useState } from "react"
 import { ChevronDown, Settings } from "lucide-react"
-import { cls } from "./utils"
+import { cls } from "../../data/utils"
 
 function DropdownMenu({ trigger, children, isOpen, onToggle }) {
   return (
@@ -73,7 +73,7 @@ export function ProteinViewerControls() {
             <option>GPT-4</option>
             <option>Claude-3</option>
           </select>
-          <span className="text-sm font-medium text-zinc-600 dark:text-zinc-400">Protein Structure Controls</span>
+          <span className="text-sm font-medium text-zinc-600 dark:text-zinc-400">Structure Controls</span>
         </div>
 
         <div className="flex items-center gap-1" data-dropdown>

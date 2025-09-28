@@ -5,15 +5,10 @@
 // Main UI component
 export { AIAssistantUI } from './AIAssistantUI';
 
-// Layout components
-export { AppLayout } from './layout/AppLayout';
-export { ResizableLayout } from './layout/ResizableLayout';
-
-// Chat components
-export { ChatContainer } from './chat/ChatContainer';
-
-// UI components
-export { CustomResizeHandle } from './ui/CustomResizeHandle';
-export { SimplePopover } from './ui/SimplePopover';
-export { ProteinViewer } from './ui/ProteinViewer';
-export { ProteinViewerControls } from './ui/ProteinViewerControls';
+// Clean exports from organized modules
+export * from './layout';
+export * from './chat';
+export * from './ui';
+export * from './protein';
+export * from './data';
+export * from './sequence-interface';

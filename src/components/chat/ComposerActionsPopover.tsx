@@ -1,7 +1,7 @@
 "use client"
 import { useState } from "react"
 import { Paperclip, Bot, Search, Palette, BookOpen, MoreHorizontal, Globe, ChevronRight } from "lucide-react"
-import { SimplePopover } from "./SimplePopover"
+import { SimplePopover } from "../ui/common/SimplePopover"
 
 export default function ComposerActionsPopover({ children }) {
   const [open, setOpen] = useState(false)

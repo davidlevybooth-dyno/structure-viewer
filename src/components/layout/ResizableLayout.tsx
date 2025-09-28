@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Panel, PanelGroup } from 'react-resizable-panels';
-import { CustomResizeHandle } from '../ui/CustomResizeHandle';
+import { CustomResizeHandle } from '../ui/layout/CustomResizeHandle';
 import { usePanelResize } from '../../hooks/usePanelResize';
 
 interface ResizableLayoutProps {
@@ -29,19 +29,27 @@ export function ResizableLayout({
   });
 
   return (
-    <PanelGroup direction="horizontal" onLayout={handleResize}>
+    <PanelGroup 
+      direction="horizontal" 
+      onLayout={handleResize}
+      id="main-layout-panels"
+    >
       <Panel 
         defaultSize={panelSizes[0]} 
         minSize={constraints.minSize} 
         maxSize={constraints.maxSize}
         className="flex"
+        id="sidebar-panel"
       >
         {sidebar}
       </Panel>
 
       <CustomResizeHandle />
 
-      <Panel className="flex flex-col">
+      <Panel 
+        className="flex flex-col"
+        id="main-panel"
+      >
         {main}
       </Panel>
     </PanelGroup>

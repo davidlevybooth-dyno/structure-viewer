@@ -4,9 +4,9 @@ import { useState, forwardRef, useImperativeHandle, useRef } from "react"
 import { Pencil, RefreshCw, Check, X, Square } from "lucide-react"
 import Message from "./Message"
 import Composer from "./Composer"
-import { cls, timeAgo } from "./utils"
+import { cls, timeAgo } from "../data/utils"
 
-function ThinkingMessage({ onPause }) {
+function ThinkingMessage({ onPause }: { onPause: () => void }) {
   return (
     <Message role="assistant">
       <div className="flex items-center gap-3">

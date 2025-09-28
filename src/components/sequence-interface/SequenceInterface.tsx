@@ -5,7 +5,6 @@ import { SequenceSelectionProvider } from './context/SequenceSelectionContext';
 import { ResidueGrid } from './ResidueGrid';
 import { SelectionSummary } from './SelectionSummary';
 import { SequenceHeader } from './components/SequenceHeader';
-import { ChainControls } from './components/ChainControls';
 import { ErrorState, EmptyState, LoadingState } from './components/ErrorStates';
 import { useSequenceInterface } from './hooks/useSequenceInterface';
 import { cn } from './utils/cn';
@@ -48,15 +47,7 @@ function SequenceInterfaceInternal({
         readOnly={readOnly} 
       />
 
-      {isMultiChain && (
-        <ChainControls
-          chains={originalData.chains}
-          selectedChainIds={selectedChainIds}
-          onSelectionChange={handleChainSelectionChange}
-          isLargeStructure={isLargeStructure}
-          totalResidues={totalResidues}
-        />
-      )}
+      {/* Chain controls are now handled by the ChainSelector in CompactSequenceViewer */}
 
       <div className="w-full">
         <ResidueGrid

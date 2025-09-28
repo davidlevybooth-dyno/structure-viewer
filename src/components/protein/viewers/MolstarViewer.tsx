@@ -5,10 +5,10 @@ import type { PluginUIContext } from 'molstar/lib/mol-plugin-ui/context';
 import { useMolstarPlugin } from '@/hooks/use-molstar-plugin';
 import { useStructureLoader, type LoadStructureOptions } from '@/hooks/use-structure-loader';
 import { useBidirectionalHighlighting } from '@/hooks/use-bidirectional-highlighting';
-import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
-import { ErrorDisplay } from '@/components/ui/ErrorDisplay';
-import { MolstarContainer } from '@/components/ui/MolstarContainer';
-import { StatusIndicator } from '@/components/ui/StatusIndicator';
+import { LoadingSpinner } from '@/components/ui/common/LoadingSpinner';
+import { ErrorDisplay } from '@/components/ui/common/ErrorDisplay';
+import { MolstarContainer } from './MolstarContainer';
+import { StatusIndicator } from '@/components/ui/common/StatusIndicator';
 import type { SelectionRegion, SequenceResidue } from '@/components/sequence-interface/types';
 
 type ViewerConfig = {

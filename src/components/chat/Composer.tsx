@@ -3,7 +3,7 @@
 import { useRef, useState, forwardRef, useImperativeHandle, useEffect } from "react"
 import { Send, Loader2, Plus, Mic } from "lucide-react"
 import ComposerActionsPopover from "./ComposerActionsPopover"
-import { cls } from "./utils"
+import { cls } from "../data/utils"
 
 const Composer = forwardRef(function Composer({ onSend, busy }, ref) {
   const [value, setValue] = useState("")

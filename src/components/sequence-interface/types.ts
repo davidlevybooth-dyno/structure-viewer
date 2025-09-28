@@ -67,6 +67,10 @@ export interface SequenceInterfaceProps {
   className?: string;
   /** Whether the component is read-only */
   readOnly?: boolean;
+  /** External chain selection control */
+  selectedChainIds?: string[];
+  /** External chain selection change handler */
+  onChainSelectionChange?: (chainIds: string[]) => void;
 }
 
 // Context state

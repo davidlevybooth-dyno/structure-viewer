@@ -9,7 +9,9 @@ export function useSequenceInterface({
   data,
   callbacks,
   readOnly,
-}: Pick<SequenceInterfaceProps, 'data' | 'callbacks' | 'readOnly'>) {
+  selectedChainIds: externalSelectedChainIds,
+  onChainSelectionChange: externalOnChainSelectionChange,
+}: Pick<SequenceInterfaceProps, 'data' | 'callbacks' | 'readOnly' | 'selectedChainIds' | 'onChainSelectionChange'>) {
   const {
     state,
     setData,
@@ -18,8 +20,10 @@ export function useSequenceInterface({
     copyToClipboard,
   } = useSequenceSelection();
 
-  // Chain selection state
-  const [selectedChainIds, setSelectedChainIds] = useState<string[]>([]);
+  // Chain selection state - use external if provided, otherwise internal
+  const [internalSelectedChainIds, setInternalSelectedChainIds] = useState<string[]>([]);
+  const selectedChainIds = externalSelectedChainIds || internalSelectedChainIds;
+  const setSelectedChainIds = externalOnChainSelectionChange || setInternalSelectedChainIds;
 
   // Always ensure data is properly initialized to prevent undefined access
   const safeData = useMemo((): SequenceData => ({
@@ -58,18 +62,19 @@ export function useSequenceInterface({
     clearSelection();
   }, [selectedChainIds, clearSelection]);
 
-  // Set initial selected chains based on logic:
+  // Set initial selected chains based on logic (only for internal state):
   // - If > 3 chains, select only the first one
   // - Otherwise, select all chains
   useEffect(() => {
-    if (safeData.chains.length > 0 && selectedChainIds.length === 0) {
+    // Only initialize if using internal state and no chains are selected
+    if (!externalSelectedChainIds && safeData.chains.length > 0 && internalSelectedChainIds.length === 0) {
       if (safeData.chains.length > 3) {
-        setSelectedChainIds([safeData.chains[0].id]);
+        setInternalSelectedChainIds([safeData.chains[0].id]);
       } else {
-        setSelectedChainIds(safeData.chains.map(chain => chain.id));
+        setInternalSelectedChainIds(safeData.chains.map(chain => chain.id));
       }
     }
-  }, [safeData.chains, selectedChainIds.length]);
+  }, [safeData.chains, internalSelectedChainIds.length, externalSelectedChainIds]);
 
   // Stable callbacks (memoized to prevent child re-renders)
   const handleChainSelectionChange = useCallback((chainIds: string[]) => {
