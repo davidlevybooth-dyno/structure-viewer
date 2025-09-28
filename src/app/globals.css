@@ -1,26 +1,213 @@
 @import "tailwindcss";
 
+/* Compact sequence viewer styles */
+.compact-sequence {
+  /* Make sequence boxes smaller and more compact */
+}
+
+.compact-sequence .sequence-interface {
+  font-size: 0.75rem; /* 12px */
+}
+
+.compact-sequence .sequence-interface .residue-grid {
+  gap: 0.5px;
+}
+
+/* Make residue rows tighter together - target the actual residue containers */
+.compact-sequence .sequence-interface .flex.gap-0 {
+  gap: 1px !important;
+}
+
+/* Target the CSS Grid containers that hold residues - keep dynamic columns but smaller cells */
+.compact-sequence .sequence-interface div[style*="repeat"] {
+  gap: 1px !important;
+}
+
+/* Also target by the 24px pattern specifically - don't override columns, just gap */
+.compact-sequence .sequence-interface div[style*="24px"] {
+  gap: 1px !important;
+}
+
+/* More specific targeting for the grid */
+.compact-sequence .sequence-interface div[style*="display: grid"] {
+  gap: 1px !important;
+}
+
+/* Target any div with gap styling */
+.compact-sequence .sequence-interface div[style*="gap"] {
+  gap: 1px !important;
+}
+
+/* Also target the minWidth calculation */
+.compact-sequence .sequence-interface div[style*="minWidth"] {
+  min-width: auto !important;
+}
+
+/* Target residue cells more specifically */
+.compact-sequence .sequence-interface .font-mono {
+  width: 18px !important;
+  height: 18px !important;
+  font-size: 10px !important;
+  min-width: 18px !important;
+  line-height: 1 !important;
+}
+
+/* Also target by the flex container */
+.compact-sequence
+  .sequence-interface
+  .flex.items-center.justify-center.font-mono {
+  width: 18px !important;
+  height: 18px !important;
+  font-size: 10px !important;
+}
+
+.compact-sequence .sequence-interface .chain-header {
+  margin-bottom: 0.25rem !important;
+  padding-bottom: 0.25rem !important;
+}
+
+.compact-sequence .sequence-interface .chain-header h3 {
+  font-size: 10px !important;
+  font-weight: 500 !important;
+}
+
+.compact-sequence .sequence-interface .residue-number {
+  font-size: 7px;
+  padding: 1px 2px;
+}
+
+/* Make row spacing tighter in compact mode */
+.compact-sequence .sequence-interface .space-y-3 > * + * {
+  margin-top: 0.5rem !important;
+}
+
+/* Reduce overall sequence interface padding */
+.compact-sequence .sequence-interface {
+  padding: 0.5rem !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+}
+
+/* Ensure header doesn't overflow in compact mode */
+.compact-sequence .sequence-interface .border-b {
+  max-width: 100% !important;
+  overflow: hidden !important;
+}
+
+/* Make selection summary more compact but readable */
+.compact-sequence .sequence-interface .border-t {
+  padding: 1rem 1.5rem !important;
+}
+
+/* Remove flex-1 constraints that interfere with grid */
+.compact-sequence .sequence-interface .border-t .flex-1 {
+  /* Removed min-width constraint */
+}
+
+/* Better spacing for selection text */
+.compact-sequence .sequence-interface .border-t .flex.flex-wrap {
+  gap: 0.75rem !important;
+  margin-bottom: 0.5rem !important;
+}
+
+/* Make selection text more readable - but don't constrain font size */
+.compact-sequence .sequence-interface .border-t .font-mono {
+  line-height: 1.4 !important;
+  /* Removed font-size constraint to allow normal sizing */
+}
+
+/* Adjust row width calculation for smaller cells */
+.compact-sequence .sequence-interface .flex.gap-0 {
+  min-width: auto !important;
+}
+
+/* Make the sequence rows more compact */
+.compact-sequence .sequence-interface .space-y-1 > * + * {
+  margin-top: 0.125rem !important;
+}
+
+/* Make structure name even smaller in compact mode */
+.compact-sequence .sequence-interface h2 {
+  font-size: 10px !important;
+  max-width: 200px;
+  line-height: 1.2;
+}
+
+/* Override selection summary constraints - ensure grid layout works */
+.compact-sequence .sequence-interface .border-t .grid {
+  display: grid !important;
+}
+
+.compact-sequence .sequence-interface .border-t .col-span-9 {
+  grid-column: span 9 / span 9 !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  width: auto !important;
+}
+
+.compact-sequence .sequence-interface .border-t .col-span-3 {
+  grid-column: span 3 / span 3 !important;
+  width: auto !important;
+}
+
+/* Ensure sequence text can use full width */
+.compact-sequence .sequence-interface .border-t .font-mono {
+  max-width: none !important;
+  width: auto !important;
+  word-wrap: break-word !important;
+}
+
+.compact-sequence .sequence-interface .border-b {
+  padding: 0.5rem 1rem !important;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: 0 0% 100%;
+  --foreground: 222.2 84% 4.9%;
+  --card: 0 0% 100%;
+  --card-foreground: 222.2 84% 4.9%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222.2 84% 4.9%;
+  --primary: 221.2 83.2% 53.3%;
+  --primary-foreground: 210 40% 98%;
+  --secondary: 210 40% 96%;
+  --secondary-foreground: 222.2 84% 4.9%;
+  --muted: 210 40% 96%;
+  --muted-foreground: 215.4 16.3% 46.9%;
+  --accent: 210 40% 96%;
+  --accent-foreground: 222.2 84% 4.9%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 214.3 31.8% 91.4%;
+  --input: 214.3 31.8% 91.4%;
+  --ring: 221.2 83.2% 53.3%;
+  --radius: 0.5rem;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+.dark {
+  --background: 222.2 84% 4.9%;
+  --foreground: 210 40% 98%;
+  --card: 222.2 84% 4.9%;
+  --card-foreground: 210 40% 98%;
+  --popover: 222.2 84% 4.9%;
+  --popover-foreground: 210 40% 98%;
+  --primary: 217.2 91.2% 59.8%;
+  --primary-foreground: 222.2 84% 4.9%;
+  --secondary: 217.2 32.6% 17.5%;
+  --secondary-foreground: 210 40% 98%;
+  --muted: 217.2 32.6% 17.5%;
+  --muted-foreground: 215 20.2% 65.1%;
+  --accent: 217.2 32.6% 17.5%;
+  --accent-foreground: 210 40% 98%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 217.2 32.6% 17.5%;
+  --input: 217.2 32.6% 17.5%;
+  --ring: 224.3 76.3% 94.1%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
 }

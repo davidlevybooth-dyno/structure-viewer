@@ -1,15 +1,10 @@
-/**
- * TypeScript types for the Sequence Interface component library
- */
+import type { ColorScheme } from "@/lib/amino-acid-colors";
 
-import type { ColorScheme } from '@/lib/amino-acid-colors';
-
-// Core sequence data structures
 export interface SequenceResidue {
   position: number;
   code: string;
   chainId: string;
-  secondaryStructure?: 'helix' | 'sheet' | 'loop';
+  secondaryStructure?: "helix" | "sheet" | "loop";
 }
 
 export interface SequenceChain {
@@ -25,7 +20,6 @@ export interface SequenceData {
   metadata?: Record<string, any>;
 }
 
-// Selection system
 export interface SelectionRegion {
   id: string;
   chainId: string;
@@ -43,21 +37,22 @@ export interface SequenceSelection {
   clipboard: string | null;
 }
 
-// Configuration is now handled by constants in individual components
-
-// Callbacks and events - all optional for flexible usage
 export interface SequenceInterfaceCallbacks {
   onSelectionChange?: (selection: SequenceSelection) => void;
   onHighlightChange?: (residues: SequenceResidue[]) => void;
-  onSequencePaste?: (sequence: string, position?: { chainId: string; position: number }) => void;
+  onSequencePaste?: (
+    sequence: string,
+    position?: { chainId: string; position: number },
+  ) => void;
   onSequenceCopy?: (sequence: string, region: SelectionRegion) => void;
-  onRegionAction?: (region: SelectionRegion | null, action: RegionAction) => void;
+  onRegionAction?: (
+    region: SelectionRegion | null,
+    action: RegionAction,
+  ) => void;
 }
 
-// Region actions for better type safety
-export type RegionAction = 'copy' | 'export' | 'highlight' | 'delete' | 'edit';
+export type RegionAction = "copy" | "export" | "highlight" | "delete" | "edit";
 
-// Component props
 export interface SequenceInterfaceProps {
   /** Sequence data to display */
   data: SequenceData;
@@ -67,6 +62,10 @@ export interface SequenceInterfaceProps {
   className?: string;
   /** Whether the component is read-only */
   readOnly?: boolean;
+  /** External chain selection control */
+  selectedChainIds?: string[];
+  /** External chain selection change handler */
+  onChainSelectionChange?: (chainIds: string[]) => void;
 }
 
 // Context state
@@ -80,16 +79,16 @@ export interface SequenceInterfaceState {
 
 // Actions for useReducer
 export type SequenceInterfaceAction =
-  | { type: 'SET_DATA'; payload: SequenceData }
-  | { type: 'SET_SELECTION'; payload: SequenceSelection }
-  | { type: 'ADD_SELECTION_REGION'; payload: SelectionRegion }
-  | { type: 'REMOVE_SELECTION_REGION'; payload: string }
-  | { type: 'SET_ACTIVE_REGION'; payload: string | null }
-  | { type: 'SET_HIGHLIGHTED_RESIDUES'; payload: SequenceResidue[] }
-  | { type: 'SET_CLIPBOARD'; payload: string | null }
-  | { type: 'SET_LOADING'; payload: boolean }
-  | { type: 'SET_ERROR'; payload: string | null }
-  | { type: 'RESET' };
+  | { type: "SET_DATA"; payload: SequenceData }
+  | { type: "SET_SELECTION"; payload: SequenceSelection }
+  | { type: "ADD_SELECTION_REGION"; payload: SelectionRegion }
+  | { type: "REMOVE_SELECTION_REGION"; payload: string }
+  | { type: "SET_ACTIVE_REGION"; payload: string | null }
+  | { type: "SET_HIGHLIGHTED_RESIDUES"; payload: SequenceResidue[] }
+  | { type: "SET_CLIPBOARD"; payload: string | null }
+  | { type: "SET_LOADING"; payload: boolean }
+  | { type: "SET_ERROR"; payload: string | null }
+  | { type: "RESET" };
 
 // Utility types
 export type ResiduePosition = {

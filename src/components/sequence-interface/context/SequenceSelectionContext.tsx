@@ -1,6 +1,12 @@
-'use client';
+"use client";
 
-import React, { createContext, useContext, useReducer, useCallback, useEffect } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useReducer,
+  useCallback,
+  useEffect,
+} from "react";
 import type {
   SequenceInterfaceState,
   SequenceInterfaceAction,
@@ -8,11 +14,11 @@ import type {
   SelectionRegion,
   SequenceResidue,
   SequenceData,
-} from '../types';
+} from "../types";
 
 // Initial state
 const initialState: SequenceInterfaceState = {
-  data: { id: '', name: '', chains: [] },
+  data: { id: "", name: "", chains: [] },
   selection: {
     regions: [],
     activeRegion: null,
@@ -26,27 +32,32 @@ const initialState: SequenceInterfaceState = {
 // Reducer function
 function sequenceInterfaceReducer(
   state: SequenceInterfaceState,
-  action: SequenceInterfaceAction
+  action: SequenceInterfaceAction,
 ): SequenceInterfaceState {
   switch (action.type) {
-    case 'SET_DATA':
+    case "SET_DATA":
       return {
         ...state,
         data: action.payload,
-        selection: { regions: [], activeRegion: null, clipboard: state.selection.clipboard },
+        selection: {
+          regions: [],
+          activeRegion: null,
+          clipboard: state.selection.clipboard,
+        },
         error: null,
       };
 
-
-    case 'SET_SELECTION':
+    case "SET_SELECTION":
       return {
         ...state,
         selection: action.payload,
       };
 
-    case 'ADD_SELECTION_REGION':
+    case "ADD_SELECTION_REGION":
       const newRegion = action.payload;
-      const existingRegions = state.selection.regions.filter(r => r.id !== newRegion.id);
+      const existingRegions = state.selection.regions.filter(
+        (r) => r.id !== newRegion.id,
+      );
       return {
         ...state,
         selection: {
@@ -56,18 +67,23 @@ function sequenceInterfaceReducer(
         },
       };
 
-    case 'REMOVE_SELECTION_REGION':
+    case "REMOVE_SELECTION_REGION":
       const regionIdToRemove = action.payload;
       return {
         ...state,
         selection: {
           ...state.selection,
-          regions: state.selection.regions.filter(r => r.id !== regionIdToRemove),
-          activeRegion: state.selection.activeRegion === regionIdToRemove ? null : state.selection.activeRegion,
+          regions: state.selection.regions.filter(
+            (r) => r.id !== regionIdToRemove,
+          ),
+          activeRegion:
+            state.selection.activeRegion === regionIdToRemove
+              ? null
+              : state.selection.activeRegion,
         },
       };
 
-    case 'SET_ACTIVE_REGION':
+    case "SET_ACTIVE_REGION":
       return {
         ...state,
         selection: {
@@ -76,13 +92,13 @@ function sequenceInterfaceReducer(
         },
       };
 
-    case 'SET_HIGHLIGHTED_RESIDUES':
+    case "SET_HIGHLIGHTED_RESIDUES":
       return {
         ...state,
         highlightedResidues: action.payload,
       };
 
-    case 'SET_CLIPBOARD':
+    case "SET_CLIPBOARD":
       return {
         ...state,
         selection: {
@@ -91,20 +107,20 @@ function sequenceInterfaceReducer(
         },
       };
 
-    case 'SET_LOADING':
+    case "SET_LOADING":
       return {
         ...state,
         isLoading: action.payload,
       };
 
-    case 'SET_ERROR':
+    case "SET_ERROR":
       return {
         ...state,
         error: action.payload,
         isLoading: false,
       };
 
-    case 'RESET':
+    case "RESET":
       return initialState;
 
     default:
@@ -129,13 +145,19 @@ interface SequenceSelectionContextType {
 }
 
 // Create context
-const SequenceSelectionContext = createContext<SequenceSelectionContextType | undefined>(undefined);
+const SequenceSelectionContext = createContext<
+  SequenceSelectionContextType | undefined
+>(undefined);
 
 // Local storage key
-const STORAGE_KEY = 'sequence-interface-state';
+const STORAGE_KEY = "sequence-interface-state";
 
 // Provider component
-export function SequenceSelectionProvider({ children }: { children: React.ReactNode }) {
+export function SequenceSelectionProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const [state, dispatch] = useReducer(sequenceInterfaceReducer, initialState);
 
   // Load from localStorage on mount
@@ -145,10 +167,20 @@ export function SequenceSelectionProvider({ children }: { children: React.ReactN
       if (saved) {
         const parsedState = JSON.parse(saved);
         // Only restore selection, not data
-        dispatch({ type: 'SET_SELECTION', payload: parsedState.selection || { regions: [], activeRegion: null, clipboard: null } });
+        dispatch({
+          type: "SET_SELECTION",
+          payload: parsedState.selection || {
+            regions: [],
+            activeRegion: null,
+            clipboard: null,
+          },
+        });
       }
     } catch (error) {
-      console.warn('Failed to load sequence interface state from localStorage:', error);
+      console.warn(
+        "Failed to load sequence interface state from localStorage:",
+        error,
+      );
     }
   }, []);
 
@@ -160,57 +192,81 @@ export function SequenceSelectionProvider({ children }: { children: React.ReactN
       };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(stateToSave));
     } catch (error) {
-      console.warn('Failed to save sequence interface state to localStorage:', error);
+      console.warn(
+        "Failed to save sequence interface state to localStorage:",
+        error,
+      );
     }
   }, [state.selection]);
 
   // Convenience methods
   const setData = useCallback((data: SequenceData) => {
-    dispatch({ type: 'SET_DATA', payload: data });
+    dispatch({ type: "SET_DATA", payload: data });
   }, []);
 
-
   const addSelectionRegion = useCallback((region: SelectionRegion) => {
-    dispatch({ type: 'ADD_SELECTION_REGION', payload: region });
+    dispatch({ type: "ADD_SELECTION_REGION", payload: region });
   }, []);
 
   const removeSelectionRegion = useCallback((regionId: string) => {
-    dispatch({ type: 'REMOVE_SELECTION_REGION', payload: regionId });
+    dispatch({ type: "REMOVE_SELECTION_REGION", payload: regionId });
   }, []);
 
   const setActiveRegion = useCallback((regionId: string | null) => {
-    dispatch({ type: 'SET_ACTIVE_REGION', payload: regionId });
+    dispatch({ type: "SET_ACTIVE_REGION", payload: regionId });
   }, []);
 
   const setHighlightedResidues = useCallback((residues: SequenceResidue[]) => {
-    dispatch({ type: 'SET_HIGHLIGHTED_RESIDUES', payload: residues });
+    dispatch({ type: "SET_HIGHLIGHTED_RESIDUES", payload: residues });
   }, []);
 
   const clearSelection = useCallback(() => {
-    dispatch({ type: 'SET_SELECTION', payload: { regions: [], activeRegion: null, clipboard: state.selection.clipboard } });
+    dispatch({
+      type: "SET_SELECTION",
+      payload: {
+        regions: [],
+        activeRegion: null,
+        clipboard: state.selection.clipboard,
+      },
+    });
   }, [state.selection.clipboard]);
 
-  const replaceSelection = useCallback((region: SelectionRegion) => {
-    dispatch({ type: 'SET_SELECTION', payload: { regions: [region], activeRegion: region.id, clipboard: state.selection.clipboard } });
-  }, [state.selection.clipboard]);
+  const replaceSelection = useCallback(
+    (region: SelectionRegion) => {
+      dispatch({
+        type: "SET_SELECTION",
+        payload: {
+          regions: [region],
+          activeRegion: region.id,
+          clipboard: state.selection.clipboard,
+        },
+      });
+    },
+    [state.selection.clipboard],
+  );
 
   const copyToClipboard = useCallback(async (text: string): Promise<void> => {
     try {
       await navigator.clipboard.writeText(text);
-      dispatch({ type: 'SET_CLIPBOARD', payload: text });
+      dispatch({ type: "SET_CLIPBOARD", payload: text });
     } catch (error) {
-      console.warn('Failed to copy to clipboard:', error);
+      console.warn("Failed to copy to clipboard:", error);
       throw error; // Re-throw so callers can handle
     }
   }, []);
 
-  const getSelectionSequence = useCallback((region: SelectionRegion) => {
-    const chain = state.data.chains.find(c => c.id === region.chainId);
-    if (!chain) return '';
-    
-    const residues = chain.residues.filter(r => r.position >= region.start && r.position <= region.end);
-    return residues.map(r => r.code).join('');
-  }, [state.data]);
+  const getSelectionSequence = useCallback(
+    (region: SelectionRegion) => {
+      const chain = state.data.chains.find((c) => c.id === region.chainId);
+      if (!chain) return "";
+
+      const residues = chain.residues.filter(
+        (r) => r.position >= region.start && r.position <= region.end,
+      );
+      return residues.map((r) => r.code).join("");
+    },
+    [state.data],
+  );
 
   const contextValue: SequenceSelectionContextType = {
     state,
@@ -237,7 +293,9 @@ export function SequenceSelectionProvider({ children }: { children: React.ReactN
 export function useSequenceSelection() {
   const context = useContext(SequenceSelectionContext);
   if (context === undefined) {
-    throw new Error('useSequenceSelection must be used within a SequenceSelectionProvider');
+    throw new Error(
+      "useSequenceSelection must be used within a SequenceSelectionProvider",
+    );
   }
   return context;
 }

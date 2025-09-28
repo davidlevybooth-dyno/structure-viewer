@@ -3,28 +3,34 @@
  * Based on the proven pattern: Structure → MolScript → StructureSelection → Loci → Highlight/Select
  */
 
-import type { PluginUIContext } from 'molstar/lib/mol-plugin-ui/context';
-import { MolScriptBuilder as MS } from 'molstar/lib/mol-script/language/builder';
-import { Script } from 'molstar/lib/mol-script/script';
-import { StructureSelection } from 'molstar/lib/mol-model/structure/query';
-import type { Loci } from 'molstar/lib/mol-model/loci';
+import type { PluginUIContext } from "molstar/lib/mol-plugin-ui/context";
+import { MolScriptBuilder as MS } from "molstar/lib/mol-script/language/builder";
+import { Script } from "molstar/lib/mol-script/script";
+import { StructureSelection } from "molstar/lib/mol-model/structure/query";
+import type { Loci } from "molstar/lib/mol-model/loci";
 
-export type ResidueRange = { 
-  chain: string; 
-  start: number; 
-  end: number; 
-  auth?: boolean 
+export type ResidueRange = {
+  chain: string;
+  start: number;
+  end: number;
+  auth?: boolean;
 };
 
 function getCurrentStructureData(plugin: PluginUIContext) {
-  return plugin.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data ?? null;
+  return (
+    plugin.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data ??
+    null
+  );
 }
 
 /**
  * Build a Loci for one or more residue ranges, e.g. [{ chain: 'A', start: 10, end: 25 }]
  * Set auth=true to use auth fields; otherwise label_* are used.
  */
-export function buildResidueRangeLoci(plugin: PluginUIContext, ranges: ResidueRange[]): Loci | null {
+export function buildResidueRangeLoci(
+  plugin: PluginUIContext,
+  ranges: ResidueRange[],
+): Loci | null {
   const data = getCurrentStructureData(plugin);
   if (!data || ranges.length === 0) return null;
 
@@ -37,13 +43,14 @@ export function buildResidueRangeLoci(plugin: PluginUIContext, ranges: ResidueRa
       : MS.struct.atomProperty.macromolecular.label_seq_id();
 
     return MS.struct.generator.atomGroups({
-      'chain-test': MS.core.rel.eq([chainProp, chain]),
-      'residue-test': MS.core.rel.inRange([seqProp, start, end]),
+      "chain-test": MS.core.rel.eq([chainProp, chain]),
+      "residue-test": MS.core.rel.inRange([seqProp, start, end]),
     });
   });
 
-  const selection = Script.getStructureSelection(Q =>
-    Q.struct.combinator.merge(groups as any), data
+  const selection = Script.getStructureSelection(
+    (Q) => Q.struct.combinator.merge(groups as any),
+    data,
   );
 
   return StructureSelection.toLociWithSourceUnits(selection);
