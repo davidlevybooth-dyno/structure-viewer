@@ -1,19 +1,13 @@
-/**
- * Protein structure viewer component - Now uses StructureWorkspace
- */
-
 'use client';
 
 import React from 'react';
 import { StructureWorkspace } from '../workspace/StructureWorkspace';
+import { DEFAULT_STRUCTURE_ID } from '@/config/constants';
 
-/**
- * Protein viewer component that provides integrated 3D structure and sequence analysis
- */
 export function ProteinViewer() {
   return (
     <StructureWorkspace 
-      initialPdbId="1crn"
+      initialPdbId={DEFAULT_STRUCTURE_ID}
       className="h-full"
     />
   );

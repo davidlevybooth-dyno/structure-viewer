@@ -2,9 +2,7 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useSequenceSelection } from '../context/SequenceSelectionContext';
 import type { SequenceInterfaceProps, SequenceData } from '../types';
 
-/**
- * Custom hook to manage sequence interface state and logic
- */
+
 export function useSequenceInterface({
   data,
   callbacks,

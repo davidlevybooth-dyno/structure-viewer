@@ -1,19 +1,11 @@
-/**
- * Chat-related utility functions
- */
-
 import { Conversation, Message } from '../types/chat';
 
-/**
- * Generate a unique ID for messages and conversations
- */
+
 export function generateId(prefix: string = ''): string {
   return `${prefix}${Math.random().toString(36).slice(2, 10)}`;
 }
 
-/**
- * Create a new conversation with default values
- */
+
 export function createNewConversation(title: string = "New Chat", folder: string = "Work Projects"): Conversation {
   const id = generateId();
   const now = new Date().toISOString();
@@ -30,9 +22,6 @@ export function createNewConversation(title: string = "New Chat", folder: string
   };
 }
 
-/**
- * Create a new message
- */
 export function createMessage(role: "user" | "assistant", content: string): Message {
   return {
     id: generateId('m'),
@@ -42,9 +31,7 @@ export function createMessage(role: "user" | "assistant", content: string): Mess
   };
 }
 
-/**
- * Update conversation with new message
- */
+
 export function updateConversationWithMessage(
   conversation: Conversation, 
   message: Message
@@ -60,9 +47,7 @@ export function updateConversationWithMessage(
   };
 }
 
-/**
- * Filter conversations by search query
- */
+
 export function filterConversations(conversations: Conversation[], query: string): Conversation[] {
   if (!query.trim()) return conversations;
   

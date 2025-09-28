@@ -8,9 +8,6 @@ interface PerformanceOptimizations {
   maxChainLength: number;
 }
 
-/**
- * Hook to determine performance optimizations needed for large structures
- */
 export function usePerformanceOptimization(
   data: SequenceData,
   highlightedResidues: SequenceResidue[]

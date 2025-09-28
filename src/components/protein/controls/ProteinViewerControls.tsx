@@ -3,8 +3,16 @@
 import React, { useState } from "react"
 import { ChevronDown, Settings } from "lucide-react"
 import { cls } from "../../data/utils"
+import { STYLE_REPRESENTATIONS, COLOR_SCHEMES } from "@/config/constants"
 
-function DropdownMenu({ trigger, children, isOpen, onToggle }) {
+interface DropdownMenuProps {
+  trigger: React.ReactNode;
+  children: React.ReactNode;
+  isOpen: boolean;
+  onToggle: () => void;
+}
+
+function DropdownMenu({ trigger, children, isOpen, onToggle }: DropdownMenuProps) {
   return (
     <div className="relative">
       <button
@@ -24,7 +32,13 @@ function DropdownMenu({ trigger, children, isOpen, onToggle }) {
   )
 }
 
-function DropdownItem({ children, onClick, disabled = false }) {
+interface DropdownItemProps {
+  children: React.ReactNode;
+  onClick: () => void;
+  disabled?: boolean;
+}
+
+function DropdownItem({ children, onClick, disabled = false }: DropdownItemProps) {
   return (
     <button
       onClick={onClick}
@@ -42,12 +56,12 @@ function DropdownItem({ children, onClick, disabled = false }) {
 }
 
 export function ProteinViewerControls() {
-  const [openDropdown, setOpenDropdown] = useState(null)
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null)
   const [viewMode, setViewMode] = useState("Cartoon")
   const [colorScheme, setColorScheme] = useState("By Chain")
   const [representation, setRepresentation] = useState("Ribbon")
 
-  const toggleDropdown = (name) => {
+  const toggleDropdown = (name: string) => {
     setOpenDropdown(openDropdown === name ? null : name)
   }
 
@@ -55,8 +69,9 @@ export function ProteinViewerControls() {
 
   // Close dropdowns when clicking outside
   React.useEffect(() => {
-    const handleClick = (e) => {
-      if (!e.target.closest("[data-dropdown]")) {
+    const handleClick = (e: MouseEvent) => {
+      const target = e.target as Element;
+      if (!target.closest("[data-dropdown]")) {
         closeDropdowns()
       }
     }
@@ -115,30 +130,17 @@ export function ProteinViewerControls() {
             isOpen={openDropdown === "color"}
             onToggle={() => toggleDropdown("color")}
           >
-            <DropdownItem
-              onClick={() => {
-                setColorScheme("By Chain")
-                closeDropdowns()
-              }}
-            >
-              By Chain
-            </DropdownItem>
-            <DropdownItem
-              onClick={() => {
-                setColorScheme("By Element")
-                closeDropdowns()
-              }}
-            >
-              By Element
-            </DropdownItem>
-            <DropdownItem
-              onClick={() => {
-                setColorScheme("By Secondary Structure")
-                closeDropdowns()
-              }}
-            >
-              By Secondary Structure
-            </DropdownItem>
+            {COLOR_SCHEMES.map((scheme) => (
+              <DropdownItem
+                key={scheme.value}
+                onClick={() => {
+                  setColorScheme(scheme.label)
+                  closeDropdowns()
+                }}
+              >
+                {scheme.label}
+              </DropdownItem>
+            ))}
           </DropdownMenu>
 
           {/* Representation Dropdown */}
@@ -147,30 +149,17 @@ export function ProteinViewerControls() {
             isOpen={openDropdown === "representation"}
             onToggle={() => toggleDropdown("representation")}
           >
-            <DropdownItem
-              onClick={() => {
-                setRepresentation("Ribbon")
-                closeDropdowns()
-              }}
-            >
-              Ribbon
-            </DropdownItem>
-            <DropdownItem
-              onClick={() => {
-                setRepresentation("Tube")
-                closeDropdowns()
-              }}
-            >
-              Tube
-            </DropdownItem>
-            <DropdownItem
-              onClick={() => {
-                setRepresentation("Trace")
-                closeDropdowns()
-              }}
-            >
-              Trace
-            </DropdownItem>
+            {STYLE_REPRESENTATIONS.map((rep) => (
+              <DropdownItem
+                key={rep.value}
+                onClick={() => {
+                  setRepresentation(rep.label)
+                  closeDropdowns()
+                }}
+              >
+                {rep.label}
+              </DropdownItem>
+            ))}
           </DropdownMenu>
 
           {/* Settings Dropdown */}

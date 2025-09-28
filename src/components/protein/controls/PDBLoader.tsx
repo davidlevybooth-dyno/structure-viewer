@@ -3,24 +3,13 @@
 import React, { useState, useRef, useEffect } from "react"
 import { ChevronDown, Search, Download, Upload, Database, Check } from "lucide-react"
 import { cls } from "../../data/utils"
+import { EXAMPLE_STRUCTURES } from "@/config/constants"
 
 interface PDBLoaderProps {
   currentPdbId?: string;
   onLoadStructure: (pdbId: string) => void;
   isLoading?: boolean;
 }
-
-// Popular PDB structures for quick access
-const POPULAR_STRUCTURES = [
-  { id: "1crn", name: "Crambin", description: "Small plant protein" },
-  { id: "1ubq", name: "Ubiquitin", description: "Regulatory protein" },
-  { id: "1bna", name: "DNA Double Helix", description: "B-form DNA" },
-  { id: "1hho", name: "Hemoglobin", description: "Oxygen transport" },
-  { id: "1lyz", name: "Lysozyme", description: "Antimicrobial enzyme" },
-  { id: "1insulin", name: "Insulin", description: "Hormone protein" },
-  { id: "2hbs", name: "Sickle Cell Hemoglobin", description: "Mutant hemoglobin" },
-  { id: "1gfl", name: "Green Fluorescent Protein", description: "Fluorescent marker" },
-]
 
 export function PDBLoader({ currentPdbId, onLoadStructure, isLoading }: PDBLoaderProps) {
   const [isOpen, setIsOpen] = useState(false)
@@ -29,7 +18,7 @@ export function PDBLoader({ currentPdbId, onLoadStructure, isLoading }: PDBLoade
   const searchInputRef = useRef<HTMLInputElement>(null)
 
   // Filter popular structures based on search
-  const filteredStructures = POPULAR_STRUCTURES.filter(
+  const filteredStructures = EXAMPLE_STRUCTURES.filter(
     structure =>
       structure.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
       structure.name.toLowerCase().includes(searchQuery.toLowerCase()) ||

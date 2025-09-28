@@ -1,11 +1,10 @@
-
 'use client';
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { ChevronDown, ChevronUp, Copy } from 'lucide-react';
 import { SequenceViewer } from './SequenceViewer';
 import { ChainSelector } from './ChainSelector';
-import { usePDBSequence } from '@/hooks/use-pdb-sequence';
+import { usePDBSequence } from '@/hooks/usePdbSequence';
 import type { SequenceSelection, SequenceResidue } from '../../sequence-interface/types';
 
 interface ChainInfo {
@@ -15,23 +14,26 @@ interface ChainInfo {
   description?: string;
 }
 
-interface CompactSequenceViewerProps {
+interface SequenceWorkspaceProps {
   pdbId?: string;
   isViewerReady?: boolean;
   onSelectionChange?: (selection: SequenceSelection) => void;
   onHighlightChange?: (residues: SequenceResidue[]) => void;
-  selectedRegions?: any[];
-  chains?: ChainInfo[];
   selectedChainIds?: string[];
   onChainSelectionChange?: (chainIds: string[]) => void;
   className?: string;
 }
 
 /**
- * CompactSequenceViewer - Collapsible sequence interface with chain selector
- * Provides a compact header with expand/collapse functionality and chain management
+ * SequenceWorkspace - UI orchestration component for PDB sequence viewing
+ * 
+ * Responsibilities:
+ * - UI layout and presentation (collapsible, compact view)
+ * - PDB data fetching and transformation
+ * - Chain selection state management
+ * - Integration between ChainSelector and SequenceInterface
  */
-export function CompactSequenceViewer({
+export function SequenceWorkspace({
   pdbId,
   isViewerReady,
   onSelectionChange,
@@ -39,24 +41,24 @@ export function CompactSequenceViewer({
   selectedChainIds = [],
   onChainSelectionChange,
   className = ''
-}: CompactSequenceViewerProps) {
+}: SequenceWorkspaceProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [currentSelection, setCurrentSelection] = useState<SequenceSelection | null>(null);
   
-  // Get actual PDB sequence data for chain selector
-  const { data: sequenceData } = usePDBSequence(pdbId || '');
+  // Fetch PDB data for chain selector only
+  const { data: pdbData, isLoading, error } = usePDBSequence(pdbId || '');
 
-  // Convert sequence data to ChainInfo format for ChainSelector
+  // Transform PDB chains to ChainInfo format for ChainSelector
   const chainInfo = useMemo((): ChainInfo[] => {
-    if (!sequenceData?.chains) return [];
+    if (!pdbData?.chains) return [];
     
-    return sequenceData.chains.map(chain => ({
+    return pdbData.chains.map(chain => ({
       id: chain.id,
       name: chain.name,
       residueCount: chain.residues.length,
       description: chain.organism || 'Protein chain'
     }));
-  }, [sequenceData]);
+  }, [pdbData]);
 
   // Smart chain selection logic (≤3 chains: all, >3 chains: first)
   const defaultSelectedChains = useMemo(() => {
@@ -69,14 +71,7 @@ export function CompactSequenceViewer({
     return [chainInfo[0].id];
   }, [chainInfo]);
 
-  // Initialize selected chains when chain data changes
-  useEffect(() => {
-    if (defaultSelectedChains.length > 0 && selectedChainIds.length === 0) {
-      onChainSelectionChange?.(defaultSelectedChains);
-    }
-  }, [defaultSelectedChains, selectedChainIds.length, onChainSelectionChange]);
-
-  // Handle selection changes from the SequenceViewer
+  // Handle selection changes from the SequenceInterface
   const handleSelectionChange = (selection: SequenceSelection) => {
     setCurrentSelection(selection);
     onSelectionChange?.(selection);
@@ -95,6 +90,7 @@ export function CompactSequenceViewer({
     return { regionCount, totalResidues };
   }, [currentSelection]);
 
+  // Loading state
   if (!pdbId || !isViewerReady) {
     return (
       <div className={`bg-white border-t border-zinc-200 ${className}`}>
@@ -108,6 +104,36 @@ export function CompactSequenceViewer({
       </div>
     );
   }
+
+  if (isLoading) {
+    return (
+      <div className={`bg-white border-t border-zinc-200 ${className}`}>
+        <div className="px-4 py-3">
+          <div className="flex items-center justify-center h-12">
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-3"></div>
+            <div className="text-zinc-600 text-sm">Loading sequence...</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={`bg-white border-t border-zinc-200 ${className}`}>
+        <div className="px-4 py-3">
+          <div className="flex items-center justify-center h-12 bg-red-50 rounded border border-red-200">
+            <div className="text-center">
+              <div className="text-red-600 text-sm">Failed to load sequence data</div>
+              <div className="text-red-500 text-xs mt-1">{error}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const effectiveSelectedChains = selectedChainIds.length > 0 ? selectedChainIds : defaultSelectedChains;
 
   return (
     <div className={`bg-white border-t border-zinc-200 ${className}`}>
@@ -136,7 +162,7 @@ export function CompactSequenceViewer({
                 <div className="min-w-0 flex-1 max-w-md">
                   <ChainSelector
                     chains={chainInfo}
-                    selectedChainIds={selectedChainIds.length > 0 ? selectedChainIds : defaultSelectedChains}
+                    selectedChainIds={effectiveSelectedChains}
                     onSelectionChange={onChainSelectionChange || (() => {})}
                   />
                 </div>
@@ -170,10 +196,10 @@ export function CompactSequenceViewer({
           <div className="rounded border border-zinc-200 overflow-hidden">
             <SequenceViewer
               pdbId={pdbId}
-              selectedChainIds={selectedChainIds}
+              selectedChainIds={effectiveSelectedChains}
+              onChainSelectionChange={onChainSelectionChange}
               onSelectionChange={handleSelectionChange}
               onHighlightChange={onHighlightChange}
-              onChainSelectionChange={onChainSelectionChange}
               className="compact-sequence"
             />
           </div>

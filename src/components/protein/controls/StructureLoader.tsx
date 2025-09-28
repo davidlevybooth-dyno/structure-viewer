@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { EXAMPLE_STRUCTURES } from '@/config/constants';
 
 interface StructureLoaderProps {
   initialValue?: string;
@@ -6,13 +7,6 @@ interface StructureLoaderProps {
   isViewerReady: boolean;
   currentPdbId: string;
 }
-
-const EXAMPLE_STRUCTURES = [
-  { id: '1CRN', name: 'Crambin (small)' },
-  { id: '4HHB', name: 'Hemoglobin' },
-  { id: '6M0J', name: 'COVID Spike' },
-  { id: '7MT0', name: 'AAV9 Capsid' },
-];
 
 export function StructureLoader({
   initialValue = '7MT0',

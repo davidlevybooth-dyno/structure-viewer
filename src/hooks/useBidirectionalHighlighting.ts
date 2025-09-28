@@ -1,8 +1,3 @@
-/**
- * Custom hook for managing bidirectional highlighting between sequence interface and 3D structure
- * Follows our established patterns of clean, performant, and type-safe code
- */
-
 import { useEffect, useCallback, useRef } from 'react';
 import type { PluginUIContext } from 'molstar/lib/mol-plugin-ui/context';
 import type { SelectionRegion, SequenceResidue } from '@/components/sequence-interface/types';
@@ -17,26 +12,16 @@ import { selectionRegionsToResidueRanges, sequenceResiduesToResidueRanges } from
 import { HIGHLIGHTING_CONFIG } from '@/lib/molstar/config';
 
 interface UseBidirectionalHighlightingOptions {
-  /** Callback when 3D structure selection changes */
   onStructureSelectionChange?: (regions: SelectionRegion[]) => void;
-  /** Debounce delay for hover highlighting (ms) */
   hoverDebounceMs?: number;
 }
 
 interface UseBidirectionalHighlightingReturn {
-  /** Highlight selected regions in 3D structure */
   highlightSelection: (regions: SelectionRegion[]) => Promise<void>;
-  /** Highlight hovered residues in 3D structure */
   highlightHover: (residues: SequenceResidue[]) => Promise<void>;
-  /** Clear all highlighting in 3D structure */
   clearStructureHighlights: () => void;
-  /** Whether highlighting is currently active */
   isHighlighting: boolean;
 }
-
-/**
- * Hook for managing bidirectional highlighting between sequence and structure
- */
 export function useBidirectionalHighlighting(
   plugin: PluginUIContext | null,
   options: UseBidirectionalHighlightingOptions = {}
@@ -46,12 +31,9 @@ export function useBidirectionalHighlighting(
     hoverDebounceMs = HIGHLIGHTING_CONFIG.HOVER_DEBOUNCE_MS,
   } = options;
 
-  // Refs for managing state and cleanup
   const isHighlightingRef = useRef(false);
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const unsubscribeRef = useRef<(() => void) | null>(null);
-
-  // Subscribe to 3D structure selection events (currently disabled)
   useEffect(() => {
     // TODO: Implement structure → sequence highlighting when bidirectional support is ready
     // This would subscribe to 3D structure selection events and update sequence viewer

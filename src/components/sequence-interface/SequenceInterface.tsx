@@ -5,7 +5,7 @@ import { SequenceSelectionProvider } from './context/SequenceSelectionContext';
 import { ResidueGrid } from './ResidueGrid';
 import { SelectionSummary } from './SelectionSummary';
 import { SequenceHeader } from './components/SequenceHeader';
-import { ErrorState, EmptyState, LoadingState } from './components/ErrorStates';
+import { ErrorState, LoadingState } from './components/ErrorStates';
 import { useSequenceInterface } from './hooks/useSequenceInterface';
 import { cn } from './utils/cn';
 import type { SequenceInterfaceProps } from './types';
@@ -18,12 +18,6 @@ function SequenceInterfaceInternal({
 }: SequenceInterfaceProps) {
   const {
     state,
-    selectedChainIds,
-    originalData,
-    isMultiChain,
-    isLargeStructure,
-    totalResidues,
-    handleChainSelectionChange,
     clearSelection,
     copyToClipboard,
   } = useSequenceInterface({ readOnly, callbacks, ...rest });
@@ -47,16 +41,12 @@ function SequenceInterfaceInternal({
         readOnly={readOnly} 
       />
 
-      {/* Chain controls are now handled by the ChainSelector in CompactSequenceViewer */}
-
-      <div className="w-full">
-        <ResidueGrid
-          data={state.data}
-          selection={state.selection}
-          highlightedResidues={state.highlightedResidues}
-          readOnly={readOnly}
-        />
-      </div>
+      <ResidueGrid
+        data={state.data}
+        selection={state.selection}
+        highlightedResidues={state.highlightedResidues}
+        readOnly={readOnly}
+      />
 
       {state.selection.regions.length > 0 && (
         <SelectionSummary

@@ -1,5 +1,6 @@
 import React from 'react';
 import { StructureLoader } from '@/components/ui/StructureLoader';
+import { EXAMPLE_STRUCTURES } from '@/config/constants';
 
 interface StructureSectionProps {
   pdbId: string;
@@ -29,12 +30,7 @@ export function StructureSection({
       <div className="border-t pt-4">
         <h4 className="text-sm font-medium text-gray-900 mb-3">Quick Load</h4>
         <div className="grid grid-cols-2 gap-2">
-          {[
-            { id: '1CRN', name: 'Crambin', desc: 'Small protein' },
-            { id: '4HHB', name: 'Hemoglobin', desc: 'Multi-chain' },
-            { id: '7MT0', name: 'AAV9', desc: 'Viral capsid' },
-            { id: '1BNA', name: 'DNA', desc: 'Double helix' },
-          ].map((preset) => (
+          {EXAMPLE_STRUCTURES.slice(0, 4).map((preset) => (
             <button
               key={preset.id}
               onClick={() => onLoadStructure(preset.id)}
@@ -42,7 +38,7 @@ export function StructureSection({
             >
               <div className="font-medium text-sm text-gray-900">{preset.id}</div>
               <div className="text-xs text-gray-500">{preset.name}</div>
-              <div className="text-xs text-gray-400">{preset.desc}</div>
+              <div className="text-xs text-gray-400">{preset.description}</div>
             </button>
           ))}
         </div>

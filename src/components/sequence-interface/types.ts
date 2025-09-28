@@ -1,10 +1,5 @@
-/**
- * TypeScript types for the Sequence Interface component library
- */
-
 import type { ColorScheme } from '@/lib/amino-acid-colors';
 
-// Core sequence data structures
 export interface SequenceResidue {
   position: number;
   code: string;
@@ -25,7 +20,6 @@ export interface SequenceData {
   metadata?: Record<string, any>;
 }
 
-// Selection system
 export interface SelectionRegion {
   id: string;
   chainId: string;
@@ -43,9 +37,6 @@ export interface SequenceSelection {
   clipboard: string | null;
 }
 
-// Configuration is now handled by constants in individual components
-
-// Callbacks and events - all optional for flexible usage
 export interface SequenceInterfaceCallbacks {
   onSelectionChange?: (selection: SequenceSelection) => void;
   onHighlightChange?: (residues: SequenceResidue[]) => void;
@@ -54,10 +45,8 @@ export interface SequenceInterfaceCallbacks {
   onRegionAction?: (region: SelectionRegion | null, action: RegionAction) => void;
 }
 
-// Region actions for better type safety
 export type RegionAction = 'copy' | 'export' | 'highlight' | 'delete' | 'edit';
 
-// Component props
 export interface SequenceInterfaceProps {
   /** Sequence data to display */
   data: SequenceData;

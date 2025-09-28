@@ -1,8 +1,4 @@
-/**
- * Hook for loading real PDB sequence data
- */
-
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { getPDBSequenceData } from '@/lib/pdb-sequence-api';
 import type { SequenceData } from '@/components/sequence-interface/types';
 
@@ -16,10 +12,6 @@ interface UsePDBSequenceOptions {
   onDataLoaded?: (data: SequenceData) => void;
   onError?: (error: string) => void;
 }
-
-/**
- * Hook to fetch and manage PDB sequence data
- */
 export function usePDBSequence(
   pdbId: string | null, 
   options: UsePDBSequenceOptions = {}
@@ -64,17 +56,14 @@ export function usePDBSequence(
     return () => {
       cancelled = true;
     };
-  }, [pdbId]); // Only depend on pdbId to prevent infinite loops
+  }, [pdbId, onDataLoaded, onError]);
 
   const refetch = () => {
     if (pdbId) {
-      // Force re-fetch by clearing cache entry
       const { sequenceCache } = require('@/lib/pdb-sequence-api');
       if (sequenceCache?.delete) {
         sequenceCache.delete(pdbId.toUpperCase());
       }
-      
-      // Trigger re-load
       setState(prev => ({ ...prev, isLoading: true, error: null }));
     }
   };

@@ -2,9 +2,9 @@
 
 import { useEffect, useMemo, useCallback } from 'react';
 import type { PluginUIContext } from 'molstar/lib/mol-plugin-ui/context';
-import { useMolstarPlugin } from '@/hooks/use-molstar-plugin';
-import { useStructureLoader, type LoadStructureOptions } from '@/hooks/use-structure-loader';
-import { useBidirectionalHighlighting } from '@/hooks/use-bidirectional-highlighting';
+import { useMolstarPlugin } from '@/hooks/useMolstarPlugin';
+import { useStructureLoader, type LoadStructureOptions } from '@/hooks/useStructureLoader';
+import { useBidirectionalHighlighting } from '@/hooks/useBidirectionalHighlighting';
 import { LoadingSpinner } from '@/components/ui/common/LoadingSpinner';
 import { ErrorDisplay } from '@/components/ui/common/ErrorDisplay';
 import { MolstarContainer } from './MolstarContainer';

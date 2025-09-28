@@ -1,4 +1,5 @@
 // Protein Sequence Components
-export { CompactSequenceViewer } from './CompactSequenceViewer';
-export { ChainSelector } from './ChainSelector';
+export { SequenceWorkspace } from './SequenceWorkspace';
 export { SequenceViewer } from './SequenceViewer';
+export { ChainSelector } from './ChainSelector';
+export { ChainTooltip } from './ChainTooltip';

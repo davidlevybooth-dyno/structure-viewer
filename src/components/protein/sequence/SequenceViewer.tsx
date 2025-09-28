@@ -1,12 +1,13 @@
 import React from 'react';
 import { SequenceInterface } from '@/components/sequence-interface';
-import { usePDBSequence } from '@/hooks/use-pdb-sequence';
+import { usePDBSequence } from '@/hooks/usePdbSequence';
+import type { SequenceSelection, SequenceResidue } from '@/components/sequence-interface/types';
 
 interface SequenceViewerProps {
   pdbId: string;
   className?: string;
-  onSelectionChange?: (selection: any) => void;
-  onHighlightChange?: (residues: any[]) => void;
+  onSelectionChange?: (selection: SequenceSelection) => void;
+  onHighlightChange?: (residues: SequenceResidue[]) => void;
   selectedChainIds?: string[];
   onChainSelectionChange?: (chainIds: string[]) => void;
 }

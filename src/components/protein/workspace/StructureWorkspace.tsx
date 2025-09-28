@@ -7,8 +7,9 @@
 
 import React, { useState, useCallback, useMemo } from 'react';
 import { MolstarViewer } from '../viewers/MolstarViewer';
-import { CompactSequenceViewer } from '../sequence/CompactSequenceViewer';
+import { SequenceWorkspace } from '../sequence/SequenceWorkspace';
 import { PDBLoader } from '../controls/PDBLoader';
+import { DEFAULT_STRUCTURE_ID } from '@/config/constants';
 import type { SelectionRegion, SequenceResidue, SequenceSelection } from '../../sequence-interface/types';
 import type { PluginUIContext } from 'molstar/lib/mol-plugin-ui/context';
 
@@ -19,7 +20,7 @@ interface StructureWorkspaceProps {
 
 export function StructureWorkspace({ 
   className = '',
-  initialPdbId = '1crn' 
+  initialPdbId = DEFAULT_STRUCTURE_ID 
 }: StructureWorkspaceProps) {
   // Core state
   const [pdbId, setPdbId] = useState<string>(initialPdbId);
@@ -130,11 +131,9 @@ export function StructureWorkspace({
           </div>
 
           {/* Compact Sequence Interface */}
-          <CompactSequenceViewer
+          <SequenceWorkspace
             pdbId={pdbId}
             isViewerReady={isViewerReady}
-            selectedRegions={selectedRegions}
-            chains={chains}
             selectedChainIds={selectedChainIds}
             onSelectionChange={handleSequenceSelectionChange}
             onHighlightChange={handleSequenceHighlightChange}
