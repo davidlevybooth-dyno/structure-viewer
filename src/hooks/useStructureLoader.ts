@@ -104,15 +104,20 @@ export function useStructureLoader(
         const structure =
           await plugin.builders.structure.createStructure(model);
 
-        // Apply default preset to ensure proper component structure (like working test page)
-        await plugin.builders.structure.hierarchy.applyPreset(structure, 'default');
+        // Apply default preset to ensure proper component structure and store preset objects
+        const presetStateObjects = await plugin.builders.structure.hierarchy.applyPreset(structure, 'default');
         
-        // Enforce representation using the working API pattern
+        // Store preset objects for highlighting system to use
+        if (presetStateObjects) {
+          (plugin as any)._presetStateObjects = presetStateObjects;
+        }
+        
+        // Enforce representation using the working pattern, but preserve selection theme
         try {
           const hierarchy = plugin.managers.structure.hierarchy.current;
           const update = plugin.state.data.build();
           
-          // Update existing representations (preserving component structure)
+          // Update existing representations in place (preserving component structure)
           for (const struct of hierarchy.structures) {
             for (const component of struct.components) {
               for (const rep of component.representations) {
@@ -126,6 +131,24 @@ export function useStructureLoader(
           }
           
           await update.commit();
+          
+          // Configure selection color to be more visible
+          try {
+            const { PluginCommands } = await import('molstar/lib/mol-plugin/commands');
+            const renderer = plugin.canvas3d!.props.renderer;
+            await PluginCommands.Canvas3D.SetSettings(plugin, { 
+              settings: { 
+                renderer: { 
+                  ...renderer, 
+                  selectColor: 0xff0000, // Bright red for selections
+                  highlightColor: 0xffff00 // Bright yellow for highlights
+                } 
+              } 
+            });
+            console.log('🎯 Selection colors configured');
+          } catch (colorError) {
+            console.warn('Selection color setup failed:', colorError);
+          }
           
         } catch (repError) {
           console.warn('Representation enforcement failed, keeping default:', repError);

@@ -3,64 +3,46 @@
 import React, { useState, useEffect } from "react";
 import { ChevronDown, Settings } from "lucide-react";
 import { useMolstar } from "@/contexts/MolstarContext";
+import { usePDBSequence } from "@/hooks/usePdbSequence";
 import { MolstarRepresentationAPI } from "@/lib/molstar/representation";
 import {
   RepresentationSelector,
-  ComponentControls,
   ChainControls,
 } from "./settings";
 import type { PluginUIContext } from "molstar/lib/mol-plugin-ui/context";
 
-function getAvailableChains(plugin: PluginUIContext): string[] {
-  try {
-    const hierarchy = plugin.managers.structure.hierarchy.current;
-    if (!hierarchy.structures.length) return [];
 
-    const structure = hierarchy.structures[0];
-    if (!structure?.cell?.obj?.data) return [];
-
-    const structureData = structure.cell.obj.data;
-    const chains = new Set<string>();
-
-    for (const unit of structureData.units) {
-      if (unit.kind === 0) {
-        const chainIndex =
-          unit.model.atomicHierarchy.chainAtomSegments.index[unit.elements[0]];
-        const chainId =
-          unit.model.atomicHierarchy.chains.label_asym_id.value(chainIndex);
-        if (chainId) chains.add(chainId);
-      }
-    }
-
-    return Array.from(chains).sort();
-  } catch (error) {
-    console.warn("Failed to extract chains:", error);
-    return [];
-  }
+interface StructureSettingsDropdownProps {
+  pdbId?: string;
 }
 
-export function StructureSettingsDropdown() {
+export function StructureSettingsDropdown({ pdbId }: StructureSettingsDropdownProps) {
   const { plugin } = useMolstar();
   const [isOpen, setIsOpen] = useState(false);
-  const [availableChains, setAvailableChains] = useState<string[]>([]);
   const [selectedChain, setSelectedChain] = useState<string>("");
   const [api, setApi] = useState<MolstarRepresentationAPI | null>(null);
   const [currentRepresentation, setCurrentRepresentation] =
     useState<string>("cartoon");
 
+  // Get chain data from the same source as sequence interface
+  const { data: pdbData } = usePDBSequence(pdbId || null);
+  const availableChains = pdbData?.chains?.map(chain => chain.id) || [];
+
   // Initialize API when plugin is available
   useEffect(() => {
     if (plugin) {
       setApi(new MolstarRepresentationAPI(plugin));
-      const chains = getAvailableChains(plugin);
-      setAvailableChains(chains);
-      if (chains.length > 0 && !selectedChain) {
-        setSelectedChain(chains[0]);
-      }
     } else {
       setApi(null);
     }
-  }, [plugin, selectedChain]);
+  }, [plugin]);
+
+  // Set default selected chain when chains are available
+  useEffect(() => {
+    if (availableChains.length > 0 && !selectedChain) {
+      setSelectedChain(availableChains[0]);
+    }
+  }, [availableChains, selectedChain]);
 
   const handleAction = async (actionFn: () => Promise<boolean>) => {
     if (!plugin) return;
@@ -122,9 +104,6 @@ export function StructureSettingsDropdown() {
                 currentRepresentation={currentRepresentation}
                 onRepresentationChange={handleRepresentationChange}
               />
-
-              {/* Component Controls */}
-              <ComponentControls plugin={plugin} onAction={handleAction} />
 
               {/* Chain Controls */}
               <ChainControls

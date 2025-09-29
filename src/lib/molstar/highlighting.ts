@@ -8,6 +8,8 @@ import { MolScriptBuilder as MS } from "molstar/lib/mol-script/language/builder"
 import { Script } from "molstar/lib/mol-script/script";
 import { StructureSelection } from "molstar/lib/mol-model/structure/query";
 import type { Loci } from "molstar/lib/mol-model/loci";
+import { setStructureOverpaint } from "molstar/lib/mol-plugin-state/helpers/structure-overpaint";
+import { Color } from "molstar/lib/mol-util/color";
 
 export type ResidueRange = {
   chain: string;
@@ -61,6 +63,8 @@ export function buildResidueRangeLoci(
  */
 export function highlightOnly(plugin: PluginUIContext, loci: Loci) {
   plugin.managers.interactivity.lociHighlights.highlightOnly({ loci });
+  // Also try the structure selection approach for more visibility
+  plugin.managers.structure.selection.fromLoci('set', loci);
 }
 
 /**
@@ -70,6 +74,49 @@ export function selectOnly(plugin: PluginUIContext, loci: Loci) {
   // Clear then set, so visuals and sequence panel reflect only this set.
   plugin.managers.interactivity.lociSelects.deselectAll();
   plugin.managers.interactivity.lociSelects.select({ loci });
+  
+  // Use overpaint for visible highlighting with correct structure reference
+  try {
+    // Try to get preset state objects (correct approach for molstar 5.0)
+    const presetStateObjects = (plugin as any)._presetStateObjects;
+    console.log('🎯 PresetStateObjects:', presetStateObjects);
+    
+    if (presetStateObjects?.structure?.data) {
+      const struct = presetStateObjects.structure.data;
+      console.log('🎯 Structure from preset:', struct);
+      
+      const structRef = plugin.managers.structure.hierarchy.findStructure(struct);
+      console.log('🎯 StructRef:', structRef);
+      
+      if (structRef) {
+        console.log('🎯 StructRef components:', structRef.components);
+        console.log('🎯 Loci to highlight:', loci);
+        
+        const color = Color(0xFF0000); // Bright red
+        console.log('🎯 Color:', color);
+        
+        await setStructureOverpaint(plugin, structRef.components, color, async () => loci);
+        console.log('🎯 Applied overpaint highlighting');
+      } else {
+        console.log('🎯 No structRef found with preset approach');
+      }
+    } else {
+      console.log('🎯 No preset state objects found');
+      
+      // Fallback to old approach
+      const hierarchy = plugin.managers.structure.hierarchy.current;
+      if (hierarchy.structures.length > 0) {
+        const struct = hierarchy.structures[0];
+        const structRef = plugin.managers.structure.hierarchy.findStructure(struct.cell.obj.data);
+        console.log('🎯 Fallback structRef:', structRef);
+      }
+    }
+  } catch (error) {
+    console.error('🎯 Overpaint highlighting failed:', error);
+  }
+  
+  // Focus camera on the selection
+  plugin.managers.camera.focusLoci(loci);
 }
 
 export function clearAllHighlights(plugin: PluginUIContext) {
@@ -78,6 +125,23 @@ export function clearAllHighlights(plugin: PluginUIContext) {
 
 export function clearAllSelections(plugin: PluginUIContext) {
   plugin.managers.interactivity.lociSelects.deselectAll();
+  
+  // Clear overpaint
+  try {
+    const hierarchy = plugin.managers.structure.hierarchy.current;
+    if (hierarchy.structures.length > 0) {
+      const struct = hierarchy.structures[0];
+      const structRef = plugin.managers.structure.hierarchy.findStructure(struct.cell.obj.data);
+      
+      if (structRef) {
+        // Clear overpaint by setting it to undefined
+        setStructureOverpaint(plugin, structRef.components, undefined, async () => undefined);
+        console.log('🎯 Cleared overpaint highlighting');
+      }
+    }
+  } catch (error) {
+    console.warn('Clear overpaint failed:', error);
+  }
 }
 
 export function focusLoci(plugin: PluginUIContext, loci: Loci) {

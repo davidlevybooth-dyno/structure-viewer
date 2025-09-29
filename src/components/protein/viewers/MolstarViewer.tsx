@@ -121,6 +121,7 @@ export function MolstarViewer({
   useEffect(() => {
     if (!plugin || !pluginState.isInitialized) return;
 
+    // Highlighting selection regions
     void highlightSelection(selectedRegions);
   }, [selectedRegions, plugin, pluginState.isInitialized, highlightSelection]);
 

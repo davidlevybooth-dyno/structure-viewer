@@ -30,25 +30,18 @@ export interface RepresentationOptions {
 export class MolstarRepresentationAPI {
   constructor(private plugin: PluginUIContext) {}
 
-  // Core method to set representation safely
+  // Core method to set representation safely - works with both simple and preset structures
   async setRepresentation(repType: string): Promise<boolean> {
     try {
       const hierarchy = this.plugin.managers.structure.hierarchy.current;
 
       // Validate hierarchy structure
       if (hierarchy.structures.length === 0) return false;
-      const totalComponents = hierarchy.structures.flatMap(
-        (s) => s.components,
-      ).length;
-      if (totalComponents === 0) return false;
-      const totalRepresentations = hierarchy.structures
-        .flatMap((s) => s.components)
-        .flatMap((c) => c.representations).length;
-      if (totalRepresentations === 0) return false;
 
       const update = this.plugin.state.data.build();
+      let hasRepresentations = false;
 
-      // Update existing representations in place
+      // Try to update existing representations (preset structure)
       for (const structure of hierarchy.structures) {
         for (const component of structure.components) {
           for (const representation of component.representations) {
@@ -57,8 +50,40 @@ export class MolstarRepresentationAPI {
               colorTheme: { name: "chain-id", params: {} },
               sizeTheme: { name: "uniform", params: { value: 1 } },
             });
+            hasRepresentations = true;
           }
         }
+      }
+
+      // If no representations found in components, try direct structure representations (simple structure)
+      if (!hasRepresentations) {
+        console.log('🎯 No component representations found, trying direct structure representations');
+        for (const structure of hierarchy.structures) {
+          // Look for representations directly on the structure
+          const structureNode = this.plugin.state.data.select(structure.cell.transform.ref)[0];
+          if (structureNode) {
+            const representations = this.plugin.state.data.select(
+              this.plugin.state.data.selectQ(q => 
+                q.subtree(structureNode.transform.ref).ofType('structure-representation-3d')
+              )
+            );
+            
+            console.log('🎯 Found direct representations:', representations.length);
+            for (const rep of representations) {
+              update.to(rep.transform.ref).update({
+                type: { name: repType, params: {} },
+                colorTheme: { name: "chain-id", params: {} },
+                sizeTheme: { name: "uniform", params: { value: 1 } },
+              });
+              hasRepresentations = true;
+            }
+          }
+        }
+      }
+
+      if (!hasRepresentations) {
+        console.warn('No representations found to update');
+        return false;
       }
 
       await update.commit();

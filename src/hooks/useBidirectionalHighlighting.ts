@@ -67,7 +67,8 @@ export function useBidirectionalHighlighting(
 
         if (!loci) return;
 
-        // Apply persistent selection (won't disappear on mouseover)
+        // Try both highlighting and selection for visibility
+        highlightOnly(plugin, loci);
         selectOnly(plugin, loci);
       } catch (error) {
         console.error("Failed to highlight selection:", error);

@@ -77,7 +77,7 @@ export function StructureWorkspace({
   const handleSequenceSelectionChange = useCallback(
     (selection: SequenceSelection) => {
       setSelectedRegions(selection.regions);
-      // TODO: Highlight regions in 3D structure
+      // Highlighting will be handled by MolstarViewer via props
     },
     [],
   );
@@ -85,7 +85,7 @@ export function StructureWorkspace({
   const handleSequenceHighlightChange = useCallback(
     (residues: SequenceResidue[]) => {
       setHoveredResidues(residues);
-      // TODO: Highlight residues in 3D structure
+      // Highlighting will be handled by MolstarViewer via props
     },
     [],
   );
@@ -129,7 +129,7 @@ export function StructureWorkspace({
             onLoadStructure={handleLoadStructure}
             isLoading={isLoading}
           />
-          <StructureSettingsDropdown />
+          <StructureSettingsDropdown pdbId={pdbId} />
           {error && (
             <div className="text-sm text-red-600 bg-red-50 px-3 py-1 rounded-md ml-auto">
               Error: {error}

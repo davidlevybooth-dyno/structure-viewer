@@ -31,3 +31,24 @@ export {
   type HighlightingConfig,
   type SequenceHighlightingConfig,
 } from "./config";
+
+// Chain operations
+export {
+  getAvailableChains,
+  hideChain,
+  isolateChain,
+  showAllChains,
+} from "./chain-operations";
+
+// Representation control
+export {
+  MolstarRepresentationAPI,
+  setRepresentation,
+  setCartoon,
+  setSurface,
+  setBallAndStick,
+  setSpacefill,
+  setPoint,
+  setBackbone,
+  type RepresentationType,
+} from "./representation";
