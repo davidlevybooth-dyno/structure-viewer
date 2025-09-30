@@ -6,7 +6,6 @@ import { Color } from 'molstar/lib/mol-util/color';
 import { Asset } from 'molstar/lib/mol-util/assets';
 import { Script } from 'molstar/lib/mol-script/script';
 import { StructureSelection } from 'molstar/lib/mol-model/structure';
-import { EmptyLoci } from 'molstar/lib/mol-model/loci';
 import type { PluginUIContext } from 'molstar/lib/mol-plugin-ui/context';
 
 export interface LoadParams {
@@ -63,8 +62,8 @@ export class MolstarWrapper {
                             }
                         }
                     },
-                    controls: {
-                        enableFullscreen: false
+                    renderer: {
+                        backgroundColor: Color(0xffffff)
                     }
                 },
                 components: {
@@ -103,7 +102,7 @@ export class MolstarWrapper {
             isBinary 
         }, { state: { isGhost: true } });
 
-        const trajectory = await this.plugin.builders.structure.parseTrajectory(data, format);
+        const trajectory = await this.plugin.builders.structure.parseTrajectory(data, 'mmcif');
         await this.plugin.builders.structure.hierarchy.applyPreset(trajectory, 'default', {
             structure: assemblyId ? {
                 name: 'assembly',
@@ -208,6 +207,39 @@ export class MolstarWrapper {
     }
 
     /**
+     * Focus camera on currently visible structure content
+     * TEMPORARILY DISABLED due to persistent 'entity-test' API conflicts
+     * Users can manually use Reset button for camera adjustment
+     */
+    private async focusOnVisibleStructure(): Promise<void> {
+        // Method disabled - no auto-focus to prevent API errors
+        console.log('📷 Auto-focus disabled - use Reset button for camera adjustment');
+        return;
+        
+        /* DISABLED CODE - keeping for future debugging
+        if (!this.plugin) return;
+        
+        try {
+            console.log('📷 Auto-focusing camera on visible structure...');
+            
+            setTimeout(() => {
+                try {
+                    if (this.plugin) {
+                        this.resetCamera();
+                        console.log('✅ Camera focused on visible structure');
+                    }
+                } catch (error) {
+                    console.error('Error in delayed camera reset:', error);
+                }
+            }, 150);
+            
+        } catch (error) {
+            console.error('Error setting up camera focus:', error);
+        }
+        */
+    }
+
+    /**
      * Get available chains in the structure
      */
     async getAvailableChains(): Promise<string[]> {
@@ -218,21 +250,34 @@ export class MolstarWrapper {
 
         const chains = new Set<string>();
         
+        // More comprehensive chain discovery for large structures like 7MT0
         for (const unit of structureData.units) {
             if (unit.kind === 0) { // atomic unit
                 const model = unit.model;
-                if (model?.atomicHierarchy && unit.elements.length > 0) {
+                if (model?.atomicHierarchy) {
                     const { chainAtomSegments, chains: chainTable } = model.atomicHierarchy;
-                    const firstElement = unit.elements[0];
-                    const chainIndex = chainAtomSegments.index[firstElement];
-                    const asymId = chainTable.label_asym_id.value(chainIndex);
-                    if (asymId) chains.add(asymId);
+                    
+                    // For large structures, sample elements to find all chains efficiently
+                    const sampleSize = Math.min(unit.elements.length, 10000);
+                    const step = Math.max(1, Math.floor(unit.elements.length / sampleSize));
+                    
+                    for (let i = 0; i < unit.elements.length; i += step) {
+                        const element = unit.elements[i];
+                        const chainIndex = chainAtomSegments.index[element];
+                        
+                        // Get both label_asym_id and auth_asym_id for completeness
+                        const labelAsymId = chainTable.label_asym_id.value(chainIndex);
+                        const authAsymId = chainTable.auth_asym_id.value(chainIndex);
+                        
+                        if (labelAsymId) chains.add(labelAsymId);
+                        if (authAsymId && authAsymId !== labelAsymId) chains.add(authAsymId);
+                    }
                 }
             }
         }
         
         const chainList = Array.from(chains).sort();
-        console.log('🔍 Available chains:', chainList);
+        console.log(`🔍 Found ${chainList.length} chains in structure:`, chainList);
         return chainList;
     }
 
@@ -282,11 +327,12 @@ export class MolstarWrapper {
                 
                 // Add persistent highlights that won't be cleared by mouse interactions
                 allLoci.forEach((loci, index) => {
-                    this.plugin.managers.interactivity.lociHighlights.highlight({
-                        loci,
-                        color: Color(0x00ff00), // Green color for selections
-                        alpha: 0.8
-                    }, false); // false = don't clear existing highlights
+                    if (loci?.elements && loci.elements.length > 0 && this.plugin) {
+                        this.plugin.managers.interactivity.lociHighlights.highlight(
+                            { loci },
+                            false // Don't clear existing highlights
+                        );
+                    }
                 });
             }
             
@@ -394,14 +440,12 @@ export class MolstarWrapper {
                             ? 'element-symbol' 
                             : 'chain-id';
                             
-                        newUpdate.to(component.cell).apply({
-                            name: 'structure-representation-3d',
-                            params: {
-                                type: { name: representationType, params: {} },
-                                colorTheme: { name: colorTheme, params: {} },
-                                sizeTheme: { name: 'uniform', params: { value: 1 } }
-                            }
-                        });
+                        newUpdate.to(component.cell).update((old: any) => ({
+                            ...old,
+                            type: { name: representationType, params: {} },
+                            colorTheme: { name: colorTheme, params: {} },
+                            sizeTheme: { name: 'uniform', params: { value: 1 } }
+                        }));
                     }
                 }
                 
@@ -464,6 +508,8 @@ export class MolstarWrapper {
         if (!this.plugin) return;
         
         try {
+            console.log(`🎯 Isolating chain: "${chainId}"`);
+            
             const hierarchy = this.plugin.managers.structure.hierarchy.current;
             if (!hierarchy.structures.length) return;
 
@@ -471,24 +517,44 @@ export class MolstarWrapper {
             const data = structure.cell?.obj?.data;
             if (!data) return;
 
+            // Get all available chains to debug
             const allChains = await this.getAvailableChains();
+            console.log(`📋 All chains found:`, allChains);
+            console.log(`🎯 Target chain to keep: "${chainId}"`);
+            
             const chainsToHide = allChains.filter(id => id !== chainId);
+            console.log(`🚫 Chains to hide:`, chainsToHide);
 
-            if (chainsToHide.length === 0) return;
+            if (chainsToHide.length === 0) {
+                console.log('⚠️ No chains to hide - only one chain in structure');
+                return;
+            }
 
+            // Hide chains one by one - this approach actually works better for complex structures
             for (const hideChainId of chainsToHide) {
+                console.log(`🚫 Hiding chain: "${hideChainId}"`);
+                
                 const hideSelection = Script.getStructureSelection((Q: any) => Q.struct.generator.atomGroups({
                     'chain-test': Q.core.rel.eq([Q.struct.atomProperty.macromolecular.auth_asym_id(), hideChainId])
                 }), data);
 
                 const hideLoci = StructureSelection.toLociWithSourceUnits(hideSelection);
-                this.plugin.managers.structure.selection.fromLoci('set', hideLoci);
                 
-                const allComponents = hierarchy.structures.flatMap(s => s.components);
-                await this.plugin.managers.structure.component.modifyByCurrentSelection(allComponents, 'subtract');
-                
-                this.plugin.managers.structure.selection.clear();
+                if (hideLoci && hideLoci.elements && hideLoci.elements.length > 0) {
+                    this.plugin.managers.structure.selection.fromLoci('set', hideLoci);
+                    const allComponents = hierarchy.structures.flatMap(s => s.components);
+                    await this.plugin.managers.structure.component.modifyByCurrentSelection(allComponents, 'subtract');
+                    this.plugin.managers.structure.selection.clear();
+                    console.log(`✅ Successfully hid chain: "${hideChainId}"`);
+                } else {
+                    console.log(`⚠️ No atoms found for chain: "${hideChainId}"`);
+                }
             }
+            
+            console.log(`✅ Isolation complete - only chain "${chainId}" should be visible`);
+            
+            // Note: Auto-focus temporarily disabled due to API conflicts
+            // Users can manually reset camera using the Reset button if needed
             
         } catch (error) {
             console.error('Error isolating chain:', error);
@@ -530,7 +596,7 @@ export class MolstarWrapper {
 
             const hideLoci = StructureSelection.toLociWithSourceUnits(hideSelection);
             
-            if (hideLoci.isEmpty) return;
+            if (!hideLoci || hideLoci.elements.length === 0) return;
 
             // Set selection and hide using modifyByCurrentSelection
             this.plugin.managers.structure.selection.fromLoci('set', hideLoci);
@@ -567,7 +633,7 @@ export class MolstarWrapper {
 
                     const hideChainLoci = StructureSelection.toLociWithSourceUnits(hideChainSelection);
                     
-                    if (!hideChainLoci.isEmpty) {
+                    if (hideChainLoci && hideChainLoci.elements.length > 0) {
                         this.plugin.managers.structure.selection.fromLoci('set', hideChainLoci);
                         const allComponents = hierarchy.structures.flatMap(s => s.components);
                         await this.plugin.managers.structure.component.modifyByCurrentSelection(allComponents, 'subtract');
@@ -583,7 +649,7 @@ export class MolstarWrapper {
 
                         const hideBeforeLoci = StructureSelection.toLociWithSourceUnits(hideBeforeSelection);
                         
-                        if (!hideBeforeLoci.isEmpty) {
+                        if (hideBeforeLoci && hideBeforeLoci.elements.length > 0) {
                             this.plugin.managers.structure.selection.fromLoci('set', hideBeforeLoci);
                             const allComponents = hierarchy.structures.flatMap(s => s.components);
                             await this.plugin.managers.structure.component.modifyByCurrentSelection(allComponents, 'subtract');
@@ -595,8 +661,6 @@ export class MolstarWrapper {
                     // Use a reasonable upper bound (most proteins don't exceed 10000 residues)
                     const maxResidue = 10000;
                     
-                    console.log(`Isolate ${chainId}:${startSeq}-${endSeq}, maxResidue found: ${maxResidue}`);
-                    
                     if (endSeq < maxResidue) {
                         const hideAfterSelection = Script.getStructureSelection((Q: any) => Q.struct.generator.atomGroups({
                             'chain-test': Q.core.rel.eq([Q.struct.atomProperty.macromolecular.auth_asym_id(), chainId]),
@@ -605,9 +669,7 @@ export class MolstarWrapper {
 
                         const hideAfterLoci = StructureSelection.toLociWithSourceUnits(hideAfterSelection);
                         
-                        console.log(`Hiding after ${endSeq}: range ${endSeq + 1}-${maxResidue}, isEmpty: ${hideAfterLoci.isEmpty}`);
-                        
-                        if (!hideAfterLoci.isEmpty) {
+                        if (hideAfterLoci && hideAfterLoci.elements.length > 0) {
                             this.plugin.managers.structure.selection.fromLoci('set', hideAfterLoci);
                             const allComponents = hierarchy.structures.flatMap(s => s.components);
                             await this.plugin.managers.structure.component.modifyByCurrentSelection(allComponents, 'subtract');
@@ -616,6 +678,10 @@ export class MolstarWrapper {
                     }
                 }
             }
+            
+            // Note: Auto-focus disabled for residue range isolation due to API conflicts
+            // Users can manually reset camera if needed using the Reset button
+            console.log('✅ Residue range isolation complete');
             
         } catch (error) {
             console.error('Error isolating residue range:', error);
@@ -672,7 +738,7 @@ export class MolstarWrapper {
 
             const waterLoci = StructureSelection.toLociWithSourceUnits(waterSelection);
             
-            if (!waterLoci.isEmpty) {
+            if (waterLoci && waterLoci.elements.length > 0) {
                 this.plugin.managers.structure.selection.fromLoci('set', waterLoci);
                 const allComponents = hierarchy.structures.flatMap(s => s.components);
                 await this.plugin.managers.structure.component.modifyByCurrentSelection(allComponents, 'subtract');
@@ -711,7 +777,7 @@ export class MolstarWrapper {
 
             const ligandLoci = StructureSelection.toLociWithSourceUnits(ligandSelection);
             
-            if (!ligandLoci.isEmpty) {
+            if (ligandLoci && ligandLoci.elements.length > 0) {
                 this.plugin.managers.structure.selection.fromLoci('set', ligandLoci);
                 const allComponents = hierarchy.structures.flatMap(s => s.components);
                 await this.plugin.managers.structure.component.modifyByCurrentSelection(allComponents, 'subtract');
@@ -750,7 +816,7 @@ export class MolstarWrapper {
 
             const ionLoci = StructureSelection.toLociWithSourceUnits(ionSelection);
             
-            if (!ionLoci.isEmpty) {
+            if (ionLoci && ionLoci.elements.length > 0) {
                 this.plugin.managers.structure.selection.fromLoci('set', ionLoci);
                 const allComponents = hierarchy.structures.flatMap(s => s.components);
                 await this.plugin.managers.structure.component.modifyByCurrentSelection(allComponents, 'subtract');

@@ -193,19 +193,17 @@ export function StructureWorkspace({
             />
           </div>
 
-          {/* Sequence Interface - Natural height */}
-          <div className="bg-zinc-50">
-            <SequenceWorkspace
-              pdbId={pdbId}
-              isViewerReady={isViewerReady}
-              selectedChainIds={selectedChainIds}
-              onSelectionChange={handleSequenceSelectionChange}
-              onHighlightChange={handleSequenceHighlightChange}
-              onChainSelectionChange={handleChainSelectionChange}
-              onChainsLoaded={handleChainsLoaded}
-              onResidueAction={handleResidueAction}
-            />
-          </div>
+          {/* Sequence Interface - Accordion Style */}
+          <SequenceWorkspace
+            pdbId={pdbId}
+            isViewerReady={isViewerReady}
+            selectedChainIds={selectedChainIds}
+            onSelectionChange={handleSequenceSelectionChange}
+            onHighlightChange={handleSequenceHighlightChange}
+            onChainSelectionChange={handleChainSelectionChange}
+            onChainsLoaded={handleChainsLoaded}
+            onResidueAction={handleResidueAction}
+          />
         </div>
       </div>
     </div>
