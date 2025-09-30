@@ -5,18 +5,19 @@
 
 "use client";
 
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useState, useCallback, useMemo, useEffect } from "react";
 import { MolstarViewer } from "../viewers/MolstarViewer";
 import { SequenceWorkspace } from "../sequence/SequenceWorkspace";
 import { PDBLoader } from "../controls/PDBLoader";
 import { StructureSettingsDropdown } from "../controls/StructureSettingsDropdown";
+import { StructureControls } from "../controls/StructureControls";
 import { DEFAULT_STRUCTURE_ID } from "@/config/constants";
+import type { MolstarWrapper } from "@/lib/molstar/MolstarWrapper";
 import type {
   SelectionRegion,
   SequenceResidue,
   SequenceSelection,
 } from "../../sequence-interface/types";
-import type { PluginUIContext } from "molstar/lib/mol-plugin-ui/context";
 
 interface StructureWorkspaceProps {
   className?: string;
@@ -38,8 +39,11 @@ export function StructureWorkspace({
   const [hoveredResidues, setHoveredResidues] = useState<SequenceResidue[]>([]);
 
   // Chain selection state
-  const [chains, setChains] = useState<any[]>([]);
+  const [availableChains, setAvailableChains] = useState<string[]>([]);
   const [selectedChainIds, setSelectedChainIds] = useState<string[]>([]);
+
+  // Molstar wrapper reference for controls
+  const [molstarWrapper, setMolstarWrapper] = useState<MolstarWrapper | null>(null);
 
   // Structure loading handlers
   const handleStructureLoaded = useCallback((loadedPdbId: string) => {
@@ -68,10 +72,12 @@ export function StructureWorkspace({
     [pdbId],
   );
 
-  const handleViewerReady = useCallback((plugin: PluginUIContext) => {
-    setIsViewerReady(true);
-    console.log("Molstar viewer ready");
-  }, []);
+  // Remove unused handleViewerReady - we'll set isViewerReady when structure loads
+  useEffect(() => {
+    if (pdbId) {
+      setIsViewerReady(true);
+    }
+  }, [pdbId]);
 
   // Bidirectional highlighting handlers
   const handleSequenceSelectionChange = useCallback(
@@ -103,25 +109,21 @@ export function StructureWorkspace({
     setSelectedChainIds(chainIds);
   }, []);
 
+  const handleChainsLoaded = useCallback((chainIds: string[]) => {
+    setAvailableChains(chainIds);
+  }, []);
+
+  // Handle wrapper ready callback
+  const handleWrapperReady = useCallback((wrapper: MolstarWrapper) => {
+    setMolstarWrapper(wrapper);
+  }, []);
+
   // Memoized viewer configuration for performance
-  const viewerConfig = useMemo(
-    () => ({
-      hideSequencePanel: true,
-      hideLogPanel: true,
-      hideLeftPanel: true,
-      showRightPanel: false,
-    }),
-    [],
-  );
+  // Removed viewerConfig - no longer needed with simplified interface
 
   return (
     <div className={`flex-1 flex flex-col bg-zinc-50 ${className}`}>
-      {/* Structure Header */}
-      <div className="px-4 py-2.5 bg-zinc-100 border-b border-zinc-200">
-        <span className="text-sm font-medium text-zinc-600">Structure</span>
-      </div>
-      
-      {/* PDB Loader and Settings */}
+      {/* PDB Loader */}
       <div className="p-4 bg-white border-b border-zinc-200">
         <div className="flex items-center gap-3">
           <PDBLoader
@@ -129,7 +131,6 @@ export function StructureWorkspace({
             onLoadStructure={handleLoadStructure}
             isLoading={isLoading}
           />
-          <StructureSettingsDropdown pdbId={pdbId} />
           {error && (
             <div className="text-sm text-red-600 bg-red-50 px-3 py-1 rounded-md ml-auto">
               Error: {error}
@@ -138,33 +139,48 @@ export function StructureWorkspace({
         </div>
       </div>
 
-      {/* Scrollable Main Content Area */}
+      {/* Main Content Area - Unified Scrolling */}
       <div className="flex-1 overflow-y-auto">
-        <div className="min-h-full flex flex-col">
-          {/* 3D Structure Viewer - Fixed height for better scrolling */}
-          <div className="h-[60vh] min-h-[400px] relative bg-white">
+        <div className="flex flex-col">
+          {/* Structure Controls - Accordion */}
+          <StructureControls 
+            wrapper={molstarWrapper}
+            isLoading={isLoading}
+            availableChains={availableChains}
+          />
+          
+          {/* 3D Structure Viewer - Fixed height */}
+          <div className="h-[420px] bg-white border-b border-zinc-200 flex-shrink-0">
             <MolstarViewer
               pdbId={pdbId}
               className="h-full w-full"
-              config={viewerConfig}
-              onReady={handleViewerReady}
               onStructureLoaded={handleStructureLoaded}
               onError={handleError}
-              selectedRegions={selectedRegions}
-              hoveredResidues={hoveredResidues}
-              onStructureSelectionChange={handleStructureSelectionChange}
+              onWrapperReady={handleWrapperReady}
+              selectedRegions={selectedRegions.map(region => ({
+                chainId: region.chainId,
+                startSeq: region.start,
+                endSeq: region.end
+              }))}
+              hoveredResidues={hoveredResidues.map(residue => ({
+                chainId: residue.chainId,
+                residueNumber: residue.position
+              }))}
             />
           </div>
 
-          {/* Compact Sequence Interface */}
-          <SequenceWorkspace
-            pdbId={pdbId}
-            isViewerReady={isViewerReady}
-            selectedChainIds={selectedChainIds}
-            onSelectionChange={handleSequenceSelectionChange}
-            onHighlightChange={handleSequenceHighlightChange}
-            onChainSelectionChange={handleChainSelectionChange}
-          />
+          {/* Sequence Interface - Natural height */}
+          <div className="bg-zinc-50">
+            <SequenceWorkspace
+              pdbId={pdbId}
+              isViewerReady={isViewerReady}
+              selectedChainIds={selectedChainIds}
+              onSelectionChange={handleSequenceSelectionChange}
+              onHighlightChange={handleSequenceHighlightChange}
+              onChainSelectionChange={handleChainSelectionChange}
+              onChainsLoaded={handleChainsLoaded}
+            />
+          </div>
         </div>
       </div>
     </div>

@@ -28,7 +28,7 @@ export function ChainTooltip({
 
   return (
     <div
-      className={`absolute bottom-full left-1/2 transform -translate-x-1/2 mb-3 z-50 ${className}`}
+      className={`absolute bottom-full left-1/2 transform -translate-x-1/2 mb-3 z-10 ${className}`}
     >
       <div className="bg-gray-900 text-white text-xs rounded-lg px-3 py-2 shadow-xl max-w-xs">
         <div className="font-semibold text-white">Chain {chain.id}</div>

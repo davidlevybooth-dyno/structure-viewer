@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { ChevronDown, ChevronUp, Copy } from "lucide-react";
 import { SequenceViewer } from "./SequenceViewer";
 import { ChainSelector } from "./ChainSelector";
@@ -24,6 +24,7 @@ interface SequenceWorkspaceProps {
   onHighlightChange?: (residues: SequenceResidue[]) => void;
   selectedChainIds?: string[];
   onChainSelectionChange?: (chainIds: string[]) => void;
+  onChainsLoaded?: (chainIds: string[]) => void;
   className?: string;
 }
 
@@ -43,6 +44,7 @@ export function SequenceWorkspace({
   onHighlightChange,
   selectedChainIds = [],
   onChainSelectionChange,
+  onChainsLoaded,
   className = "",
 }: SequenceWorkspaceProps) {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -63,6 +65,14 @@ export function SequenceWorkspace({
       description: chain.organism || "Protein chain",
     }));
   }, [pdbData]);
+
+  // Notify parent when chains are loaded
+  useEffect(() => {
+    if (chainInfo.length > 0 && onChainsLoaded) {
+      const chainIds = chainInfo.map(chain => chain.id);
+      onChainsLoaded(chainIds);
+    }
+  }, [chainInfo, onChainsLoaded]);
 
   // Smart chain selection logic (≤3 chains: all, >3 chains: first)
   const defaultSelectedChains = useMemo(() => {
@@ -146,7 +156,7 @@ export function SequenceWorkspace({
     selectedChainIds.length > 0 ? selectedChainIds : defaultSelectedChains;
 
   return (
-    <div className={`bg-white border-t border-zinc-200 ${className}`}>
+    <div className={`bg-white border-t border-zinc-200 relative ${className}`}>
       {/* Compact Header - Fixed height to prevent scrolling */}
       <div className="px-4 py-2 border-b border-zinc-100 min-h-[44px] max-h-[44px] overflow-hidden">
         <div className="flex items-center justify-between h-full">
@@ -171,7 +181,7 @@ export function SequenceWorkspace({
 
               {/* Interactive Chain Selector - constrained width */}
               {chainInfo.length > 0 && (
-                <div className="min-w-0 flex-1 max-w-md">
+                <div className="min-w-0 flex-1 max-w-md relative overflow-visible">
                   <ChainSelector
                     chains={chainInfo}
                     selectedChainIds={effectiveSelectedChains}

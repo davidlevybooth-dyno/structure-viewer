@@ -1,22 +1,22 @@
 import type { RepresentationType } from "@/lib/molstar/representation";
 
 export const EXAMPLE_STRUCTURES = [
-  { id: "1CRN", name: "Crambin", description: "Small plant protein" },
-  { id: "1UBQ", name: "Ubiquitin", description: "Regulatory protein" },
-  { id: "4HHB", name: "Hemoglobin", description: "Oxygen transport protein" },
+  { id: "1crn", name: "Crambin", description: "Small plant protein" },
+  { id: "1ubq", name: "Ubiquitin", description: "Regulatory protein" },
+  { id: "4hhb", name: "Hemoglobin", description: "Oxygen transport protein" },
   {
-    id: "6M0J",
+    id: "6m0j",
     name: "COVID-19 Spike Protein",
     description: "SARS-CoV-2 spike protein",
   },
   {
-    id: "7MT0",
+    id: "7mt0",
     name: "AAV9 Capsid",
     description: "Adeno-associated virus capsid",
   },
-  { id: "1LYZ", name: "Lysozyme", description: "Antimicrobial enzyme" },
+  { id: "1lyz", name: "Lysozyme", description: "Antimicrobial enzyme" },
   {
-    id: "1GFL",
+    id: "1gfl",
     name: "Green Fluorescent Protein",
     description: "Fluorescent marker protein",
   },

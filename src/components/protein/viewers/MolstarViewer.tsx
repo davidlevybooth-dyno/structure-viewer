@@ -1,199 +1,231 @@
-"use client";
+'use client';
 
-import { useEffect, useMemo, useCallback } from "react";
-import type { PluginUIContext } from "molstar/lib/mol-plugin-ui/context";
-import { useMolstarPlugin } from "@/hooks/useMolstarPlugin";
-import {
-  useStructureLoader,
-  type LoadStructureOptions,
-} from "@/hooks/useStructureLoader";
-import { useBidirectionalHighlighting } from "@/hooks/useBidirectionalHighlighting";
-import { LoadingSpinner } from "@/components/ui/common/LoadingSpinner";
-import { ErrorDisplay } from "@/components/ui/common/ErrorDisplay";
-import { MolstarContainer } from "./MolstarContainer";
-import { StatusIndicator } from "@/components/ui/common/StatusIndicator";
-import { useMolstar } from "@/contexts/MolstarContext";
-import type {
-  SelectionRegion,
-  SequenceResidue,
-} from "@/components/sequence-interface/types";
-
-type ViewerConfig = {
-  hideSequencePanel?: boolean;
-  hideLogPanel?: boolean;
-  hideLeftPanel?: boolean;
-  showRightPanel?: boolean;
-};
+import React, { useRef, useEffect, useState } from 'react';
+import { MolstarWrapper } from '@/lib/molstar/MolstarWrapper';
+import { Script } from 'molstar/lib/mol-script/script';
+import { StructureSelection } from 'molstar/lib/mol-model/structure';
 
 export interface MolstarViewerProps {
   pdbId?: string;
   className?: string;
-  config?: ViewerConfig;
-  loadOptions?: Omit<LoadStructureOptions, "pdbId">;
-  onReady?: (plugin: PluginUIContext) => void;
   onStructureLoaded?: (pdbId: string) => void;
-  onError?: (error: unknown) => void;
-  // Bidirectional highlighting props
-  selectedRegions?: SelectionRegion[];
-  hoveredResidues?: SequenceResidue[];
-  onStructureSelectionChange?: (regions: SelectionRegion[]) => void;
+  onError?: (error: string) => void;
+  showControls?: boolean;
+  // Expose wrapper methods for external controls
+  onWrapperReady?: (wrapper: MolstarWrapper) => void;
+  // Highlighting props for sequence→structure integration
+  selectedRegions?: Array<{chainId: string, startSeq: number, endSeq: number}>;
+  hoveredResidues?: Array<{chainId: string, residueNumber: number}>;
 }
 
-const DEFAULT_CONFIG: Required<ViewerConfig> = {
-  hideSequencePanel: false,
-  hideLogPanel: true,
-  hideLeftPanel: true,
-  showRightPanel: false,
-};
-
-export function MolstarViewer({
-  pdbId,
-  className = "",
-  config,
-  loadOptions,
-  onReady,
-  onStructureLoaded,
-  onError,
-  selectedRegions = [],
-  hoveredResidues = [],
-  onStructureSelectionChange,
-}: MolstarViewerProps) {
-  const { setPlugin } = useMolstar();
-  
-  const mergedConfig = useMemo(
-    () => ({ ...DEFAULT_CONFIG, ...(config ?? {}) }),
-    [config],
-  );
-
-  const {
-    containerRef,
-    state: pluginState,
-    plugin,
-  } = useMolstarPlugin({
-    config: mergedConfig,
-    onReady: (plugin) => {
-      setPlugin(plugin);
-      onReady?.(plugin);
-    },
-    onError,
-  });
-
-  const { state: loadingState, loadStructure } = useStructureLoader(plugin, {
+/**
+ * Clean, simple MolstarViewer using our proven wrapper
+ * Focused interface based on what we actually need
+ */
+export function MolstarViewer({ 
+    pdbId = '1grm', 
+    className = '',
     onStructureLoaded,
     onError,
-  });
+  showControls = false,
+  onWrapperReady,
+  selectedRegions = [],
+  hoveredResidues = []
+}: MolstarViewerProps) {
+    const containerRef = useRef<HTMLDivElement>(null);
+    const wrapperRef = useRef<MolstarWrapper | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [currentPdbId, setCurrentPdbId] = useState(pdbId);
 
-  // Set up bidirectional highlighting
-  const { highlightSelection, highlightHover, clearStructureHighlights } =
-    useBidirectionalHighlighting(plugin, {
-      onStructureSelectionChange,
-    });
+    // Initialize wrapper once
+    useEffect(() => {
+        if (!containerRef.current || wrapperRef.current) return;
 
-  const mergedLoadOptions = useMemo<Omit<LoadStructureOptions, "pdbId">>(
-    () => ({
-      representation: "cartoon",
-      colorScheme: "chain-id",
-      autoFocus: true,
-      ...(loadOptions ?? {}),
-    }),
-    [loadOptions],
-  );
+        let isMounted = true; // Track if component is still mounted
 
-  useEffect(() => {
-    if (!pluginState.isInitialized || !plugin || !pdbId) return;
-    if (loadingState.isLoading) return;
+        const initWrapper = async () => {
+            try {
+                if (!isMounted) return; // Bail if component unmounted during async operation
 
-    const nextId = pdbId.toUpperCase();
-    if (loadingState.currentPdbId === nextId) return;
+                setIsLoading(true);
+                setError(null);
 
-    void loadStructure({ pdbId: nextId, ...mergedLoadOptions });
-  }, [
-    pdbId,
-    plugin,
-    pluginState.isInitialized,
-    loadingState.isLoading,
-    loadingState.currentPdbId,
-    loadStructure,
-    mergedLoadOptions,
-  ]);
+                // Ensure container is completely clean
+                if (containerRef.current) {
+                    // Clear any existing content and React roots
+                    containerRef.current.innerHTML = '';
+                    // Small delay to ensure DOM is clean
+                    await new Promise(resolve => setTimeout(resolve, 10));
+                }
 
-  // Handle sequence selection → structure highlighting
-  useEffect(() => {
-    if (!plugin || !pluginState.isInitialized) return;
+                if (!isMounted || !containerRef.current) return;
 
-    // Highlighting selection regions
-    void highlightSelection(selectedRegions);
-  }, [selectedRegions, plugin, pluginState.isInitialized, highlightSelection]);
+                // Initialize new wrapper
+                const wrapper = new MolstarWrapper();
+                await wrapper.init(containerRef.current);
+                
+                if (!isMounted) {
+                    // If component unmounted during init, clean up
+                    wrapper.destroy();
+                    return;
+                }
 
-  // Handle sequence hover → structure highlighting
-  useEffect(() => {
-    if (!plugin || !pluginState.isInitialized) return;
-
-    void highlightHover(hoveredResidues);
-  }, [hoveredResidues, plugin, pluginState.isInitialized, highlightHover]);
-
-  const handleRetry = useCallback(() => {
-    if (!plugin || !pdbId) {
-      window.location.reload();
-      return;
-    }
-    const nextId = pdbId.toUpperCase();
-    void loadStructure({ pdbId: nextId, ...mergedLoadOptions });
-  }, [plugin, pdbId, loadStructure, mergedLoadOptions]);
-
-  if (pluginState.error) {
-    return (
-      <ErrorDisplay
-        error={pluginState.error}
-        title="Failed to Initialize Viewer"
-        onRetry={handleRetry}
-        className={className}
-      />
-    );
-  }
-
-  if (loadingState.error) {
-    return (
-      <ErrorDisplay
-        error={loadingState.error}
-        title="Failed to Load Structure"
-        onRetry={handleRetry}
-        className={className}
-      />
-    );
-  }
-
-  const isBusy = pluginState.isLoading || loadingState.isLoading;
-
-  return (
-    <div
-      className={`relative ${className}`}
-      aria-busy={isBusy}
-      aria-live="polite"
-    >
-      {isBusy && (
-        <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/80">
-          <LoadingSpinner
-            message={
-              pluginState.isLoading
-                ? "Initializing Mol*…"
-                : pdbId
-                  ? `Loading ${pdbId}…`
-                  : "Loading…"
+                wrapperRef.current = wrapper;
+                
+                // Notify parent that wrapper is ready
+                onWrapperReady?.(wrapper);
+                
+                // Load initial structure immediately after initialization
+                if (pdbId) {
+                    try {
+                        await wrapper.loadPDB(pdbId);
+                        setCurrentPdbId(pdbId);
+                        onStructureLoaded?.(pdbId);
+                        setIsLoading(false);
+                    } catch (loadErr) {
+                        const errorMsg = loadErr instanceof Error ? loadErr.message : 'Failed to load initial structure';
+                        console.error(`Failed to load initial structure ${pdbId}:`, loadErr);
+                        setError(errorMsg);
+                        onError?.(errorMsg);
+                        setIsLoading(false);
+                    }
+                } else {
+                    setIsLoading(false);
+                }
+                
+            } catch (err) {
+                if (!isMounted) return;
+                const errorMsg = err instanceof Error ? err.message : 'Failed to initialize viewer';
+                console.error('Molstar initialization failed:', err);
+                setError(errorMsg);
+                onError?.(errorMsg);
+                setIsLoading(false);
             }
-            size="md"
-          />
+        };
+
+        initWrapper();
+
+        // Cleanup function
+        return () => {
+            isMounted = false;
+            if (wrapperRef.current) {
+                wrapperRef.current.destroy();
+                wrapperRef.current = null;
+            }
+        };
+    }, []); // No dependencies - init only once
+
+    // Handle PDB ID changes (not initial load)
+    useEffect(() => {
+        if (!wrapperRef.current || !pdbId || pdbId === currentPdbId) return;
+
+        const loadNewStructure = async () => {
+            try {
+                setIsLoading(true);
+                setError(null);
+                
+                await wrapperRef.current!.loadPDB(pdbId);
+                setCurrentPdbId(pdbId);
+                onStructureLoaded?.(pdbId);
+            } catch (err) {
+                const errorMsg = err instanceof Error ? err.message : 'Failed to load structure';
+                console.error(`Failed to load new structure ${pdbId}:`, err);
+                setError(errorMsg);
+                onError?.(errorMsg);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        loadNewStructure();
+    }, [pdbId, currentPdbId, onStructureLoaded, onError]); // Only when pdbId actually changes
+
+    // Handle highlighting from sequence selections
+    useEffect(() => {
+        if (!wrapperRef.current) return;
+
+        // Combine selected regions and hovered residues for highlighting
+        const allHighlights: Array<{chainId: string, startSeq: number, endSeq: number}> = [];
+        
+        // Add selected regions
+        selectedRegions.forEach(region => {
+            allHighlights.push({
+                chainId: region.chainId,
+                startSeq: region.startSeq,
+                endSeq: region.endSeq
+            });
+        });
+        
+        // Convert hovered residues to single-residue ranges
+        hoveredResidues.forEach(residue => {
+            allHighlights.push({
+                chainId: residue.chainId,
+                startSeq: residue.residueNumber,
+                endSeq: residue.residueNumber
+            });
+        });
+
+        // Apply highlighting
+        if (allHighlights.length > 0) {
+            wrapperRef.current.highlightResidues(allHighlights);
+        } else {
+            wrapperRef.current.clearHighlight();
+        }
+    }, [selectedRegions, hoveredResidues]);
+
+    // Basic control handlers (only if showControls is true)
+    const handleResetCamera = () => {
+        wrapperRef.current?.resetCamera();
+    };
+
+    const handleToggleSpin = () => {
+        wrapperRef.current?.toggleSpin();
+    };
+
+    return (
+        <div className={`molstar-viewer ${className}`}>
+            {/* Basic controls (minimal) */}
+            {showControls && (
+                <div className="mb-2 flex gap-2 text-xs">
+                    <button 
+                        onClick={handleResetCamera}
+                        disabled={isLoading}
+                        className="px-2 py-1 bg-gray-500 text-white rounded hover:bg-gray-600 disabled:opacity-50 text-xs"
+                    >
+                        Reset
+                    </button>
+                    
+                    <button 
+                        onClick={handleToggleSpin}
+                        disabled={isLoading}
+                        className="px-2 py-1 bg-gray-500 text-white rounded hover:bg-gray-600 disabled:opacity-50 text-xs"
+                    >
+                        Spin
+                    </button>
+
+                    {isLoading && (
+                        <span className="px-2 py-1 text-xs text-gray-600">Loading...</span>
+                    )}
+                </div>
+            )}
+
+            {/* Error display */}
+            {error && (
+                <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded text-sm">
+                    Error: {error}
+                </div>
+            )}
+
+            {/* Molstar container */}
+            <div 
+                ref={containerRef}
+                className="molstar-container border rounded w-full h-full"
+                style={{
+                    position: 'relative',
+                    overflow: 'hidden'
+                }}
+            />
         </div>
-      )}
-
-      <MolstarContainer ref={containerRef} className="w-full h-full" />
-
-      <StatusIndicator
-        isReady={pluginState.isInitialized}
-        currentStructure={loadingState.currentPdbId || undefined}
-      />
-    </div>
-  );
+    );
 }
-
-export default MolstarViewer;

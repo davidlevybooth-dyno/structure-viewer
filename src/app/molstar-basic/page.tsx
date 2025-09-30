@@ -55,9 +55,9 @@ class BasicMolstarWrapper {
                             }
                         }
                     },
-                    controls: {
-                        enableFullscreen: false
-                    }
+                    // controls: {
+                    //     enableFullscreen: false
+                    // }
                 },
                 components: {
                     remoteState: 'none'
