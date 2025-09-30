@@ -121,11 +121,12 @@ export class MolstarWrapper {
 
     /**
      * Load PDB structure by ID
+     * Loads biological assembly by default for proper multi-chain structures
      */
-    async loadPDB(pdbId: string): Promise<void> {
+    async loadPDB(pdbId: string, assemblyId: string = '1'): Promise<void> {
         this.currentPdbId = pdbId;
         const url = `https://www.ebi.ac.uk/pdbe/static/entry/${pdbId}_updated.cif`;
-        await this.load({ url, format: 'mmcif', isBinary: false });
+        await this.load({ url, format: 'mmcif', isBinary: false, assemblyId });
     }
 
     /**
@@ -207,36 +208,79 @@ export class MolstarWrapper {
     }
 
     /**
-     * Focus camera on currently visible structure content
-     * TEMPORARILY DISABLED due to persistent 'entity-test' API conflicts
-     * Users can manually use Reset button for camera adjustment
+     * Bulletproof camera focus after isolation operations
+     * Waits for Molstar to complete operations, then focuses on visible content
      */
     private async focusOnVisibleStructure(): Promise<void> {
-        // Method disabled - no auto-focus to prevent API errors
-        console.log('📷 Auto-focus disabled - use Reset button for camera adjustment');
-        return;
-        
-        /* DISABLED CODE - keeping for future debugging
         if (!this.plugin) return;
         
-        try {
-            console.log('📷 Auto-focusing camera on visible structure...');
-            
-            setTimeout(() => {
-                try {
-                    if (this.plugin) {
-                        this.resetCamera();
-                        console.log('✅ Camera focused on visible structure');
-                    }
-                } catch (error) {
-                    console.error('Error in delayed camera reset:', error);
+        console.log('📷 Starting bulletproof camera focus...');
+        
+        // Multi-stage approach for maximum reliability
+        const attemptCameraFocus = async (attempt: number = 1, maxAttempts: number = 5): Promise<void> => {
+            try {
+                console.log(`📷 Camera focus attempt ${attempt}/${maxAttempts}`);
+                
+                // Wait for Molstar to finish internal updates
+                await new Promise(resolve => setTimeout(resolve, 200 * attempt));
+                
+                if (!this.plugin) {
+                    console.log('⚠️ Plugin no longer available');
+                    return;
                 }
-            }, 150);
-            
-        } catch (error) {
-            console.error('Error setting up camera focus:', error);
-        }
-        */
+                
+                // Method 1: Try resetCamera (most reliable)
+                try {
+                    this.resetCamera();
+                    console.log('✅ Camera reset successful');
+                    return;
+                } catch (resetError) {
+                    console.log(`⚠️ Reset camera failed on attempt ${attempt}:`, resetError);
+                }
+                
+                // Method 2: Try Canvas3D camera reset command
+                try {
+                    await PluginCommands.Camera.Reset(this.plugin, {});
+                    console.log('✅ Camera command reset successful');
+                    return;
+                } catch (commandError) {
+                    console.log(`⚠️ Camera command failed on attempt ${attempt}:`, commandError);
+                }
+                
+                // Method 3: Try manual bounds calculation and focus
+                try {
+                    const canvas = this.plugin.canvas3d;
+                    if (canvas) {
+                        const bounds = canvas.getBounds();
+                        if (bounds && bounds.sphere.radius > 0) {
+                            canvas.camera.focus(bounds.sphere.center, bounds.sphere.radius * 1.5);
+                            console.log('✅ Manual bounds focus successful');
+                            return;
+                        }
+                    }
+                } catch (boundsError) {
+                    console.log(`⚠️ Bounds focus failed on attempt ${attempt}:`, boundsError);
+                }
+                
+                // If we get here, all methods failed - try again if attempts remain
+                if (attempt < maxAttempts) {
+                    console.log(`🔄 Retrying camera focus (attempt ${attempt + 1}/${maxAttempts})`);
+                    await attemptCameraFocus(attempt + 1, maxAttempts);
+                } else {
+                    console.log('❌ All camera focus methods failed after maximum attempts');
+                }
+                
+            } catch (error) {
+                console.error(`❌ Camera focus attempt ${attempt} failed:`, error);
+                
+                if (attempt < maxAttempts) {
+                    await attemptCameraFocus(attempt + 1, maxAttempts);
+                }
+            }
+        };
+        
+        // Start the bulletproof focus process
+        await attemptCameraFocus();
     }
 
     /**
@@ -553,8 +597,8 @@ export class MolstarWrapper {
             
             console.log(`✅ Isolation complete - only chain "${chainId}" should be visible`);
             
-            // Note: Auto-focus temporarily disabled due to API conflicts
-            // Users can manually reset camera using the Reset button if needed
+            // Auto-focus on the remaining visible chain for optimal viewing
+            await this.focusOnVisibleStructure();
             
         } catch (error) {
             console.error('Error isolating chain:', error);
@@ -679,8 +723,9 @@ export class MolstarWrapper {
                 }
             }
             
-            // Note: Auto-focus disabled for residue range isolation due to API conflicts
-            // Users can manually reset camera if needed using the Reset button
+            // Auto-focus on the remaining visible residue range for optimal viewing
+            await this.focusOnVisibleStructure();
+            
             console.log('✅ Residue range isolation complete');
             
         } catch (error) {

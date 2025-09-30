@@ -1,6 +1,5 @@
 import type { PluginUIContext } from 'molstar/lib/mol-plugin-ui/context';
 
-// Core Molstar types
 export interface MolstarPlugin extends PluginUIContext {}
 
 export interface MolstarConfig {
@@ -19,11 +18,8 @@ export interface MolstarConfig {
 
 // Structure operations
 export type RepresentationType = 'cartoon' | 'surface' | 'ball-stick' | 'spacefill';
-
 export type ChainOperation = 'hide' | 'isolate' | 'show';
-
 export type ComponentType = 'water' | 'ligands' | 'ions';
-
 export type ResidueOperation = 'hide' | 'isolate' | 'highlight' | 'copy';
 
 // Selection and highlighting
