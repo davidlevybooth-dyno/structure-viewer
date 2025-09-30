@@ -507,6 +507,145 @@ export class MolstarWrapper {
         }
     }
 
+
+    /**
+     * Residue-level operations
+     */
+    async hideResidueRange(chainId: string, startSeq: number, endSeq: number): Promise<void> {
+        if (!this.plugin) return;
+        
+        try {
+            const hierarchy = this.plugin.managers.structure.hierarchy.current;
+            if (!hierarchy.structures.length) return;
+
+            const structure = hierarchy.structures[0];
+            const data = structure.cell?.obj?.data;
+            if (!data) return;
+
+            // Create selection for the residue range to hide
+            const hideSelection = Script.getStructureSelection((Q: any) => Q.struct.generator.atomGroups({
+                'chain-test': Q.core.rel.eq([Q.struct.atomProperty.macromolecular.auth_asym_id(), chainId]),
+                'residue-test': Q.core.rel.inRange([Q.struct.atomProperty.macromolecular.auth_seq_id(), startSeq, endSeq])
+            }), data);
+
+            const hideLoci = StructureSelection.toLociWithSourceUnits(hideSelection);
+            
+            if (hideLoci.isEmpty) return;
+
+            // Set selection and hide using modifyByCurrentSelection
+            this.plugin.managers.structure.selection.fromLoci('set', hideLoci);
+            const allComponents = hierarchy.structures.flatMap(s => s.components);
+            await this.plugin.managers.structure.component.modifyByCurrentSelection(allComponents, 'subtract');
+            this.plugin.managers.structure.selection.clear();
+            
+        } catch (error) {
+            console.error('Error hiding residue range:', error);
+        }
+    }
+
+    async isolateResidueRange(chainId: string, startSeq: number, endSeq: number): Promise<void> {
+        if (!this.plugin) return;
+        
+        try {
+            const hierarchy = this.plugin.managers.structure.hierarchy.current;
+            if (!hierarchy.structures.length) return;
+
+            const structure = hierarchy.structures[0];
+            const data = structure.cell?.obj?.data;
+            if (!data) return;
+
+            // Get all available chains
+            const allChains = await this.getAvailableChains();
+            
+            // Hide everything EXCEPT the target residue range
+            for (const currentChain of allChains) {
+                if (currentChain !== chainId) {
+                    // Hide entire other chains
+                    const hideChainSelection = Script.getStructureSelection((Q: any) => Q.struct.generator.atomGroups({
+                        'chain-test': Q.core.rel.eq([Q.struct.atomProperty.macromolecular.auth_asym_id(), currentChain])
+                    }), data);
+
+                    const hideChainLoci = StructureSelection.toLociWithSourceUnits(hideChainSelection);
+                    
+                    if (!hideChainLoci.isEmpty) {
+                        this.plugin.managers.structure.selection.fromLoci('set', hideChainLoci);
+                        const allComponents = hierarchy.structures.flatMap(s => s.components);
+                        await this.plugin.managers.structure.component.modifyByCurrentSelection(allComponents, 'subtract');
+                        this.plugin.managers.structure.selection.clear();
+                    }
+                } else {
+                    // For the target chain, hide residues before startSeq
+                    if (startSeq > 1) {
+                        const hideBeforeSelection = Script.getStructureSelection((Q: any) => Q.struct.generator.atomGroups({
+                            'chain-test': Q.core.rel.eq([Q.struct.atomProperty.macromolecular.auth_asym_id(), chainId]),
+                            'residue-test': Q.core.rel.inRange([Q.struct.atomProperty.macromolecular.auth_seq_id(), 1, startSeq - 1])
+                        }), data);
+
+                        const hideBeforeLoci = StructureSelection.toLociWithSourceUnits(hideBeforeSelection);
+                        
+                        if (!hideBeforeLoci.isEmpty) {
+                            this.plugin.managers.structure.selection.fromLoci('set', hideBeforeLoci);
+                            const allComponents = hierarchy.structures.flatMap(s => s.components);
+                            await this.plugin.managers.structure.component.modifyByCurrentSelection(allComponents, 'subtract');
+                            this.plugin.managers.structure.selection.clear();
+                        }
+                    }
+
+                    // For the target chain, hide residues after endSeq
+                    // Use a reasonable upper bound (most proteins don't exceed 10000 residues)
+                    const maxResidue = 10000;
+                    
+                    console.log(`Isolate ${chainId}:${startSeq}-${endSeq}, maxResidue found: ${maxResidue}`);
+                    
+                    if (endSeq < maxResidue) {
+                        const hideAfterSelection = Script.getStructureSelection((Q: any) => Q.struct.generator.atomGroups({
+                            'chain-test': Q.core.rel.eq([Q.struct.atomProperty.macromolecular.auth_asym_id(), chainId]),
+                            'residue-test': Q.core.rel.inRange([Q.struct.atomProperty.macromolecular.auth_seq_id(), endSeq + 1, maxResidue])
+                        }), data);
+
+                        const hideAfterLoci = StructureSelection.toLociWithSourceUnits(hideAfterSelection);
+                        
+                        console.log(`Hiding after ${endSeq}: range ${endSeq + 1}-${maxResidue}, isEmpty: ${hideAfterLoci.isEmpty}`);
+                        
+                        if (!hideAfterLoci.isEmpty) {
+                            this.plugin.managers.structure.selection.fromLoci('set', hideAfterLoci);
+                            const allComponents = hierarchy.structures.flatMap(s => s.components);
+                            await this.plugin.managers.structure.component.modifyByCurrentSelection(allComponents, 'subtract');
+                            this.plugin.managers.structure.selection.clear();
+                        }
+                    }
+                }
+            }
+            
+        } catch (error) {
+            console.error('Error isolating residue range:', error);
+        }
+    }
+
+    async showResidueRange(chainId: string, startSeq: number, endSeq: number): Promise<void> {
+        if (!this.plugin) return;
+        
+        try {
+            const data = this.plugin.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
+            if (!data) return;
+
+            // Create selection for the residue range to highlight
+            const selection = Script.getStructureSelection((Q: any) => Q.struct.generator.atomGroups({
+                'chain-test': Q.core.rel.eq([Q.struct.atomProperty.macromolecular.auth_asym_id(), chainId]),
+                'residue-test': Q.core.rel.inRange([Q.struct.atomProperty.macromolecular.auth_seq_id(), startSeq, endSeq]),
+                'group-by': Q.struct.atomProperty.macromolecular.residueKey()
+            }), data);
+            
+            const loci = StructureSelection.toLociWithSourceUnits(selection);
+            
+            // Use highlighting for visual emphasis (non-destructive)
+            this.plugin.managers.interactivity.lociHighlights.highlightOnly({ loci });
+            
+        } catch (error) {
+            console.error('Error highlighting residue range:', error);
+        }
+    }
+
     /**
      * Component removal operations
      */

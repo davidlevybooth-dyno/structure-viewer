@@ -113,6 +113,30 @@ export function StructureWorkspace({
     setAvailableChains(chainIds);
   }, []);
 
+  // Handle residue-level operations from sequence interface
+  const handleResidueAction = useCallback(async (region: SelectionRegion, action: 'hide' | 'isolate' | 'highlight' | 'copy') => {
+    if (!molstarWrapper) return;
+    
+    try {
+      switch (action) {
+        case 'hide':
+          await molstarWrapper.hideResidueRange(region.chainId, region.start, region.end);
+          break;
+        case 'isolate':
+          await molstarWrapper.isolateResidueRange(region.chainId, region.start, region.end);
+          break;
+        case 'highlight':
+          await molstarWrapper.showResidueRange(region.chainId, region.start, region.end);
+          break;
+        case 'copy':
+          // Copy action is handled locally in ResidueGrid, so we don't need to do anything here
+          break;
+      }
+    } catch (error) {
+      console.error(`Error performing ${action} on residue range:`, error);
+    }
+  }, [molstarWrapper]);
+
   // Handle wrapper ready callback
   const handleWrapperReady = useCallback((wrapper: MolstarWrapper) => {
     setMolstarWrapper(wrapper);
@@ -179,6 +203,7 @@ export function StructureWorkspace({
               onHighlightChange={handleSequenceHighlightChange}
               onChainSelectionChange={handleChainSelectionChange}
               onChainsLoaded={handleChainsLoaded}
+              onResidueAction={handleResidueAction}
             />
           </div>
         </div>

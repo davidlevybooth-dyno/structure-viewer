@@ -93,6 +93,7 @@ export function StructureControls({ wrapper, isLoading = false, availableChains 
     }
   };
 
+
   const handleChainSelect = (chainId: string) => {
     setSelectedChain(chainId);
   };

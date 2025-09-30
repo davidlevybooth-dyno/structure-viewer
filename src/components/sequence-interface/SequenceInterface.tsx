@@ -46,6 +46,7 @@ function SequenceInterfaceInternal({
         selection={state.selection}
         highlightedResidues={state.highlightedResidues}
         readOnly={readOnly}
+        onRegionAction={callbacks?.onResidueAction}
       />
 
       {state.selection.regions.length > 0 && (

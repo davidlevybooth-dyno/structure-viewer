@@ -25,6 +25,7 @@ interface SequenceWorkspaceProps {
   selectedChainIds?: string[];
   onChainSelectionChange?: (chainIds: string[]) => void;
   onChainsLoaded?: (chainIds: string[]) => void;
+  onResidueAction?: (region: SelectionRegion, action: 'hide' | 'isolate' | 'highlight' | 'copy') => void;
   className?: string;
 }
 
@@ -45,6 +46,7 @@ export function SequenceWorkspace({
   selectedChainIds = [],
   onChainSelectionChange,
   onChainsLoaded,
+  onResidueAction,
   className = "",
 }: SequenceWorkspaceProps) {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -222,6 +224,7 @@ export function SequenceWorkspace({
               onChainSelectionChange={onChainSelectionChange}
               onSelectionChange={handleSelectionChange}
               onHighlightChange={onHighlightChange}
+              onResidueAction={onResidueAction}
               className="compact-sequence"
             />
           </div>

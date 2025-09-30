@@ -4,6 +4,7 @@ import { usePDBSequence } from "@/hooks/usePdbSequence";
 import type {
   SequenceSelection,
   SequenceResidue,
+  SelectionRegion,
 } from "@/components/sequence-interface/types";
 
 interface SequenceViewerProps {
@@ -13,6 +14,7 @@ interface SequenceViewerProps {
   onHighlightChange?: (residues: SequenceResidue[]) => void;
   selectedChainIds?: string[];
   onChainSelectionChange?: (chainIds: string[]) => void;
+  onResidueAction?: (region: SelectionRegion, action: 'hide' | 'isolate' | 'highlight' | 'copy') => void;
 }
 
 export function SequenceViewer({
@@ -22,6 +24,7 @@ export function SequenceViewer({
   onHighlightChange,
   selectedChainIds,
   onChainSelectionChange,
+  onResidueAction,
 }: SequenceViewerProps) {
   const {
     data: sequenceData,
@@ -76,6 +79,7 @@ export function SequenceViewer({
         callbacks={{
           onSelectionChange,
           onHighlightChange,
+          onResidueAction,
         }}
         className="min-h-96"
       />

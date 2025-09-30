@@ -49,6 +49,7 @@ export interface SequenceInterfaceCallbacks {
     region: SelectionRegion | null,
     action: RegionAction,
   ) => void;
+  onResidueAction?: (region: SelectionRegion, action: 'hide' | 'isolate' | 'highlight' | 'copy') => void;
 }
 
 export type RegionAction = "copy" | "export" | "highlight" | "delete" | "edit";

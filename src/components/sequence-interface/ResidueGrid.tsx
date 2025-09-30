@@ -7,6 +7,7 @@ import React, {
 } from "react";
 import { useSequenceSelection } from "./context/SequenceSelectionContext";
 import { getResidueColor, getResidueInfo } from "@/lib/amino-acid-colors";
+import { SelectionContextMenu } from "./components/SelectionContextMenu";
 import type {
   SequenceData,
   SequenceSelection,
@@ -21,6 +22,7 @@ interface ResidueGridProps {
   selection: SequenceSelection;
   highlightedResidues: SequenceResidue[];
   readOnly?: boolean;
+  onRegionAction?: (region: SelectionRegion, action: 'hide' | 'isolate' | 'highlight' | 'copy') => void;
 }
 
 /**
@@ -31,6 +33,7 @@ export const ResidueGrid = React.memo(function ResidueGrid({
   selection,
   highlightedResidues,
   readOnly = false,
+  onRegionAction,
 }: ResidueGridProps) {
   const {
     addSelectionRegion,
@@ -49,6 +52,10 @@ export const ResidueGrid = React.memo(function ResidueGrid({
   const [residuesPerRow, setResiduesPerRow] = useState(
     DEFAULT_RESIDUES_PER_ROW,
   );
+  const [contextMenu, setContextMenu] = useState<{
+    position: { x: number; y: number };
+    region: SelectionRegion;
+  } | null>(null);
   const gridRef = useRef<HTMLDivElement>(null);
 
   // Responsive residues per row calculation
@@ -160,11 +167,69 @@ export const ResidueGrid = React.memo(function ResidueGrid({
     [readOnly, addSelectionRegion],
   );
 
+  const handleResidueRightClick = useCallback(
+    (residue: SequenceResidue, event: React.MouseEvent) => {
+      if (readOnly || !onRegionAction) return;
+      event.preventDefault();
+      event.stopPropagation();
+
+      // Find if this residue is part of an existing selection
+      const existingRegion = getResidueRegion(residue);
+      
+      if (existingRegion) {
+        // Show context menu for existing selection WITHOUT changing the selection
+        setContextMenu({
+          position: { x: event.clientX, y: event.clientY },
+          region: existingRegion,
+        });
+      } else {
+        // Create a single-residue selection and show context menu
+        const newRegion: SelectionRegion = {
+          id: `${residue.chainId}-${residue.position}`,
+          chainId: residue.chainId,
+          start: residue.position,
+          end: residue.position,
+          sequence: residue.code,
+          label: `${residue.chainId}:${residue.position}`,
+        };
+
+        replaceSelection(newRegion);
+        setContextMenu({
+          position: { x: event.clientX, y: event.clientY },
+          region: newRegion,
+        });
+      }
+    },
+    [readOnly, onRegionAction, getResidueRegion, replaceSelection],
+  );
+
+  const handleContextMenuAction = useCallback(
+    (action: 'hide' | 'isolate' | 'highlight' | 'copy') => {
+      if (!contextMenu) return;
+      
+      const { region } = contextMenu;
+      
+      if (action === 'copy') {
+        // Handle copy action locally
+        const sequence = getSelectionSequence(region);
+        copyToClipboard(sequence);
+      } else {
+        // Pass other actions to parent
+        onRegionAction?.(region, action);
+      }
+    },
+    [contextMenu, onRegionAction, getSelectionSequence, copyToClipboard],
+  );
+
+  const handleCloseContextMenu = useCallback(() => {
+    setContextMenu(null);
+  }, []);
+
   const [isAddMode, setIsAddMode] = useState(false);
 
   const handleMouseDown = useCallback(
     (residue: SequenceResidue) => {
-      if (readOnly) return;
+      if (readOnly || contextMenu) return; // Don't start drag if context menu is open
 
       setIsDragging(true);
       setDragStart(residue);
@@ -179,11 +244,12 @@ export const ResidueGrid = React.memo(function ResidueGrid({
       };
       setDragRegion(initialDragRegion);
     },
-    [readOnly],
+    [readOnly, contextMenu],
   );
 
   const handleMouseEnter = useCallback(
     (residue: SequenceResidue) => {
+      if (contextMenu) return; // Don't drag if context menu is open
       if (isDragging && dragStart && dragStart.chainId === residue.chainId) {
         const start = Math.min(dragStart.position, residue.position);
         const end = Math.max(dragStart.position, residue.position);
@@ -210,10 +276,18 @@ export const ResidueGrid = React.memo(function ResidueGrid({
         setHighlightedResidues([residue]);
       }
     },
-    [isDragging, dragStart, data.chains, setHighlightedResidues, readOnly],
+    [isDragging, dragStart, data.chains, setHighlightedResidues, readOnly, contextMenu],
   );
 
   const handleMouseUp = useCallback(() => {
+    // Don't modify selection if context menu is open
+    if (contextMenu) {
+      setIsDragging(false);
+      setDragStart(null);
+      setDragRegion(null);
+      return;
+    }
+
     if (dragRegion) {
       if (isAddMode) {
         addSelectionRegion(dragRegion);
@@ -225,13 +299,13 @@ export const ResidueGrid = React.memo(function ResidueGrid({
     setIsDragging(false);
     setDragStart(null);
     setDragRegion(null);
-  }, [dragRegion, isAddMode, addSelectionRegion, replaceSelection]);
+  }, [dragRegion, isAddMode, addSelectionRegion, replaceSelection, contextMenu]);
 
   const handleMouseLeave = useCallback(() => {
-    if (!isDragging && !readOnly) {
+    if (!isDragging && !readOnly && !contextMenu) {
       setHighlightedResidues([]);
     }
-  }, [isDragging, setHighlightedResidues, readOnly]);
+  }, [isDragging, setHighlightedResidues, readOnly, contextMenu]);
 
   React.useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -359,6 +433,7 @@ export const ResidueGrid = React.memo(function ResidueGrid({
                                 : getResidueColor(residue.code, "default"),
                           }}
                           onClick={(e) => handleResidueClick(residue, e)}
+                          onContextMenu={(e) => handleResidueRightClick(residue, e)}
                           onMouseDown={() => handleMouseDown(residue)}
                           onMouseEnter={() => handleMouseEnter(residue)}
                           onMouseLeave={handleMouseLeave}
@@ -376,6 +451,17 @@ export const ResidueGrid = React.memo(function ResidueGrid({
           </div>
         );
       })}
+
+      {/* Context Menu */}
+      {contextMenu && (
+        <SelectionContextMenu
+          position={contextMenu.position}
+          region={contextMenu.region}
+          onAction={handleContextMenuAction}
+          onClose={handleCloseContextMenu}
+          isVisible={true}
+        />
+      )}
     </div>
   );
 });
