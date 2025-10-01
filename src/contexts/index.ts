@@ -1,1 +1,1 @@
-export { MolstarProvider, useMolstar } from './MolstarContext';
+export { MolstarProvider, useMolstar } from "./MolstarContext";

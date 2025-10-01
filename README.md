@@ -1,18 +1,20 @@
 # Dyno Structure Viewer
 
-A high-performance molecular structure viewer combining **Mol*** with an advanced sequence interface, optimized for enterprise-scale protein analysis and future AI agent integration.
+A high-performance molecular structure viewer combining **Mol\*** with an advanced sequence interface, optimized for enterprise-scale protein analysis and future AI agent integration.
 
 ## 🎯 Project Overview
 
 This project creates a production-ready molecular visualization platform featuring:
+
 - **High-performance sequence interface** with O(1) selection lookups for large structures
 - **Multi-chain protein support** with smart defaults and chain filtering
-- **Optimized Mol* integration** with proper lifecycle management and error handling
+- **Optimized Mol\* integration** with proper lifecycle management and error handling
 - **Modular, composable architecture** designed for scalability and maintainability
 
 ## ✨ Key Features
 
 ### 🧬 **Advanced Sequence Interface**
+
 - **Performance Optimized**: O(1) lookups for selection and highlighting operations
 - **Multi-Region Selection**: Shift-click for non-contiguous sequence regions
 - **Chain Management**: Smart defaults (1 chain for >3 chains, all for ≤3 chains) with user control
@@ -21,15 +23,17 @@ This project creates a production-ready molecular visualization platform featuri
 - **Copy Operations**: Unified clipboard API with proper error handling
 - **🆕 Bidirectional Highlighting**: Real-time sequence ↔ structure highlighting with persistent selections
 
-### 🔬 **Production Mol* Integration**
+### 🔬 **Production Mol\* Integration**
+
 - **No setTimeout Hacks**: Proper readiness guards and dependency management
 - **Stable Dependencies**: Memoized configurations prevent unnecessary re-renders
 - **Robust Error Handling**: Graceful fallbacks and user-friendly error messages
 - **TypeScript Safe**: Proper error types (`unknown` instead of `string`)
 - **Memory Efficient**: Optimized bundle splitting for large molecular structures
-- **🆕 Official Mol* APIs**: Uses `buildResidueRangeLoci`, `selectOnly`, and `highlightOnly` for robust highlighting
+- **🆕 Official Mol\* APIs**: Uses `buildResidueRangeLoci`, `selectOnly`, and `highlightOnly` for robust highlighting
 
 ### 🎨 **Enterprise UI/UX**
+
 - **Modular Components**: Clean separation of UI and functionality
 - **Sliding Sidebar**: Native SVG icons, proper z-index layering
 - **Loading States**: Context-aware messaging with proper ARIA attributes
@@ -39,6 +43,7 @@ This project creates a production-ready molecular visualization platform featuri
 ## 🏗️ **Technical Architecture**
 
 ### **Directory Structure**
+
 ```
 src/
 ├── app/
@@ -81,7 +86,7 @@ src/
 ├── lib/                           # Utility libraries
 │   ├── molstar/                   # 🆕 Mol* highlighting API
 │   │   ├── highlighting.ts        # Core highlighting functions
-│   │   ├── sequence-to-molstar.ts # Type conversion utilities  
+│   │   ├── sequence-to-molstar.ts # Type conversion utilities
 │   │   ├── config.ts             # Configuration constants
 │   │   └── index.ts              # Clean API exports
 │   ├── amino-acid-colors.ts       # Color schemes with dark mode
@@ -94,6 +99,7 @@ src/
 ```
 
 ### **Performance Architecture**
+
 ```
 Data Flow (Optimized):
 User Input (PDB ID)
@@ -112,6 +118,7 @@ Efficient Re-renders
 ```
 
 ### **🆕 Highlighting Architecture**
+
 ```
 Sequence Selection → Structure Highlighting Flow:
 
@@ -139,57 +146,61 @@ selectOnly() (Persistent Selection in 3D)
 ## 📊 **Core Data Structures**
 
 ### **Sequence Data (Defensive)**
+
 ```typescript
 interface SequenceData {
-  id: string;                    // PDB ID (always defined)
-  name: string;                  // Structure name (always defined)
-  chains: SequenceChain[];       // Chain array (never undefined)
-  metadata?: SequenceMetadata;   // Optional metadata
+  id: string; // PDB ID (always defined)
+  name: string; // Structure name (always defined)
+  chains: SequenceChain[]; // Chain array (never undefined)
+  metadata?: SequenceMetadata; // Optional metadata
 }
 
 interface SequenceChain {
-  id: string;                    // Chain ID ("A", "B", "C")
-  name?: string;                 // Optional chain description
-  residues: SequenceResidue[];   // Amino acid sequence
+  id: string; // Chain ID ("A", "B", "C")
+  name?: string; // Optional chain description
+  residues: SequenceResidue[]; // Amino acid sequence
 }
 
 interface SequenceResidue {
-  position: number;              // 1-based position
-  code: string;                  // Single-letter AA code
-  chainId: string;               // Parent chain ID
+  position: number; // 1-based position
+  code: string; // Single-letter AA code
+  chainId: string; // Parent chain ID
 }
 ```
 
 ### **Selection Management (Performance)**
+
 ```typescript
 interface SequenceSelection {
-  regions: SelectionRegion[];    // Selected regions (sorted by position)
-  activeRegion: string | null;   // Currently active region
-  clipboard: string | null;      // Clipboard content
+  regions: SelectionRegion[]; // Selected regions (sorted by position)
+  activeRegion: string | null; // Currently active region
+  clipboard: string | null; // Clipboard content
 }
 
 interface SelectionRegion {
-  id: string;                    // Unique ID
-  chainId: string;               // Target chain
-  start: number;                 // Start position (inclusive)
-  end: number;                   // End position (inclusive)
-  sequence: string;              // AA sequence
-  label: string;                 // Display label
+  id: string; // Unique ID
+  chainId: string; // Target chain
+  start: number; // Start position (inclusive)
+  end: number; // End position (inclusive)
+  sequence: string; // AA sequence
+  label: string; // Display label
 }
 
 // Performance optimizations
-type RegionsByChain = Map<string, SelectionRegion[]>;     // O(1) chain lookup
-type HighlightedSet = Set<string>;                        // O(1) highlight check
-type ResidueKey = `${chainId}:${position}`;               // Unique residue identifier
+type RegionsByChain = Map<string, SelectionRegion[]>; // O(1) chain lookup
+type HighlightedSet = Set<string>; // O(1) highlight check
+type ResidueKey = `${chainId}:${position}`; // Unique residue identifier
 ```
 
 ## 🚀 **Getting Started**
 
 ### **Prerequisites**
+
 - Node.js 18+
 - npm/yarn/pnpm
 
 ### **Installation**
+
 ```bash
 git clone <repository-url>
 cd dyno-structure
@@ -197,6 +208,7 @@ npm install
 ```
 
 ### **Development**
+
 ```bash
 npm run dev          # Start with Turbopack
 npm run build        # Production build
@@ -207,16 +219,18 @@ npm run lint         # ESLint check
 ### **Usage Examples**
 
 #### **Basic Structure Loading**
+
 ```typescript
 // Load a simple structure
-<MolstarViewer 
-  pdbId="1CRN" 
+<MolstarViewer
+  pdbId="1CRN"
   onReady={(plugin) => console.log('Ready!')}
   onError={(error) => console.error(error)}
 />
 ```
 
 #### **Advanced Sequence Interface**
+
 ```typescript
 // Full sequence interface with callbacks
 <SequenceInterface
@@ -231,6 +245,7 @@ npm run lint         # ESLint check
 ```
 
 #### **Chain Selection for Large Structures**
+
 ```typescript
 // For structures like 7MT0 (60 chains)
 // Automatically shows 1 chain, allows user to select more
@@ -244,6 +259,7 @@ npm run lint         # ESLint check
 ## 🎯 **Performance Features**
 
 ### **Optimized for Large Structures**
+
 - **Set-based lookups**: O(1) selection checks for 1000+ residue structures
 - **Map-based regions**: O(1) chain-specific region lookups
 - **Memoized components**: Prevents unnecessary re-renders
@@ -251,41 +267,47 @@ npm run lint         # ESLint check
 - **Smart defaults**: Automatic chain selection for >3 chain structures
 
 ### **Memory Efficiency**
+
 - **Single source of truth**: Eliminates data duplication
 - **Stable references**: useCallback/useMemo prevent stale closures
-- **Bundle optimization**: Webpack splitting for Mol* chunks
+- **Bundle optimization**: Webpack splitting for Mol\* chunks
 - **Lazy loading**: Dynamic imports for heavy components
 
 ## 🔮 **Development Roadmap**
 
 ### **Phase 1: Foundation** ✅ **COMPLETE**
-- [x] Clean Mol* integration (no setTimeout hacks)
+
+- [x] Clean Mol\* integration (no setTimeout hacks)
 - [x] Performance-optimized sequence interface
 - [x] Multi-chain support with smart defaults
 - [x] Modular component architecture
 - [x] TypeScript safety and accessibility
 
 ### **Phase 2: Enhanced Features** ✅ **COMPLETE**
+
 - [x] Chain selection for large structures
 - [x] O(1) performance optimizations
 - [x] Unified clipboard API
 - [x] Advanced error handling
-- [x] **🆕 Bidirectional highlighting (sequence → 3D)** 
+- [x] **🆕 Bidirectional highlighting (sequence → 3D)**
 - [ ] Virtualization for 10,000+ residue structures
 
 ### **Phase 3: Advanced Highlighting** 📋 **PLANNED**
+
 - [ ] Complete bidirectional highlighting (3D → sequence)
 - [ ] Region extraction and isolation (cut out portions by selection)
 - [ ] Custom highlighting color schemes
 - [ ] Animation and focus transitions
 
 ### **Phase 4: AI Integration** 🎯 **FUTURE**
+
 - [ ] OpenAI Agents SDK integration
 - [ ] Natural language command processing
 - [ ] Intelligent structure analysis
 - [ ] Contextual help system
 
 ### **Phase 5: Advanced Analytics** 🔮 **FUTURE**
+
 - [ ] Sequence alignment visualization
 - [ ] Conservation analysis
 - [ ] Multi-structure comparison
@@ -294,17 +316,20 @@ npm run lint         # ESLint check
 ## 🛠️ **Technology Stack**
 
 ### **Core Technologies**
+
 - **Next.js 15**: App router with Turbopack
 - **React 19**: Latest features with concurrent rendering
 - **TypeScript 5**: Strict type safety
 - **Tailwind CSS 4**: Modern styling system
 
 ### **Molecular Visualization**
-- **Mol* 4.18**: Direct React integration
+
+- **Mol\* 4.18**: Direct React integration
 - **@rcsb/rcsb-molstar 2.12**: Enhanced PDB integration
-- **RxJS 7.8**: Reactive programming for Mol* events
+- **RxJS 7.8**: Reactive programming for Mol\* events
 
 ### **Performance & Architecture**
+
 - **React Context + useReducer**: Centralized state management
 - **React.memo + useCallback**: Optimized re-rendering
 - **Set/Map data structures**: O(1) lookup performance
@@ -313,12 +338,18 @@ npm run lint         # ESLint check
 ## 📚 **API Reference**
 
 ### **RCSB PDB GraphQL Integration**
+
 ```graphql
 query GetPDBData($entryId: String!) {
   entry(entry_id: $entryId) {
     rcsb_id
-    struct { title }
-    rcsb_primary_citation { journal_abbrev year }
+    struct {
+      title
+    }
+    rcsb_primary_citation {
+      journal_abbrev
+      year
+    }
     polymer_entities {
       entity_poly {
         pdbx_seq_one_letter_code
@@ -334,27 +365,32 @@ query GetPDBData($entryId: String!) {
 ```
 
 ### **Sequence Interface Callbacks**
+
 ```typescript
 interface SequenceInterfaceCallbacks {
   onSelectionChange?: (selection: SequenceSelection) => void;
   onHighlightChange?: (residues: SequenceResidue[]) => void;
-  onRegionAction?: (region: SelectionRegion | null, action: RegionAction) => void;
+  onRegionAction?: (
+    region: SelectionRegion | null,
+    action: RegionAction,
+  ) => void;
 }
 
-type RegionAction = 'copy' | 'export' | 'highlight' | 'delete' | 'edit';
+type RegionAction = "copy" | "export" | "highlight" | "delete" | "edit";
 ```
 
-### **🆕 Mol* Highlighting API**
+### **🆕 Mol\* Highlighting API**
+
 ```typescript
 // Clean highlighting API
-import { 
+import {
   buildResidueRangeLoci,
-  selectOnly, 
+  selectOnly,
   highlightOnly,
   clearAllSelections,
   selectionRegionsToResidueRanges,
-  HIGHLIGHTING_CONFIG 
-} from '@/lib/molstar';
+  HIGHLIGHTING_CONFIG,
+} from "@/lib/molstar";
 
 // Convert sequence selections to Mol* format
 const residueRanges = selectionRegionsToResidueRanges(regions);
@@ -370,12 +406,14 @@ highlightOnly(plugin, loci);
 ## 🧪 **Testing Large Structures**
 
 ### **Recommended Test Cases**
+
 - **1CRN**: Small structure (46 residues, 1 chain) - Basic functionality
-- **4HHB**: Hemoglobin (4 chains) - Multi-chain testing  
+- **4HHB**: Hemoglobin (4 chains) - Multi-chain testing
 - **7MT0**: AAV9 Capsid (60 chains, 1200+ residues) - Performance testing
 - **1HTM**: Large protein complex - Stress testing
 
 ### **Performance Benchmarks**
+
 - **Selection Check**: O(n) → O(1) = ~1000x faster for large structures
 - **Highlight Check**: O(n) → O(1) = ~1000x faster
 - **Chain Filtering**: Smart defaults prevent UI blocking
@@ -384,6 +422,7 @@ highlightOnly(plugin, loci);
 ## 🤝 **Contributing**
 
 ### **Development Guidelines**
+
 - **Modular Architecture**: Keep UI and functionality separate
 - **Performance First**: Consider O(1) operations for large data
 - **Type Safety**: Use strict TypeScript with proper error types
@@ -391,6 +430,7 @@ highlightOnly(plugin, loci);
 - **Accessibility**: ARIA compliance and keyboard navigation
 
 ### **Priority Areas**
+
 1. Bidirectional sequence-structure highlighting
 2. Virtualization for massive structures (10,000+ residues)
 3. AI agent integration and natural language processing
@@ -402,6 +442,6 @@ highlightOnly(plugin, loci);
 
 ## 🙏 **Acknowledgments**
 
-- **Mol*** team for the exceptional molecular visualization library
+- **Mol\*** team for the exceptional molecular visualization library
 - **RCSB PDB** for comprehensive structural biology data and GraphQL API
 - **Next.js** team for the robust React framework with Turbopack optimization

@@ -4,8 +4,8 @@
  */
 
 // Core application types
-export * from './molstar';
-export * from './sequence';
+export * from "./molstar";
+export * from "./sequence";
 
 // Common utility types
 export interface ApiResponse<T = unknown> {
@@ -39,7 +39,7 @@ export interface ErrorState {
 export interface BaseComponentProps {
   className?: string;
   id?: string;
-  'data-testid'?: string;
+  "data-testid"?: string;
 }
 
 export interface InteractiveComponentProps extends BaseComponentProps {
@@ -52,28 +52,28 @@ export interface InteractiveComponentProps extends BaseComponentProps {
 
 // Configuration types
 export interface AppConfig {
-  molstar: import('./molstar').MolstarConfig;
-  sequence: import('./sequence').SequenceConfig;
-  performance: import('./sequence').SequencePerformanceConfig;
+  molstar: import("./molstar").MolstarConfig;
+  sequence: import("./sequence").SequenceConfig;
+  performance: import("./sequence").SequencePerformanceConfig;
   api: {
     baseUrl: string;
     timeout: number;
     retries: number;
   };
   logging: {
-    level: 'debug' | 'info' | 'warn' | 'error';
+    level: "debug" | "info" | "warn" | "error";
     enableConsole: boolean;
     enableRemote: boolean;
   };
 }
 
 // Event system types
-export type EventType = 
-  | import('./molstar').MolstarEventType 
-  | import('./sequence').SequenceEventType
-  | 'app-initialized'
-  | 'config-changed'
-  | 'error-boundary-triggered';
+export type EventType =
+  | import("./molstar").MolstarEventType
+  | import("./sequence").SequenceEventType
+  | "app-initialized"
+  | "config-changed"
+  | "error-boundary-triggered";
 
 export interface AppEvent<T = unknown> {
   type: EventType;
@@ -88,12 +88,12 @@ export type EventCallback<T = unknown> = (event: AppEvent<T>) => void;
 export interface AppState {
   initialized: boolean;
   config: AppConfig;
-  molstar: import('./molstar').MolstarState;
-  sequence: import('./sequence').SelectionState;
+  molstar: import("./molstar").MolstarState;
+  sequence: import("./sequence").SelectionState;
   ui: {
     sidebarOpen: boolean;
     activePanel: string;
-    theme: 'light' | 'dark';
+    theme: "light" | "dark";
   };
   errors: ErrorState[];
 }

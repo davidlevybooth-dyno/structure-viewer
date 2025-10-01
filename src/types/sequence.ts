@@ -1,20 +1,69 @@
-/**
- * Centralized type definitions for sequence interface
- * Provides type safety for all sequence-related operations
- */
+export interface SequenceResidue {
+  position: number;
+  code: string;
+  chainId: string;
+  secondaryStructure?: "helix" | "sheet" | "loop";
+}
 
-// Re-export existing types for backward compatibility
-export type {
-  SequenceData,
-  SequenceChain,
-  SequenceResidue,
-  SelectionRegion,
-  SequenceSelection,
-  SequenceInterfaceProps,
-  SequenceInterfaceCallbacks,
-} from '@/components/sequence-interface/types';
+export interface SequenceChain {
+  id: string;
+  name?: string;
+  residues: SequenceResidue[];
+}
 
-// Enhanced types for production use
+export interface SequenceData {
+  id: string;
+  name: string;
+  chains: SequenceChain[];
+  metadata?: Record<string, unknown>;
+}
+
+export interface SelectionRegion {
+  id: string;
+  chainId: string;
+  start: number;
+  end: number;
+  sequence: string;
+  label?: string;
+  color?: string;
+  metadata?: Record<string, unknown>;
+}
+
+export interface SequenceSelection {
+  regions: SelectionRegion[];
+  activeRegion: string | null;
+  clipboard: string | null;
+}
+
+export type RegionAction = "hide" | "isolate" | "highlight" | "copy";
+
+export interface SequenceInterfaceCallbacks {
+  onSelectionChange?: (selection: SequenceSelection) => void;
+  onHighlightChange?: (residues: SequenceResidue[]) => void;
+  onSequencePaste?: (
+    sequence: string,
+    position?: { chainId: string; position: number },
+  ) => void;
+  onSequenceCopy?: (sequence: string, region: SelectionRegion) => void;
+  onRegionAction?: (
+    region: SelectionRegion | null,
+    action: RegionAction,
+  ) => void;
+  onResidueAction?: (residue: SequenceResidue, action: RegionAction) => void;
+}
+
+export interface SequenceInterfaceProps {
+  data?: SequenceData;
+  selection?: SequenceSelection;
+  highlightedResidues?: SequenceResidue[];
+  selectedChainIds?: string[];
+  colorScheme?: string;
+  className?: string;
+  readOnly?: boolean;
+  callbacks?: SequenceInterfaceCallbacks;
+  onChainSelectionChange?: (chainIds: string[]) => void;
+}
+
 export interface SequenceMetadata {
   organism?: string;
   resolution?: number;
@@ -26,7 +75,7 @@ export interface SequenceMetadata {
 }
 
 export interface ChainMetadata {
-  type: 'protein' | 'dna' | 'rna' | 'other';
+  type: "protein" | "dna" | "rna" | "other";
   length: number;
   molecularWeight?: number;
   organism?: string;
@@ -36,7 +85,7 @@ export interface ChainMetadata {
 export interface ResidueMetadata {
   name: string;
   code: string;
-  type: 'standard' | 'modified' | 'unknown';
+  type: "standard" | "modified" | "unknown";
   properties?: {
     hydrophobic?: boolean;
     charged?: boolean;
@@ -45,10 +94,9 @@ export interface ResidueMetadata {
   };
 }
 
-// Selection and interaction types
-export type SelectionMode = 'single' | 'range' | 'multiple';
+export type SelectionMode = "single" | "range" | "multiple";
 
-export type InteractionMode = 'select' | 'highlight' | 'readonly';
+export type InteractionMode = "select" | "highlight" | "readonly";
 
 export interface SelectionConstraints {
   maxSelections?: number;
@@ -64,23 +112,21 @@ export interface SelectionState {
   lastModified: number;
 }
 
-// Event types for sequence interface
 export type SequenceEventType =
-  | 'selection-changed'
-  | 'residue-clicked'
-  | 'residue-hovered'
-  | 'chain-selected'
-  | 'data-loaded'
-  | 'error-occurred';
+  | "selection-changed"
+  | "residue-clicked"
+  | "residue-hovered"
+  | "chain-selected"
+  | "data-loaded"
+  | "error-occurred";
 
 export interface SequenceEvent<T = unknown> {
   type: SequenceEventType;
   timestamp: number;
-  source: 'user' | 'api' | 'system';
+  source: "user" | "api" | "system";
   data?: T;
 }
 
-// API types
 export interface SequenceApiResponse<T = unknown> {
   success: boolean;
   data?: T;
@@ -103,18 +149,16 @@ export interface PdbApiResponse extends SequenceApiResponse<SequenceData> {
   };
 }
 
-// Configuration types
 export interface SequenceConfig {
   residuesPerRow: number;
   showRuler: boolean;
   showChainLabels: boolean;
-  colorScheme: 'default' | 'hydrophobicity' | 'charge' | 'secondary-structure';
+  colorScheme: "default" | "hydrophobicity" | "charge" | "secondary-structure";
   interactionMode: InteractionMode;
   selectionMode: SelectionMode;
   constraints: SelectionConstraints;
 }
 
-// Performance optimization types
 export interface VirtualizationConfig {
   enabled: boolean;
   itemHeight: number;
@@ -129,7 +173,6 @@ export interface SequencePerformanceConfig {
   lazyLoading: boolean;
 }
 
-// Integration types for Molstar connection
 export interface SequenceMolstarIntegration {
   highlightResidues: (ranges: ResidueRange[]) => Promise<void>;
   selectResidues: (ranges: ResidueRange[]) => Promise<void>;
@@ -138,5 +181,8 @@ export interface SequenceMolstarIntegration {
   getAvailableChains: () => Promise<string[]>;
 }
 
-// Re-export ResidueRange from molstar types for consistency
-export type { ResidueRange } from './molstar';
+export interface ResidueRange {
+  chainId: string;
+  start: number;
+  end: number;
+}

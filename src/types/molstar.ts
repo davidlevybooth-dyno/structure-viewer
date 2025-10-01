@@ -1,6 +1,22 @@
-import type { PluginUIContext } from 'molstar/lib/mol-plugin-ui/context';
+import type { PluginUIContext } from "molstar/lib/mol-plugin-ui/context";
+import type { ResidueRange } from "./sequence";
 
-export interface MolstarPlugin extends PluginUIContext {}
+export interface MolstarPlugin extends PluginUIContext {
+  // Additional molstar plugin properties can be added here
+  readonly _brand?: "MolstarPlugin";
+}
+
+export type RepresentationType =
+  | "cartoon"
+  | "molecular-surface"
+  | "ball-and-stick"
+  | "spacefill"
+  | "point"
+  | "backbone";
+
+export type ChainOperation = "hide" | "isolate" | "show";
+export type ComponentType = "water" | "ligands" | "ions";
+export type ResidueOperation = "hide" | "isolate" | "highlight" | "copy";
 
 export interface MolstarConfig {
   layoutIsExpanded?: boolean;
@@ -15,32 +31,20 @@ export interface MolstarConfig {
   pdbProvider?: string;
   emdbProvider?: string;
 }
-
-// Structure operations
-export type RepresentationType = 'cartoon' | 'surface' | 'ball-stick' | 'spacefill';
-export type ChainOperation = 'hide' | 'isolate' | 'show';
-export type ComponentType = 'water' | 'ligands' | 'ions';
-export type ResidueOperation = 'hide' | 'isolate' | 'highlight' | 'copy';
-
 // Selection and highlighting
-export interface ResidueRange {
-  chainId: string;
-  start: number;
-  end: number;
-}
+export type { ResidueRange } from "./sequence";
 
 export interface HighlightOptions {
   color?: string;
   clearExisting?: boolean;
 }
 
-// Error types
-export type MolstarErrorType = 
-  | 'INITIALIZATION_ERROR'
-  | 'LOADING_ERROR' 
-  | 'OPERATION_ERROR'
-  | 'SELECTION_ERROR'
-  | 'NETWORK_ERROR';
+export type MolstarErrorType =
+  | "INITIALIZATION_ERROR"
+  | "LOADING_ERROR"
+  | "OPERATION_ERROR"
+  | "SELECTION_ERROR"
+  | "NETWORK_ERROR";
 
 export interface MolstarError extends Error {
   type: MolstarErrorType;
@@ -48,23 +52,20 @@ export interface MolstarError extends Error {
   details?: Record<string, unknown>;
 }
 
-// Operation results
 export interface OperationResult<T = void> {
   success: boolean;
   data?: T;
   error?: MolstarError;
 }
 
-// Async operation status
 export interface AsyncOperation {
   id: string;
   type: string;
-  status: 'pending' | 'running' | 'completed' | 'failed';
+  status: "pending" | "running" | "completed" | "failed";
   progress?: number;
   error?: MolstarError;
 }
 
-// Plugin state
 export interface MolstarState {
   isInitialized: boolean;
   isLoading: boolean;
@@ -76,16 +77,15 @@ export interface MolstarState {
   activeOperations: AsyncOperation[];
 }
 
-// Event types
-export type MolstarEventType = 
-  | 'initialized'
-  | 'structure-loaded'
-  | 'structure-failed'
-  | 'representation-changed'
-  | 'selection-changed'
-  | 'operation-started'
-  | 'operation-completed'
-  | 'operation-failed';
+export type MolstarEventType =
+  | "initialized"
+  | "structure-loaded"
+  | "structure-failed"
+  | "representation-changed"
+  | "selection-changed"
+  | "operation-started"
+  | "operation-completed"
+  | "operation-failed";
 
 export interface MolstarEvent<T = unknown> {
   type: MolstarEventType;
@@ -93,14 +93,20 @@ export interface MolstarEvent<T = unknown> {
   data?: T;
 }
 
-// Callback types
-export type MolstarEventCallback<T = unknown> = (event: MolstarEvent<T>) => void;
+export type MolstarEventCallback<T = unknown> = (
+  event: MolstarEvent<T>,
+) => void;
 
 export interface MolstarCallbacks {
   onInitialized?: MolstarEventCallback;
   onStructureLoaded?: MolstarEventCallback<{ pdbId: string }>;
-  onStructureFailed?: MolstarEventCallback<{ pdbId: string; error: MolstarError }>;
-  onRepresentationChanged?: MolstarEventCallback<{ representation: RepresentationType }>;
+  onStructureFailed?: MolstarEventCallback<{
+    pdbId: string;
+    error: MolstarError;
+  }>;
+  onRepresentationChanged?: MolstarEventCallback<{
+    representation: RepresentationType;
+  }>;
   onSelectionChanged?: MolstarEventCallback<{ selection: ResidueRange[] }>;
   onOperationStarted?: MolstarEventCallback<AsyncOperation>;
   onOperationCompleted?: MolstarEventCallback<AsyncOperation>;

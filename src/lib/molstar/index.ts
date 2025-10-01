@@ -1,10 +1,3 @@
-/**
- * Mol* Highlighting API
- *
- * Clean, extensible interface for molecular structure highlighting
- * Provides sequence → structure highlighting with configurable options
- */
-
 // Core highlighting functions
 export {
   buildResidueRangeLoci,
@@ -22,7 +15,7 @@ export {
   sequenceResiduesToResidueRanges,
   sequenceResidueToResidueRange,
   mergeResidueRanges,
-} from "./sequence-to-molstar";
+} from "./sequenceToMolstar";
 
 // Configuration constants
 export {
@@ -38,17 +31,7 @@ export {
   hideChain,
   isolateChain,
   showAllChains,
-} from "./chain-operations";
+} from "./chainOperations";
 
-// Representation control
-export {
-  MolstarRepresentationAPI,
-  setRepresentation,
-  setCartoon,
-  setSurface,
-  setBallAndStick,
-  setSpacefill,
-  setPoint,
-  setBackbone,
-  type RepresentationType,
-} from "./representation";
+// Representation types
+export type { RepresentationType } from "@/types/molstar";

@@ -1,7 +1,7 @@
 "use client";
 
-import React, { createContext, useContext, useState, useCallback } from 'react';
-import type { PluginUIContext } from 'molstar/lib/mol-plugin-ui/context';
+import React, { createContext, useContext, useState, useCallback } from "react";
+import type { PluginUIContext } from "molstar/lib/mol-plugin-ui/context";
 
 interface MolstarContextValue {
   plugin: PluginUIContext | null;
@@ -33,16 +33,14 @@ export function MolstarProvider({ children }: MolstarProviderProps) {
   };
 
   return (
-    <MolstarContext.Provider value={value}>
-      {children}
-    </MolstarContext.Provider>
+    <MolstarContext.Provider value={value}>{children}</MolstarContext.Provider>
   );
 }
 
 export function useMolstar() {
   const context = useContext(MolstarContext);
   if (!context) {
-    throw new Error('useMolstar must be used within a MolstarProvider');
+    throw new Error("useMolstar must be used within a MolstarProvider");
   }
   return context;
 }
