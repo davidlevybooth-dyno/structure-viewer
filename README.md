@@ -75,10 +75,12 @@ Right-Click Actions → Chain/Residue Operations
 ## 🚀 **Getting Started**
 
 ### **Prerequisites**
+
 - Node.js 18+
 - npm/yarn/pnpm
 
 ### **Installation**
+
 ```bash
 git clone <repository-url>
 cd dyno-structure
@@ -86,6 +88,7 @@ npm install
 ```
 
 ### **Development**
+
 ```bash
 npm run dev          # Start development server
 npm run build        # Production build
