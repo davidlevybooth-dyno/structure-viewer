@@ -6,7 +6,7 @@ Create an intelligent molecular structure viewer that combines the power of Mol\
 
 ---
 
-## 📍 **Current Status: Phase 3 Complete** ✅
+## 📍 **Current Status: Phase 4 Complete** ✅
 
 ### ✅ **Phase 1: Foundation (COMPLETE)**
 
@@ -38,22 +38,34 @@ Create an intelligent molecular structure viewer that combines the power of Mol\
 - **Centralized Configuration**: Constants consolidation and consistent data flow
 - **Responsive Sequence Interface**: Dynamic residue grid with proper text selection handling
 
+### ✅ **Phase 4: Molstar Integration & Code Quality (COMPLETE)**
+
+- **Official Molstar 5.0 APIs**: Complete migration to official Molstar patterns and examples
+- **Robust Highlighting System**: Persistent sequence→structure highlighting with right-click context menus
+- **Chain Operations**: Hide, isolate, and show chains with bulletproof camera focusing
+- **Component Removal**: Toggle water, ligands, and ions with visual feedback
+- **Residue-Level Operations**: Hide, isolate, and highlight specific residue ranges
+- **Production Architecture**: Modular `blocks/` structure with clean separation of concerns
+- **Hook Cleanup**: Removed 661+ lines of unused code, keeping only 4 working hooks
+- **Type Safety**: Consolidated types, fixed imports, eliminated redundant definitions
+- **Code Quality**: Comprehensive linting fixes, consistent file naming, removed dead code
+
 ---
 
-## 🚧 **Phase 4: LLM Agent Enhancement (NEXT PRIORITY)**
+## 🚧 **Phase 5: LLM Agent Enhancement (NEXT PRIORITY)**
 
 ### 🎯 **Core Objective**
 
 Enhance the existing chat interface with intelligent structure analysis and command execution capabilities.
 
-### **4.1 Current Chat Interface Foundation** ✅
+### **5.1 Current Chat Interface Foundation** ✅
 
 - **Resizable Chat Panel**: Integrated with React Resizable Panels
 - **Conversation Management**: Full chat history and state management
 - **Modern UI Components**: Composer, message handling, settings
 - **Responsive Design**: Adapts to different screen sizes
 
-### **4.2 Agent Integration Roadmap**
+### **5.2 Agent Integration Roadmap**
 
 - [ ] **Command Recognition**: Parse natural language for structure commands
 - [ ] **Action Execution**: Connect chat commands to Mol\* and sequence interface
@@ -61,7 +73,7 @@ Enhance the existing chat interface with intelligent structure analysis and comm
 - [ ] **Visual Feedback**: Show command results in both chat and structure views
 - [ ] **Error Handling**: Graceful handling of invalid commands with helpful suggestions
 
-### **4.3 Implementation Details**
+### **5.3 Implementation Details**
 
 ```typescript
 // Enhanced chat message handling with structure commands
@@ -87,16 +99,16 @@ const handleStructureCommand = async (message: string) => {
 
 ---
 
-## 🔮 **Phase 5: Advanced Agent Features (Future)**
+## 🔮 **Phase 6: Advanced Agent Features (Future)**
 
-### **5.1 Foundation & Types**
+### **6.1 Foundation & Types**
 
 - [ ] **Agent Types**: Create `src/types/agent.ts` with action schemas
 - [ ] **Command Categories**: Define (load, select, visualize, analyze, export)
 - [ ] **Zod Schemas**: Create validation schemas for actions
 - [ ] **Enhanced Context**: Deep integration with current structure state
 
-### **5.2 Action System Architecture**
+### **6.2 Action System Architecture**
 
 ```
 Natural Language Input (via existing chat)
@@ -112,7 +124,7 @@ Action Execution (Mol* + Sequence Interface)
 User Feedback & Results (in chat)
 ```
 
-### **5.3 LLM Provider Integration**
+### **6.3 LLM Provider Integration**
 
 **Primary Options:**
 
@@ -120,7 +132,7 @@ User Feedback & Results (in chat)
 - **Anthropic Claude**: Strong reasoning and safety features
 - **Local Models**: Privacy-focused options (Llama, etc.)
 
-### **5.4 Core Agent Actions**
+### **6.4 Core Agent Actions**
 
 ```typescript
 interface AgentAction {
@@ -135,7 +147,7 @@ interface AgentAction {
 }
 ```
 
-### **5.5 Example Commands**
+### **6.5 Example Commands**
 
 - `"Load structure 1CRN and highlight the active site"`
 - `"Compare chains A and B in the current structure"`
@@ -145,16 +157,16 @@ interface AgentAction {
 
 ---
 
-## 🔮 **Phase 6: Advanced Features (Future)**
+## 🔮 **Phase 7: Advanced Features (Future)**
 
-### **6.1 Multiple Structure Analysis**
+### **7.1 Multiple Structure Analysis**
 
 - [ ] **Side-by-side Comparison**: Load and compare multiple structures
 - [ ] **Alignment Visualization**: Sequence and structural alignments
 - [ ] **Difference Highlighting**: Show variations between structures
 - [ ] **Animation**: Morph between conformations
 
-### **6.2 Region Extraction & Isolation** 🔥 **HIGH PRIORITY**
+### **7.2 Region Extraction & Isolation** 🔥 **HIGH PRIORITY**
 
 - [ ] **Chain Extraction**: Cut out specific chains from multi-chain structures
 - [ ] **Sequence Region Extraction**: Extract selected sequence regions as new structures
@@ -163,21 +175,21 @@ interface AgentAction {
 - [ ] **Visual Preview**: Show extraction preview before committing
 - [ ] **Undo/Redo**: Reversible extraction operations
 
-### **6.3 Scientific Analysis Tools**
+### **7.3 Scientific Analysis Tools**
 
 - [ ] **Conservation Analysis**: Evolutionary conservation scoring
 - [ ] **Domain Annotation**: Functional domain highlighting
 - [ ] **Binding Site Prediction**: AI-powered active site identification
 - [ ] **Drug Interaction**: Small molecule docking visualization
 
-### **6.4 Collaboration Features**
+### **7.4 Collaboration Features**
 
 - [ ] **Shared Sessions**: Real-time collaborative viewing
 - [ ] **Annotations**: User-generated notes and highlights
 - [ ] **Export/Import**: Save and share analysis sessions
 - [ ] **Version Control**: Track analysis history
 
-### **6.5 Performance & Scalability**
+### **7.5 Performance & Scalability**
 
 - [ ] **WebWorkers**: Offload heavy computations
 - [ ] **Streaming**: Progressive loading of large structures
@@ -220,38 +232,36 @@ interface AgentAction {
 
 ## 🎉 **Recent Accomplishments (December 2024)**
 
-### **Major Architecture Refactor** ✅
+### **Phase 4: Molstar Integration & Code Quality** ✅
 
-- **Component Organization**: Restructured entire codebase into logical directories
-  - `src/components/chat/` - Chat interface components
-  - `src/components/protein/` - Protein viewer and controls
-  - `src/components/sequence-interface/` - Standalone sequence components
-  - `src/components/ui/` - Reusable UI components
-- **Hook Standardization**: Renamed all hooks to `useCamelCase` convention
-- **Export Consolidation**: Created comprehensive index files for clean imports
+#### **Official Molstar 5.0 Migration** ✅
+- **Working Molstar Viewer**: Complete migration from broken integration to official Molstar 5.0 patterns
+- **Persistent Highlighting**: Robust sequence→structure highlighting that survives mouse interaction
+- **Chain Operations**: Hide, isolate, and show chains with bulletproof camera focusing for large structures
+- **Component Removal**: Toggle water, ligands, and ions with visual feedback and state management
+- **Residue-Level Operations**: Hide, isolate, and highlight specific residue ranges with right-click context menus
 
-### **UI/UX Enhancements** ✅
+#### **Production Architecture** ✅
+- **Modular `blocks/` Structure**: Reorganized entire codebase into feature-based blocks
+  - `src/blocks/chat/` - Chat interface components
+  - `src/blocks/protein/` - Protein viewer and controls  
+  - `src/blocks/sequence/` - Sequence interface components
+  - `src/layouts/` - Layout components
+- **Hook Cleanup**: Removed 661+ lines of unused code, keeping only 4 working hooks
+- **Type Consolidation**: Centralized types, fixed imports, eliminated redundant definitions
 
-- **Resizable Chat Panel**: Integrated React Resizable Panels for dynamic layout
-- **Chain Multi-Select**: Interactive chain selector with tooltips and pagination
-- **Responsive Sequence Grid**: Dynamic residue display that adapts to container width
-- **Selection Improvements**: Fixed single/multi-region selection with proper visual feedback
-- **Text Selection Prevention**: Disabled browser text selection in favor of custom drag selection
+#### **Code Quality & Performance** ✅
+- **Comprehensive Linting**: Fixed 120+ linting issues, reduced to 111 remaining (mostly `any` types in Molstar code)
+- **Prettier Formatting**: Applied consistent formatting across 107+ files
+- **File Naming Consistency**: Standardized camelCase for utilities, PascalCase for components
+- **Dead Code Removal**: Eliminated unused sequence management system, broken Molstar files
+- **Build Optimization**: Maintained successful builds throughout major refactoring
 
-### **Code Quality Improvements** ✅
-
-- **Prettier Formatting**: Applied consistent code formatting across 95+ files
-- **Component Streamlining**: Reduced code complexity in ResidueGrid, SelectionSummary, SequenceInterface
-- **Constants Consolidation**: Centralized configuration in `src/config/constants.ts`
-- **Technical Debt Reduction**: Removed redundant code, unused imports, and v2 components
-- **Build Optimization**: Maintained successful builds throughout refactoring process
-
-### **Developer Experience** ✅
-
-- **Modular Architecture**: Clear separation of concerns for easier maintenance
-- **Comprehensive Documentation**: Updated README files for key components
-- **Type Safety**: Enhanced TypeScript interfaces and error handling
-- **Git Workflow**: Clean commit history with logical feature groupings
+#### **UI/UX Enhancements** ✅
+- **Accordion Controls**: Unified structure and sequence controls with collapsible design
+- **Context Menus**: Right-click actions for sequence selections (hide, isolate, highlight, copy)
+- **Visual Feedback**: Toggle buttons for component removal, selection persistence indicators
+- **Responsive Design**: Proper layout management and component sizing
 
 ---
 
