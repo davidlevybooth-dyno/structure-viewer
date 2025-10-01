@@ -67,7 +67,3 @@ Try these PDB structures to test different features:
 - React 19 with TypeScript 5
 - Molstar 5.0 for 3D visualization
 - Tailwind CSS 4 for styling
-
-## License
-
-[Add your license information here]
