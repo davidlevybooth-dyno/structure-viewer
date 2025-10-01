@@ -1,13 +1,10 @@
-/**
- * Mol* highlighting utilities using the official APIs
- * Based on the proven pattern: Structure → MolScript → StructureSelection → Loci → Highlight/Select
- */
-
 import type { PluginUIContext } from "molstar/lib/mol-plugin-ui/context";
 import { MolScriptBuilder as MS } from "molstar/lib/mol-script/language/builder";
 import { Script } from "molstar/lib/mol-script/script";
 import { StructureSelection } from "molstar/lib/mol-model/structure/query";
 import type { Loci } from "molstar/lib/mol-model/loci";
+import { setStructureOverpaint } from "molstar/lib/mol-plugin-state/helpers/structure-overpaint";
+import { Color } from "molstar/lib/mol-util/color";
 
 export type ResidueRange = {
   chain: string;
@@ -23,10 +20,6 @@ function getCurrentStructureData(plugin: PluginUIContext) {
   );
 }
 
-/**
- * Build a Loci for one or more residue ranges, e.g. [{ chain: 'A', start: 10, end: 25 }]
- * Set auth=true to use auth fields; otherwise label_* are used.
- */
 export function buildResidueRangeLoci(
   plugin: PluginUIContext,
   ranges: ResidueRange[],
@@ -49,6 +42,7 @@ export function buildResidueRangeLoci(
   });
 
   const selection = Script.getStructureSelection(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (Q) => Q.struct.combinator.merge(groups as any),
     data,
   );
@@ -56,28 +50,71 @@ export function buildResidueRangeLoci(
   return StructureSelection.toLociWithSourceUnits(selection);
 }
 
-/**
- * Transient highlighting (can be replaced by next highlight)
- */
 export function highlightOnly(plugin: PluginUIContext, loci: Loci) {
   plugin.managers.interactivity.lociHighlights.highlightOnly({ loci });
+  plugin.managers.structure.selection.fromLoci("set", loci);
 }
 
-/**
- * Persistent selection (syncs to sequence panel)
- */
-export function selectOnly(plugin: PluginUIContext, loci: Loci) {
-  // Clear then set, so visuals and sequence panel reflect only this set.
+export async function selectOnly(plugin: PluginUIContext, loci: Loci) {
   plugin.managers.interactivity.lociSelects.deselectAll();
   plugin.managers.interactivity.lociSelects.select({ loci });
+
+  try {
+    const hierarchy = plugin.managers.structure.hierarchy.current;
+    if (hierarchy.structures.length > 0) {
+      const struct = hierarchy.structures[0];
+      if (struct.cell.obj?.data) {
+        const structRef = plugin.managers.structure.hierarchy.findStructure(
+          struct.cell.obj.data,
+        );
+
+        if (structRef) {
+          const color = Color(0xff0000);
+          await setStructureOverpaint(
+            plugin,
+            structRef.components,
+            color,
+            async () => loci as any,
+          );
+        }
+      }
+    }
+  } catch (error) {
+    console.error("Overpaint highlighting failed:", error);
+  }
+
+  plugin.managers.camera.focusLoci(loci);
 }
 
 export function clearAllHighlights(plugin: PluginUIContext) {
   plugin.managers.interactivity.lociHighlights.clearHighlights();
 }
 
-export function clearAllSelections(plugin: PluginUIContext) {
+export async function clearAllSelections(plugin: PluginUIContext) {
   plugin.managers.interactivity.lociSelects.deselectAll();
+
+  try {
+    const hierarchy = plugin.managers.structure.hierarchy.current;
+    if (hierarchy.structures.length > 0) {
+      const struct = hierarchy.structures[0];
+      if (struct.cell.obj?.data) {
+        const structRef = plugin.managers.structure.hierarchy.findStructure(
+          struct.cell.obj.data,
+        );
+
+        if (structRef) {
+          await setStructureOverpaint(
+            plugin,
+            structRef.components,
+            Color(-1),
+            async () => ({ kind: "empty-loci" }) as any,
+          );
+        }
+      }
+    }
+  } catch (error) {
+    console.warn("Clear overpaint failed:", error);
+  }
 }
 
 export function focusLoci(plugin: PluginUIContext, loci: Loci) {

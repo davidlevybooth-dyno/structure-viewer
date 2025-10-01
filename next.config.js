@@ -30,13 +30,13 @@ const nextConfig = {
       ...config.optimization,
       splitChunks: {
         ...config.optimization.splitChunks,
-        chunks: 'all',
+        chunks: "all",
         cacheGroups: {
           ...config.optimization.splitChunks?.cacheGroups,
           molstar: {
             test: /[\\/]node_modules[\\/](molstar)[\\/]/,
-            name: 'molstar',
-            chunks: 'all',
+            name: "molstar",
+            chunks: "all",
             priority: 30,
           },
         },

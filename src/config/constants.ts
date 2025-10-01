@@ -1,22 +1,46 @@
-import type { RepresentationType, ColorScheme } from "@/types/molstar";
+import type { RepresentationType } from "@/types/molstar";
 
 export const EXAMPLE_STRUCTURES = [
-  { id: "1CRN", name: "Crambin", description: "Small plant protein" },
-  { id: "1UBQ", name: "Ubiquitin", description: "Regulatory protein" },
-  { id: "4HHB", name: "Hemoglobin", description: "Oxygen transport protein" },
+  { id: "1crn", name: "Crambin", description: "Small plant protein" },
+  { id: "1ubq", name: "Ubiquitin", description: "Regulatory protein" },
   {
-    id: "6M0J",
+    id: "4hhb",
+    name: "Hemoglobin",
+    description: "Oxygen transport protein (4 chains)",
+  },
+  {
+    id: "1aon",
+    name: "Aspartate Carbamoyltransferase",
+    description: "Enzyme complex (12 chains)",
+  },
+  {
+    id: "1pma",
+    name: "20S Proteasome",
+    description: "Protein degradation complex (28 chains)",
+  },
+  {
+    id: "8oz0",
+    name: "Human 48S Ribosomal Complex",
+    description: "Ribosomal initiation complex (48 chains)",
+  },
+  {
+    id: "9a86",
+    name: "52-mer Gasdermin Pore",
+    description: "Gasdermin pore complex (52 chains)",
+  },
+  {
+    id: "6m0j",
     name: "COVID-19 Spike Protein",
     description: "SARS-CoV-2 spike protein",
   },
   {
-    id: "7MT0",
+    id: "7mt0",
     name: "AAV9 Capsid",
-    description: "Adeno-associated virus capsid",
+    description: "Adeno-associated virus capsid (60 chains)",
   },
-  { id: "1LYZ", name: "Lysozyme", description: "Antimicrobial enzyme" },
+  { id: "1lyz", name: "Lysozyme", description: "Antimicrobial enzyme" },
   {
-    id: "1GFL",
+    id: "1gfl",
     name: "Green Fluorescent Protein",
     description: "Fluorescent marker protein",
   },
@@ -29,20 +53,7 @@ export const REPRESENTATIONS: { value: RepresentationType; label: string }[] = [
   { value: "cartoon", label: "Cartoon" },
   { value: "ball-and-stick", label: "Ball & Stick" },
   { value: "spacefill", label: "Space Fill" },
-  { value: "surface", label: "Surface" },
-  { value: "line", label: "Line" },
-];
-
-export const STYLE_REPRESENTATIONS = [
-  { value: "ribbon", label: "Ribbon" },
-  { value: "tube", label: "Tube" },
-  { value: "trace", label: "Trace" },
-] as const;
-
-export const COLOR_SCHEMES: { value: ColorScheme; label: string }[] = [
-  { value: "chain-id", label: "By Chain" },
-  { value: "sequence-id", label: "By Sequence" },
-  { value: "element-symbol", label: "By Element" },
-  { value: "residue-name", label: "By Residue" },
-  { value: "uniform", label: "Uniform" },
+  { value: "molecular-surface", label: "Surface" },
+  { value: "point", label: "Point" },
+  { value: "backbone", label: "Backbone" },
 ];

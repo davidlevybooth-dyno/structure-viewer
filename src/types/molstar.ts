@@ -1,77 +1,114 @@
 import type { PluginUIContext } from "molstar/lib/mol-plugin-ui/context";
+import type { ResidueRange } from "./sequence";
 
-export interface MolstarPlugin {
-  readonly plugin: PluginUIContext;
-  readonly isInitialized: boolean;
-}
-
-export interface PDBStructure {
-  readonly id: string;
-  readonly title?: string;
-  readonly method?: string;
-  readonly resolution?: number;
-  readonly depositionDate?: string;
-  readonly chains: Chain[];
-}
-
-export interface Chain {
-  readonly id: string;
-  readonly entityId?: string;
-  readonly description?: string;
-  readonly type: "protein" | "nucleic" | "ligand" | "water" | "other";
-  readonly residueCount: number;
-}
-
-export interface LoadStructureOptions {
-  id: string;
-  assemblyId?: string;
-  autoFocus?: boolean;
-  representation?: RepresentationType;
-  colorScheme?: ColorScheme;
+export interface MolstarPlugin extends PluginUIContext {
+  // Additional molstar plugin properties can be added here
+  readonly _brand?: "MolstarPlugin";
 }
 
 export type RepresentationType =
   | "cartoon"
+  | "molecular-surface"
   | "ball-and-stick"
   | "spacefill"
-  | "surface"
-  | "line"
-  | "point";
+  | "point"
+  | "backbone";
 
-export type ColorScheme =
-  | "chain-id"
-  | "sequence-id"
-  | "entity-id"
-  | "residue-name"
-  | "element-symbol"
-  | "uniform";
+export type ChainOperation = "hide" | "isolate" | "show";
+export type ComponentType = "water" | "ligands" | "ions";
+export type ResidueOperation = "hide" | "isolate" | "highlight" | "copy";
 
-export interface SelectionTarget {
-  chainId?: string;
-  residueRange?: { start: number; end: number };
-  residueNumbers?: number[];
-  ligandName?: string;
-  element?: string;
-}
 export interface MolstarConfig {
-  hideSequencePanel?: boolean;
-  hideLogPanel?: boolean;
-  showStructureControls?: boolean;
-  showMeasurements?: boolean;
-  showExport?: boolean;
-  backgroundColor?: string;
-  enableValidation?: boolean;
+  layoutIsExpanded?: boolean;
+  layoutShowControls?: boolean;
+  layoutShowRemoteState?: boolean;
+  layoutShowSequence?: boolean;
+  layoutShowLog?: boolean;
+  layoutShowLeftPanel?: boolean;
+  viewportShowExpand?: boolean;
+  viewportShowSelectionMode?: boolean;
+  viewportShowAnimation?: boolean;
+  pdbProvider?: string;
+  emdbProvider?: string;
 }
-export interface MolstarEvents {
-  onStructureLoaded?: (structure: PDBStructure) => void;
-  onSelectionChanged?: (selection: SelectionTarget[]) => void;
-  onError?: (error: string) => void;
-  onReady?: (plugin: PluginUIContext) => void;
+// Selection and highlighting
+export type { ResidueRange } from "./sequence";
+
+export interface HighlightOptions {
+  color?: string;
+  clearExisting?: boolean;
 }
 
-export interface MolstarViewerProps extends MolstarEvents {
-  pdbId?: string;
-  className?: string;
-  config?: MolstarConfig;
-  loadOptions?: Omit<LoadStructureOptions, "id">;
+export type MolstarErrorType =
+  | "INITIALIZATION_ERROR"
+  | "LOADING_ERROR"
+  | "OPERATION_ERROR"
+  | "SELECTION_ERROR"
+  | "NETWORK_ERROR";
+
+export interface MolstarError extends Error {
+  type: MolstarErrorType;
+  code?: string;
+  details?: Record<string, unknown>;
+}
+
+export interface OperationResult<T = void> {
+  success: boolean;
+  data?: T;
+  error?: MolstarError;
+}
+
+export interface AsyncOperation {
+  id: string;
+  type: string;
+  status: "pending" | "running" | "completed" | "failed";
+  progress?: number;
+  error?: MolstarError;
+}
+
+export interface MolstarState {
+  isInitialized: boolean;
+  isLoading: boolean;
+  currentPdbId?: string;
+  loadedStructures: string[];
+  currentRepresentation: RepresentationType;
+  hiddenChains: Set<string>;
+  hiddenComponents: Set<ComponentType>;
+  activeOperations: AsyncOperation[];
+}
+
+export type MolstarEventType =
+  | "initialized"
+  | "structure-loaded"
+  | "structure-failed"
+  | "representation-changed"
+  | "selection-changed"
+  | "operation-started"
+  | "operation-completed"
+  | "operation-failed";
+
+export interface MolstarEvent<T = unknown> {
+  type: MolstarEventType;
+  timestamp: number;
+  data?: T;
+}
+
+export type MolstarEventCallback<T = unknown> = (
+  event: MolstarEvent<T>,
+) => void;
+
+export interface MolstarCallbacks {
+  onInitialized?: MolstarEventCallback;
+  onStructureLoaded?: MolstarEventCallback<{ pdbId: string }>;
+  onStructureFailed?: MolstarEventCallback<{
+    pdbId: string;
+    error: MolstarError;
+  }>;
+  onRepresentationChanged?: MolstarEventCallback<{
+    representation: RepresentationType;
+  }>;
+  onSelectionChanged?: MolstarEventCallback<{ selection: ResidueRange[] }>;
+  onOperationStarted?: MolstarEventCallback<AsyncOperation>;
+  onOperationCompleted?: MolstarEventCallback<AsyncOperation>;
+  onOperationFailed?: MolstarEventCallback<AsyncOperation>;
 }

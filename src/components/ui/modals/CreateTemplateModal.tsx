@@ -124,8 +124,8 @@ export default function CreateTemplateModal({
                   <div className="font-medium mb-1">Pro tip</div>
                   <div>
                     Templates are perfect for frequently used prompts,
-                    instructions, or conversation starters. They'll be inserted
-                    directly into your chat input when selected.
+                    instructions, or conversation starters. They&apos;ll be
+                    inserted directly into your chat input when selected.
                   </div>
                 </div>
               </div>

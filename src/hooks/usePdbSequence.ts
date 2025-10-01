@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { getPDBSequenceData } from "@/lib/pdb-sequence-api";
-import type { SequenceData } from "@/components/sequence-interface/types";
+import { getPDBSequenceData } from "@/lib/pdbSequenceApi";
+import type { SequenceData } from "@/types/sequence";
 
 interface UsePDBSequenceState {
   data: SequenceData | null;
@@ -61,9 +61,9 @@ export function usePDBSequence(
     };
   }, [pdbId, onDataLoaded, onError]);
 
-  const refetch = () => {
+  const refetch = async () => {
     if (pdbId) {
-      const { sequenceCache } = require("@/lib/pdb-sequence-api");
+      const { sequenceCache } = await import("@/lib/pdbSequenceApi");
       if (sequenceCache?.delete) {
         sequenceCache.delete(pdbId.toUpperCase());
       }
