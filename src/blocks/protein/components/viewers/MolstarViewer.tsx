@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useRef, useEffect, useState } from "react";
-import { molstarWrapper } from "@/lib/molstar/molstarWrapper";
+import { molstarWrapper } from "@/lib/molstar/MolstarWrapper";
 import { Script } from "molstar/lib/mol-script/script";
 import { StructureSelection } from "molstar/lib/mol-model/structure";
 

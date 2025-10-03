@@ -35,3 +35,6 @@ export {
 
 // Representation types
 export type { RepresentationType } from "@/types/molstar";
+
+// Main wrapper class
+export { molstarWrapper } from "./MolstarWrapper";
